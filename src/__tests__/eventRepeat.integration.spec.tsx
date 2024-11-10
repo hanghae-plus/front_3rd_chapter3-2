@@ -5,7 +5,9 @@ import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import React from 'react';
 
+import { setupMockHandler } from '../__mocks__/handlersUtils';
 import { EventManageForm } from '../components/eventManageView/EventManageForm';
+import { Event } from '../types';
 
 interface ProviderProps {
   initialValues: [atom: any, value: any][];
@@ -112,6 +114,138 @@ it('반복 유형 선택 시 매일/매주/매월/매년 옵션이 모두 표시
   });
 });
 
-it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된다.', () => {});
+it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된다.', async () => {
+  const initEvents: Event[] = [
+    {
+      id: '1',
+      title: '팀 회의',
+      date: '2024-11-03',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '팀 회의',
+      location: '회의실',
+      category: '업무',
+      repeat: {
+        id: '1',
+        type: 'daily',
+        interval: 1,
+        endDate: '2024-11-05',
+      },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '팀 회의',
+      date: '2024-11-04',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '팀 회의',
+      location: '회의실',
+      category: '업무',
+      repeat: {
+        id: '2',
+        type: 'daily',
+        interval: 1,
+        endDate: '2024-11-05',
+      },
+      notificationTime: 10,
+    },
+    {
+      id: '3',
+      title: '팀 회의',
+      date: '2024-11-05',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '팀 회의',
+      location: '회의실',
+      category: '업무',
+      repeat: {
+        id: '3',
+        type: 'daily',
+        interval: 1,
+        endDate: '2024-11-05',
+      },
+      notificationTime: 10,
+    },
+  ];
 
-it('반복 일정을 삭제하면 해당 일정만 삭제된다.', () => {});
+  setupMockHandler(initEvents);
+  renderEventManageForm();
+
+  const eventList = await screen.findByTestId('event-list');
+
+  const editButton = await within(eventList).findAllByRole('button', { name: 'Edit event' });
+  await userEvent.click(editButton[0]);
+
+  await userEvent.clear(screen.getByLabelText(/제목/));
+  await userEvent.type(screen.getByLabelText(/제목/), '팀 회의 수정');
+  await userEvent.click(screen.getByRole('button', { name: /일정 수정/ }));
+
+  expect(screen.getAllByText('캘린더 반복 일정')).toHaveLength(2);
+});
+
+it('반복 일정을 삭제하면 해당 일정만 삭제된다.', async () => {
+  const initEvents: Event[] = [
+    {
+      id: '1',
+      title: '팀 회의',
+      date: '2024-11-03',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '팀 회의',
+      location: '회의실',
+      category: '업무',
+      repeat: {
+        id: '1',
+        type: 'daily',
+        interval: 1,
+        endDate: '2024-11-05',
+      },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '팀 회의',
+      date: '2024-11-04',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '팀 회의',
+      location: '회의실',
+      category: '업무',
+      repeat: {
+        id: '2',
+        type: 'daily',
+        interval: 1,
+        endDate: '2024-11-05',
+      },
+      notificationTime: 10,
+    },
+    {
+      id: '3',
+      title: '팀 회의',
+      date: '2024-11-05',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '팀 회의',
+      location: '회의실',
+      category: '업무',
+      repeat: {
+        id: '3',
+        type: 'daily',
+        interval: 1,
+        endDate: '2024-11-05',
+      },
+      notificationTime: 10,
+    },
+  ];
+
+  setupMockHandler(initEvents);
+  renderEventManageForm();
+
+  const eventList = await screen.findByTestId('event-list');
+
+  const deleteButton = await within(eventList).findAllByRole('button', { name: 'Delete event' });
+  await userEvent.click(deleteButton[0]);
+
+  expect(within(eventList).getAllByText('팀 회의')).toHaveLength(2);
+});
