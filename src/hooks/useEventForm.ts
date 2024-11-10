@@ -25,6 +25,7 @@ export const useEventForm = (initialEvent?: Event) => {
     startTimeError: null,
     endTimeError: null,
   });
+  const [repeatIntervalError, setRepeatIntervalError] = useState<string | null>();
 
   const handleStartTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newStartTime = e.target.value;
@@ -36,6 +37,16 @@ export const useEventForm = (initialEvent?: Event) => {
     const newEndTime = e.target.value;
     setEndTime(newEndTime);
     setTimeError(getTimeErrorMessage(startTime, newEndTime));
+  };
+
+  const handleRepeatIntervalChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const newRepeatInterval = Number(e.target.value);
+    setRepeatInterval(newRepeatInterval);
+    if (newRepeatInterval < 1 || !Number.isInteger(newRepeatInterval)) {
+      setRepeatIntervalError('반복 간격은 1 이상의 정수여야 합니다.');
+      return;
+    }
+    setRepeatIntervalError(null);
   };
 
   const resetForm = () => {
@@ -96,10 +107,12 @@ export const useEventForm = (initialEvent?: Event) => {
     setNotificationTime,
     startTimeError,
     endTimeError,
+    repeatIntervalError,
     editingEvent,
     setEditingEvent,
     handleStartTimeChange,
     handleEndTimeChange,
+    handleRepeatIntervalChange,
     resetForm,
     editEvent,
   };
