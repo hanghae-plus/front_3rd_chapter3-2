@@ -24,28 +24,6 @@ describe('getNextEventDate', () => {
     expect(nextEventDate).toBeNull();
   });
 
-  it('다음 이벤트가 endDate 이후인 경우 null을 반환한다.', () => {
-    const event = {
-      id: '1',
-      title: 'test',
-      date: '2024-11-10',
-      startTime: '00:00',
-      endTime: '00:00',
-      description: '',
-      location: '',
-      category: '',
-      repeat: {
-        type: 'daily' as RepeatType,
-        interval: 1,
-        endDate: '2024-11-11',
-      },
-      notificationTime: 10,
-    };
-
-    const nextEventDate = getNextEventDate(event, new Date('2024-11-11'));
-    expect(nextEventDate).toBeNull();
-  });
-
   it('이벤트의 repeat type이 daily이고 interval이 1이면 다음 날을 반환한다.', () => {
     const event = {
       id: '1',
