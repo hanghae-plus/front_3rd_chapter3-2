@@ -108,3 +108,81 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+/**
+ * 주어진 날짜와 반복 유형에 따라 다음 반복 날짜를 계산합니다.
+ * @param currentDate - 현재 날짜를 'YYYY-MM-DD' 형식의 문자열로 입력
+ * @param repeatType - 반복 유형 ('daily', 'weekly', 'monthly', 'yearly')
+ * @returns 다음 반복 날짜를 'YYYY-MM-DD' 형식의 문자열로 반환
+ */
+export function calculateNextDate(
+  currentDate: string,
+  repeatType: 'daily' | 'weekly' | 'monthly' | 'yearly'
+): string {
+  // 현재 날짜 문자열을 연, 월, 일로 분리
+  const [yearStr, monthStr, dayStr] = currentDate.split('-');
+  let year = parseInt(yearStr, 10);
+  let month = parseInt(monthStr, 10) - 1; // JavaScript Date 객체는 0부터 시작
+  let day = parseInt(dayStr, 10);
+
+  // Date 객체 생성
+  let date = new Date(year, month, day);
+
+  switch (repeatType) {
+    case 'daily':
+      // 하루 추가
+      date.setDate(date.getDate() + 1);
+      break;
+
+    case 'weekly':
+      // 일주일 추가
+      date.setDate(date.getDate() + 7);
+      break;
+
+    case 'monthly':
+      {
+        // 현재 날짜를 유지
+        const currentDay = date.getDate();
+        // 다음 달의 일수 확인
+        const daysInNextMonth = getDaysInMonth(date.getFullYear(), date.getMonth() + 1 + 1);
+
+        // 현재 일이 다음 달에 존재하지 않으면 마지막 날로 조정
+        if (currentDay > daysInNextMonth) {
+          date.setDate(daysInNextMonth);
+        } else {
+          date.setDate(currentDay);
+        }
+        // 한 달 추가
+        date.setMonth(date.getMonth() + 1);
+      }
+      break;
+
+    case 'yearly':
+      {
+        // 현재 날짜를 유지
+        const currentMonth = date.getMonth();
+        const currentDay = date.getDate();
+        // 다음 해의 해당 월 일수 확인
+        const daysInNextYearMonth = getDaysInMonth(date.getFullYear() + 1, currentMonth + 1);
+
+        // 현재 일이 다음 해의 해당 월에 존재하지 않으면 마지막 날로 조정
+        if (currentDay > daysInNextYearMonth) {
+          date.setDate(daysInNextYearMonth);
+        } else {
+          date.setDate(currentDay);
+        }
+        // 한 해 추가
+        date.setFullYear(date.getFullYear() + 1);
+      }
+      break;
+
+    default:
+      throw new Error('유효하지 않은 반복 유형입니다.');
+  }
+  // 'YYYY-MM-DD' 형식으로 날짜를 포맷
+  return formatDate(date);
+  // const nextYear = date.getFullYear();
+  // const nextMonth = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작
+  // const nextDay = String(date.getDate()).padStart(2, '0');
+
+  // return `${nextYear}-${nextMonth}-${nextDay}`;
+}
