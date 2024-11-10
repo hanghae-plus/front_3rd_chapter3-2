@@ -1,33 +1,42 @@
 import { useInterval } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useFetchEvents } from '@hooks/events/useFetchEvents';
+import useNotificationStore, { NotificationType } from '@stores/useNotificationStore';
+import { getUpcomingEvents } from '@utils/notificationUtils';
+import { Event } from 'src/types';
 
-import { Event } from '../types';
-import { createNotificationMessage, getUpcomingEvents } from '../utils/notificationUtils';
+interface UseNotificationsResult {
+  notifications: NotificationType[];
+  notifiedEvents: Set<string>;
+  updateNotifications: (events: Event[]) => void;
+  deleteNotification: (index: number) => void;
+  reset: () => void;
+}
 
-export const useNotifications = (events: Event[]) => {
-  const [notifications, setNotifications] = useState<{ id: string; message: string }[]>([]);
-  const [notifiedEvents, setNotifiedEvents] = useState<string[]>([]);
+export const useNotifications = (): UseNotificationsResult => {
+  const { events } = useFetchEvents();
+  const notifications = useNotificationStore((state) => state.notifications);
+  const updateNotifications = useNotificationStore((state) => state.updateNotifications);
+  const dismissedNotifications = useNotificationStore((state) => state.dismissedNotifications);
+  const deleteNotification = useNotificationStore((state) => state.deleteNotifications);
+  const notifiedEvents = useNotificationStore((state) => state.notifiedEvents);
+  const reset = useNotificationStore((state) => state.reset);
 
   const checkUpcomingEvents = () => {
     const now = new Date();
-    const upcomingEvents = getUpcomingEvents(events, now, notifiedEvents);
+    const upcomingEvents = getUpcomingEvents(events, now, notifiedEvents, dismissedNotifications);
 
-    setNotifications((prev) => [
-      ...prev,
-      ...upcomingEvents.map((event) => ({
-        id: event.id,
-        message: createNotificationMessage(event),
-      })),
-    ]);
+    if (upcomingEvents.length === 0) return;
 
-    setNotifiedEvents((prev) => [...prev, ...upcomingEvents.map(({ id }) => id)]);
-  };
-
-  const removeNotification = (index: number) => {
-    setNotifications((prev) => prev.filter((_, i) => i !== index));
+    updateNotifications(upcomingEvents);
   };
 
   useInterval(checkUpcomingEvents, 1000); // 1초마다 체크
 
-  return { notifications, notifiedEvents, setNotifications, removeNotification };
+  return {
+    notifications,
+    notifiedEvents,
+    updateNotifications,
+    deleteNotification,
+    reset,
+  };
 };

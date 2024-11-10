@@ -4,7 +4,7 @@ import { Event } from '../types.ts';
  * 주어진 년도와 월의 일수를 반환합니다.
  */
 export function getDaysInMonth(year: number, month: number): number {
-  return new Date(year, month, 0).getDate();
+  return month > 12 ? 0 : new Date(year, month, 0).getDate();
 }
 
 /**
@@ -62,7 +62,7 @@ export function formatWeek(targetDate: Date) {
   thursday.setDate(targetDate.getDate() + diffToThursday);
 
   const year = thursday.getFullYear();
-  const month = thursday.getMonth() + 1;
+  const month = fillZero(thursday.getMonth() + 1);
 
   const firstDayOfMonth = new Date(thursday.getFullYear(), thursday.getMonth(), 1);
 
@@ -84,17 +84,11 @@ export function formatMonth(date: Date): string {
   return `${year}년 ${month}월`;
 }
 
-const stripTime = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-
 /**
  * 주어진 날짜가 특정 범위 내에 있는지 확인합니다.
  */
 export function isDateInRange(date: Date, rangeStart: Date, rangeEnd: Date): boolean {
-  const normalizedDate = stripTime(date);
-  const normalizedStart = stripTime(rangeStart);
-  const normalizedEnd = stripTime(rangeEnd);
-
-  return normalizedDate >= normalizedStart && normalizedDate <= normalizedEnd;
+  return date >= rangeStart && date <= rangeEnd;
 }
 
 export function fillZero(value: number, size = 2) {
@@ -107,4 +101,14 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(currentDate.getMonth() + 1),
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
+}
+
+/**
+ * 현재 날짜에서 offset 일수만큼 전/후 날짜를 반환하는 함수
+ * @param daysOffset - 양수이면 이후 날짜, 음수이면 이전 날짜
+ * @returns 계산된 날짜 객체
+ */
+export function getDateWithOffset(currentDate: Date, daysOffset: number): Date {
+  currentDate.setDate(currentDate.getDate() + daysOffset);
+  return currentDate;
 }

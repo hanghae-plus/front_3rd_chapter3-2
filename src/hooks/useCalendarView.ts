@@ -1,28 +1,27 @@
-import { useEffect, useState } from 'react';
-
-import { fetchHolidays } from '../apis/fetchHolidays';
+import { fetchHolidays } from '@services/fetchHolidays';
+import useCalendarViewStore from '@stores/useCalendarViewStore';
+import { useCallback, useEffect } from 'react';
 
 export const useCalendarView = () => {
-  const [view, setView] = useState<'week' | 'month'>('month');
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [holidays, setHolidays] = useState<{ [key: string]: string }>({});
+  const view = useCalendarViewStore((state) => state.view);
+  const setView = useCalendarViewStore((state) => state.setView);
+  const setCurrentDate = useCalendarViewStore((state) => state.setCurrentDate);
+  const currentDate = useCalendarViewStore((state) => state.currentDate);
+  const holidays = useCalendarViewStore((state) => state.holidays);
+  const setHolidays = useCalendarViewStore((state) => state.setHolidays);
 
-  const navigate = (direction: 'prev' | 'next') => {
-    setCurrentDate((prevDate) => {
-      const newDate = new Date(prevDate);
-      if (view === 'week') {
-        newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
-      } else if (view === 'month') {
-        newDate.setDate(1); // 항상 1일로 설정
-        newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
-      }
-      return newDate;
-    });
-  };
+  const navigate = useCalendarViewStore((state) => state.navigate);
 
   useEffect(() => {
     setHolidays(fetchHolidays(currentDate));
-  }, [currentDate]);
+  }, [currentDate, setHolidays]);
 
-  return { view, setView, currentDate, setCurrentDate, holidays, navigate };
+  return {
+    view,
+    setView: useCallback((view: 'week' | 'month') => setView(view), [setView]),
+    currentDate,
+    setCurrentDate: useCallback((date: Date) => setCurrentDate(date), [setCurrentDate]),
+    holidays,
+    navigate: useCallback((direction: 'prev' | 'next') => navigate(direction), [navigate]),
+  };
 };

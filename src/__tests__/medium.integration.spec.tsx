@@ -1,326 +1,514 @@
-import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act } from '@testing-library/react';
-import { UserEvent, userEvent } from '@testing-library/user-event';
-import { http, HttpResponse } from 'msw';
-import { ReactElement } from 'react';
+import { randomUUID } from 'crypto';
+
+import { ChakraProvider, useToast, UseToastOptions } from '@chakra-ui/react';
+import { useCreateEvent } from '@hooks/events/useCreateEvent';
+import { useDeleteEvent } from '@hooks/events/useDeleteEvent';
+import { useFetchEvents } from '@hooks/events/useFetchEvents';
+import { useUpdateEvent } from '@hooks/events/useUpdateEvent';
+import useCalendarViewStore from '@stores/useCalendarViewStore';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AddSchedule } from '@templates/AddSchedule';
+import { CalendarManager } from '@templates/CalenderManager';
+import { ScheduleManager } from '@templates/ScheduleManager';
+import { screen, act, renderHook, waitFor, fireEvent, within } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
+import React from 'react';
 
 import {
-  setupMockHandlerCreation,
-  setupMockHandlerDeletion,
-  setupMockHandlerUpdating,
-} from '../__mocks__/handlersUtils';
-import App from '../App';
-import { server } from '../setupTests';
-import { Event } from '../types';
+  CALENDAR_TEST_ID,
+  EDIT_AREA_TEST_ID,
+  EVENT_LIST_TEST_ID,
+  EVENT_TEST_ID,
+  FORM_TEST_ID,
+  NOTIFICATION_TEST_ID,
+  SUBMIT_BUTTON_TEST_ID,
+} from './constants';
+import { fillEventForm } from './helpers';
+import { createTestQueryClient } from '../__mocks__/createTestQueryClient';
+import { createEvent } from '../__mocks__/Factory';
+import { checkAllEvent } from './helpers/checkAllEvent';
+import { events } from '../__mocks__/response/events.json' assert { type: 'json' };
 
-// ! Hard 여기 제공 안함
-const setup = (element: ReactElement) => {
-  const user = userEvent.setup();
+import { AlertDuplicateSchedule } from '@/components/templates/AlertDialog';
+import { Notification } from '@/components/templates/Notification';
+import DialogProvider from '@/context/DialogProvider';
+import useScheduleForm from '@/stores/useScheduleForm';
+import { Event } from '@/types';
 
-  return { ...render(<ChakraProvider>{element}</ChakraProvider>), user }; // ? Med: 왜 ChakraProvider로 감싸는지 물어보자
-};
+const MOCK_EVENTS = [...events] as const;
+const MOCK_EVENTS_COUNT = MOCK_EVENTS.length;
 
-// ! Hard 여기 제공 안함
-const saveSchedule = async (
-  user: UserEvent,
-  form: Omit<Event, 'id' | 'notificationTime' | 'repeat'>
-) => {
-  const { title, date, startTime, endTime, location, description, category } = form;
-
-  await user.click(screen.getAllByText('일정 추가')[0]);
-
-  await user.type(screen.getByLabelText('제목'), title);
-  await user.type(screen.getByLabelText('날짜'), date);
-  await user.type(screen.getByLabelText('시작 시간'), startTime);
-  await user.type(screen.getByLabelText('종료 시간'), endTime);
-  await user.type(screen.getByLabelText('설명'), description);
-  await user.type(screen.getByLabelText('위치'), location);
-  await user.selectOptions(screen.getByLabelText('카테고리'), category);
-
-  await user.click(screen.getByTestId('event-submit-button'));
-};
-
-describe('일정 CRUD 및 기본 기능', () => {
-  it('입력한 새로운 일정 정보에 맞춰 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
-    setupMockHandlerCreation();
-
-    const { user } = setup(<App />);
-
-    await saveSchedule(user, {
-      title: '새 회의',
-      date: '2024-10-15',
-      startTime: '14:00',
-      endTime: '15:00',
-      description: '프로젝트 진행 상황 논의',
-      location: '회의실 A',
-      category: '업무',
-    });
-
-    const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText('새 회의')).toBeInTheDocument();
-    expect(eventList.getByText('2024-10-15')).toBeInTheDocument();
-    expect(eventList.getByText('14:00 - 15:00')).toBeInTheDocument();
-    expect(eventList.getByText('프로젝트 진행 상황 논의')).toBeInTheDocument();
-    expect(eventList.getByText('회의실 A')).toBeInTheDocument();
-    expect(eventList.getByText('카테고리: 업무')).toBeInTheDocument();
-  });
-
-  it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
-    const { user } = setup(<App />);
-
-    setupMockHandlerUpdating();
-
-    await user.click(await screen.findByLabelText('Edit event'));
-
-    await user.clear(screen.getByLabelText('제목'));
-    await user.type(screen.getByLabelText('제목'), '수정된 회의');
-    await user.clear(screen.getByLabelText('설명'));
-    await user.type(screen.getByLabelText('설명'), '회의 내용 변경');
-
-    await user.click(screen.getByTestId('event-submit-button'));
-
-    const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText('수정된 회의')).toBeInTheDocument();
-    expect(eventList.getByText('회의 내용 변경')).toBeInTheDocument();
-  });
-
-  it('일정을 삭제하고 더 이상 조회되지 않는지 확인한다', async () => {
-    setupMockHandlerDeletion();
-
-    const { user } = setup(<App />);
-    const eventList = within(screen.getByTestId('event-list'));
-    expect(await eventList.findByText('삭제할 이벤트')).toBeInTheDocument();
-
-    // 삭제 버튼 클릭
-    const allDeleteButton = await screen.findAllByLabelText('Delete event');
-    await user.click(allDeleteButton[0]);
-
-    expect(eventList.queryByText('삭제할 이벤트')).not.toBeInTheDocument();
-  });
+let toastCalls: any[] = [];
+// toast mock
+vi.mock('@chakra-ui/react', async () => {
+  const actual = await vi.importActual<typeof import('@chakra-ui/react')>('@chakra-ui/react');
+  return {
+    ...actual,
+    useToast: vi.fn().mockImplementation(() => (options: UseToastOptions) => {
+      toastCalls.push(options);
+    }),
+  };
 });
 
-describe('일정 뷰', () => {
-  it('주별 뷰를 선택 후 해당 주에 일정이 없으면, 일정이 표시되지 않는다.', async () => {
-    // ! 현재 시스템 시간 2024-10-01
-    const { user } = setup(<App />);
-
-    await user.selectOptions(screen.getByLabelText('view'), 'week');
-
-    // ! 일정 로딩 완료 후 테스트
-    await screen.findByText('일정 로딩 완료!');
-
-    const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText('검색 결과가 없습니다.')).toBeInTheDocument();
-  });
-
-  it('주별 뷰 선택 후 해당 일자에 일정이 존재한다면 해당 일정이 정확히 표시된다', async () => {
-    setupMockHandlerCreation();
-
-    const { user } = setup(<App />);
-    await saveSchedule(user, {
-      title: '이번주 팀 회의',
-      date: '2024-10-02',
-      startTime: '09:00',
-      endTime: '10:00',
-      description: '이번주 팀 회의입니다.',
-      location: '회의실 A',
-      category: '업무',
-    });
-
-    await user.selectOptions(screen.getByLabelText('view'), 'week');
-
-    const weekView = within(screen.getByTestId('week-view'));
-    expect(weekView.getByText('이번주 팀 회의')).toBeInTheDocument();
-  });
-
-  it('월별 뷰에 일정이 없으면, 일정이 표시되지 않아야 한다.', async () => {
-    vi.setSystemTime(new Date('2024-01-01'));
-
-    setup(<App />);
-
-    // ! 일정 로딩 완료 후 테스트
-    await screen.findByText('일정 로딩 완료!');
-
-    const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText('검색 결과가 없습니다.')).toBeInTheDocument();
-  });
-
-  it('월별 뷰에 일정이 정확히 표시되는지 확인한다', async () => {
-    setupMockHandlerCreation();
-
-    const { user } = setup(<App />);
-    await saveSchedule(user, {
-      title: '이번달 팀 회의',
-      date: '2024-10-02',
-      startTime: '09:00',
-      endTime: '10:00',
-      description: '이번달 팀 회의입니다.',
-      location: '회의실 A',
-      category: '업무',
-    });
-
-    const monthView = within(screen.getByTestId('month-view'));
-    expect(monthView.getByText('이번달 팀 회의')).toBeInTheDocument();
-  });
-
-  it('달력에 1월 1일(신정)이 공휴일로 표시되는지 확인한다', async () => {
-    vi.setSystemTime(new Date('2024-01-01'));
-    setup(<App />);
-
-    const monthView = screen.getByTestId('month-view');
-
-    // 1월 1일 셀 확인
-    const januaryFirstCell = within(monthView).getByText('1').closest('td')!;
-    expect(within(januaryFirstCell).getByText('신정')).toBeInTheDocument();
-  });
-});
-
-describe('검색 기능', () => {
-  beforeEach(() => {
-    server.use(
-      http.get('/api/events', () => {
-        return HttpResponse.json({
-          events: [
-            {
-              id: 1,
-              title: '팀 회의',
-              date: '2024-10-15',
-              startTime: '09:00',
-              endTime: '10:00',
-              description: '주간 팀 미팅',
-              location: '회의실 A',
-              category: '업무',
-              repeat: { type: 'none', interval: 0 },
-              notificationTime: 10,
-            },
-            {
-              id: 2,
-              title: '프로젝트 계획',
-              date: '2024-10-16',
-              startTime: '14:00',
-              endTime: '15:00',
-              description: '새 프로젝트 계획 수립',
-              location: '회의실 B',
-              category: '업무',
-              repeat: { type: 'none', interval: 0 },
-              notificationTime: 10,
-            },
-          ],
-        });
-      })
+const createWrapper =
+  (queryClient: QueryClient) =>
+  ({ children }: { children: React.ReactNode }) => {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <ChakraProvider>
+          <DialogProvider>
+            <ScheduleManager />
+            <AddSchedule />
+            <CalendarManager />
+            <AlertDuplicateSchedule />
+            <Notification />
+            {children}
+          </DialogProvider>
+        </ChakraProvider>
+      </QueryClientProvider>
     );
-  });
+  };
+let queryEvent: {
+  current: {
+    fetchEvents: ReturnType<typeof useFetchEvents>;
+    updateEvent: ReturnType<typeof useUpdateEvent>;
+    createEvent: ReturnType<typeof useCreateEvent>;
+    deleteEvent: ReturnType<typeof useDeleteEvent>;
+  };
+};
 
-  afterEach(() => {
-    server.resetHandlers();
-  });
+describe('-', () => {
+  const toast = useToast();
+  const queryClient = createTestQueryClient(toast);
+  const wrapper = createWrapper(queryClient);
 
-  it('검색 결과가 없으면, "검색 결과가 없습니다."가 표시되어야 한다.', async () => {
-    const { user } = setup(<App />);
-
-    const searchInput = screen.getByPlaceholderText('검색어를 입력하세요');
-    await user.type(searchInput, '존재하지 않는 일정');
-
-    const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText('검색 결과가 없습니다.')).toBeInTheDocument();
-  });
-
-  it("'팀 회의'를 검색하면 해당 제목을 가진 일정이 리스트에 노출된다", async () => {
-    const { user } = setup(<App />);
-
-    const searchInput = screen.getByPlaceholderText('검색어를 입력하세요');
-    await user.type(searchInput, '팀 회의');
-
-    const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText('팀 회의')).toBeInTheDocument();
-  });
-
-  it('검색어를 지우면 모든 일정이 다시 표시되어야 한다', async () => {
-    const { user } = setup(<App />);
-
-    const searchInput = screen.getByPlaceholderText('검색어를 입력하세요');
-    await user.type(searchInput, '팀 회의');
-    await user.clear(searchInput);
-
-    const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText('팀 회의')).toBeInTheDocument();
-    expect(eventList.getByText('프로젝트 계획')).toBeInTheDocument();
-  });
-});
-
-describe('일정 충돌', () => {
-  afterEach(() => {
-    server.resetHandlers();
-  });
-
-  it('겹치는 시간에 새 일정을 추가할 때 경고가 표시된다', async () => {
-    setupMockHandlerCreation([
-      {
-        id: '1',
-        title: '기존 회의',
-        date: '2024-10-15',
-        startTime: '09:00',
-        endTime: '10:00',
-        description: '기존 팀 미팅',
-        location: '회의실 B',
-        category: '업무',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 10,
-      },
-    ]);
-
-    const { user } = setup(<App />);
-
-    await saveSchedule(user, {
-      title: '새 회의',
-      date: '2024-10-15',
-      startTime: '09:30',
-      endTime: '10:30',
-      description: '설명',
-      location: '회의실 A',
-      category: '업무',
+  beforeEach(async () => {
+    // GIVEN: 각 테스트마다 초기 상태가 반영된 핸들러 설정
+    queryClient.clear();
+    useCalendarViewStore.setState({ currentDate: new Date() });
+    useScheduleForm.setState({
+      isEditing: false,
+      id: '',
+      title: '',
+      date: '',
+      startTime: '',
+      endTime: '',
+      description: '',
+      location: '',
+      category: '',
+      repeat: { type: 'none', interval: 0, endDate: '' },
+      notificationTime: 1,
     });
 
-    expect(screen.getByText('일정 겹침 경고')).toBeInTheDocument();
-    expect(screen.getByText(/다음 일정과 겹칩니다/)).toBeInTheDocument();
-    expect(screen.getByText('기존 회의 (2024-10-15 09:00-10:00)')).toBeInTheDocument();
+    // GIVEN: 초기상태 불러오기
+    queryEvent = renderHook(
+      () => ({
+        fetchEvents: useFetchEvents(),
+        createEvent: useCreateEvent(),
+        updateEvent: useUpdateEvent(),
+        deleteEvent: useDeleteEvent(),
+      }),
+      { wrapper }
+    ).result;
   });
 
-  it('기존 일정의 시간을 수정하여 충돌이 발생하면 경고가 노출된다', async () => {
-    setupMockHandlerUpdating();
+  describe('일정 CRUD 및 기본 기능', () => {
+    it('입력한 새로운 일정 정보에 맞춰 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
+      // ! HINT. event를 추가 제거하고 저장하는 로직을 잘 살펴보고, 만약 그대로 구현한다면 어떤 문제가 있을 지 고민해보세요.
+      await waitFor(() => {
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT);
+      });
 
-    const { user } = setup(<App />);
+      const NEW_EVENT = createEvent({
+        id: String(MOCK_EVENTS_COUNT + 1),
+        title: '새 이벤트',
+        date: '2024-10-01',
+        startTime: '00:00',
+        endTime: '01:00',
+        category: '개인',
+        notificationTime: 1,
+      });
 
-    const editButton = (await screen.findAllByLabelText('Edit event'))[1];
-    await user.click(editButton);
+      const EDIT_AREA = await waitFor(() => screen.getByTestId(EDIT_AREA_TEST_ID));
 
-    // 시간 수정하여 다른 일정과 충돌 발생
-    await user.clear(screen.getByLabelText('시작 시간'));
-    await user.type(screen.getByLabelText('시작 시간'), '08:30');
-    await user.clear(screen.getByLabelText('종료 시간'));
-    await user.type(screen.getByLabelText('종료 시간'), '10:30');
+      await fillEventForm({
+        container: EDIT_AREA,
+        events: [
+          { type: 'input', testId: FORM_TEST_ID.TITLE, value: NEW_EVENT.title },
+          { type: 'input', testId: FORM_TEST_ID.DATE, value: NEW_EVENT.date },
+          { type: 'input', testId: FORM_TEST_ID.START_TIME, value: NEW_EVENT.startTime },
+          { type: 'input', testId: FORM_TEST_ID.END_TIME, value: NEW_EVENT.endTime },
+          { type: 'input', testId: FORM_TEST_ID.DESCRIPTION, value: NEW_EVENT.description },
+          { type: 'input', testId: FORM_TEST_ID.LOCATION, value: NEW_EVENT.location },
+          { type: 'select', testId: FORM_TEST_ID.CATEGORY, value: NEW_EVENT.category },
+          {
+            type: 'select',
+            testId: FORM_TEST_ID.NOTIFICATION_TIME,
+            value: String(NEW_EVENT.notificationTime),
+          },
+        ],
+      });
 
-    await user.click(screen.getByTestId('event-submit-button'));
+      const SUBMIT_BUTTON = within(EDIT_AREA).getByTestId(SUBMIT_BUTTON_TEST_ID);
+      await waitFor(() => expect(SUBMIT_BUTTON).toHaveTextContent('일정 추가'));
+      await userEvent.click(SUBMIT_BUTTON);
 
-    expect(screen.getByText('일정 겹침 경고')).toBeInTheDocument();
-    expect(screen.getByText(/다음 일정과 겹칩니다/)).toBeInTheDocument();
-    expect(screen.getByText('기존 회의 (2024-10-15 09:00-10:00)')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT + 1);
+      });
+
+      expect(queryEvent.current.fetchEvents.events).toContainEqual(NEW_EVENT);
+    });
+
+    it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
+      // GIVEN: 기존 일정 가져오기
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT)
+      );
+
+      // WHEN: 일정의 첫번째 데이터 수정
+      const EDITING_EVENT_ID = queryEvent.current.fetchEvents.events[0].id;
+
+      const EVENT_EDIT_BUTTON = await waitFor(() =>
+        screen.getByTestId(`event-edit-${EDITING_EVENT_ID}`)
+      );
+
+      const EDIT_AREA = await waitFor(() => screen.getByTestId(EDIT_AREA_TEST_ID));
+
+      act(() => fireEvent.click(EVENT_EDIT_BUTTON));
+      await waitFor(() =>
+        expect(within(EDIT_AREA).getByTestId(SUBMIT_BUTTON_TEST_ID)).toHaveTextContent('일정 수정')
+      );
+
+      const EDITED_EVENT = createEvent({
+        id: EDITING_EVENT_ID,
+        title: '수정된 이벤트',
+        date: '2024-11-01',
+        startTime: '01:00',
+        endTime: '02:00',
+        category: '기타',
+        notificationTime: 10,
+        repeat: { type: 'daily', interval: 10, endDate: '2024-11-11' },
+      });
+      useScheduleForm.setState({ isRepeating: true });
+
+      // WHEN: 일정의 첫번째 데이터의 모든 필드 수정한다.
+      await fillEventForm({
+        container: EDIT_AREA,
+        events: [
+          { type: 'input', testId: FORM_TEST_ID.TITLE, value: EDITED_EVENT.title },
+          { type: 'input', testId: FORM_TEST_ID.DATE, value: EDITED_EVENT.date },
+          { type: 'input', testId: FORM_TEST_ID.START_TIME, value: EDITED_EVENT.startTime },
+          { type: 'input', testId: FORM_TEST_ID.END_TIME, value: EDITED_EVENT.endTime },
+          { type: 'input', testId: FORM_TEST_ID.DESCRIPTION, value: EDITED_EVENT.description },
+          { type: 'input', testId: FORM_TEST_ID.LOCATION, value: EDITED_EVENT.location },
+          { type: 'check', testId: FORM_TEST_ID.REPEAT_SET, value: true },
+          { type: 'select', testId: FORM_TEST_ID.REPEAT_TYPE, value: EDITED_EVENT.repeat.type },
+          {
+            type: 'input',
+            testId: FORM_TEST_ID.REPEAT_END_DATE,
+            value: EDITED_EVENT.repeat.endDate!,
+          },
+          {
+            type: 'input',
+            testId: FORM_TEST_ID.INTERVAL,
+            value: String(EDITED_EVENT.repeat.interval),
+          },
+          { type: 'select', testId: FORM_TEST_ID.CATEGORY, value: EDITED_EVENT.category },
+          {
+            type: 'select',
+            testId: FORM_TEST_ID.NOTIFICATION_TIME,
+            value: String(EDITED_EVENT.notificationTime),
+          },
+        ],
+      });
+
+      const SUBMIT_BUTTON = within(EDIT_AREA).getByTestId(SUBMIT_BUTTON_TEST_ID);
+      await userEvent.click(SUBMIT_BUTTON);
+
+      // THEN: 일정의 첫번째 데이터의 모든 필드가 새 데이터로 업데이트 되어야 한다.
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).toContainEqual(EDITED_EVENT)
+      );
+    });
+
+    it('일정을 삭제하고 더 이상 조회되지 않는지 확인한다', async () => {
+      // GIVEN: 기존 일정 가져오기
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT)
+      );
+
+      //GIVEN: 내용이 겹치지 않는 이벤트 생성
+      const NEW_EVENT = createEvent({
+        title: randomUUID(),
+        date: '2024-10-01',
+        startTime: '00:00',
+        endTime: '01:00',
+        category: '개인',
+        notificationTime: 1,
+      }) as Event;
+      const EDIT_AREA = await waitFor(() => screen.getByTestId(EDIT_AREA_TEST_ID));
+
+      await fillEventForm({
+        container: EDIT_AREA,
+        events: [
+          { type: 'input', testId: FORM_TEST_ID.TITLE, value: NEW_EVENT.title },
+          { type: 'input', testId: FORM_TEST_ID.DATE, value: NEW_EVENT.date },
+          { type: 'input', testId: FORM_TEST_ID.START_TIME, value: NEW_EVENT.startTime },
+          { type: 'input', testId: FORM_TEST_ID.END_TIME, value: NEW_EVENT.endTime },
+          { type: 'input', testId: FORM_TEST_ID.DESCRIPTION, value: NEW_EVENT.description },
+          { type: 'input', testId: FORM_TEST_ID.LOCATION, value: NEW_EVENT.location },
+          { type: 'select', testId: FORM_TEST_ID.CATEGORY, value: NEW_EVENT.category },
+          {
+            type: 'select',
+            testId: FORM_TEST_ID.NOTIFICATION_TIME,
+            value: String(NEW_EVENT.notificationTime),
+          },
+        ],
+      });
+
+      const SUBMIT_BUTTON = within(EDIT_AREA).getByTestId(SUBMIT_BUTTON_TEST_ID);
+      await waitFor(() => expect(SUBMIT_BUTTON).toHaveTextContent('일정 추가'));
+      await userEvent.click(SUBMIT_BUTTON);
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT + 1)
+      );
+
+      // WHEN: 내용이 겹치지 않는 이벤트 삭제할 때
+      const EVENT_AREA = await waitFor(() => screen.findByTestId(EVENT_LIST_TEST_ID));
+
+      const DELETE_EVENT_TEST_ID = `event-delete-${MOCK_EVENTS_COUNT + 1}`;
+      const deleteButton = await waitFor(() =>
+        within(EVENT_AREA).getByTestId(DELETE_EVENT_TEST_ID)
+      );
+      act(() => fireEvent.click(deleteButton));
+
+      // THEN: 삭제된 일정은 조회되지 않는다.
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).not.toContainEqual(NEW_EVENT)
+      );
+
+      expect(within(EVENT_AREA).queryByText(NEW_EVENT.title)).not.toBeInTheDocument();
+    });
   });
-});
 
-it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트가 노출된다', async () => {
-  vi.setSystemTime(new Date('2024-10-15 08:49:59'));
+  describe('일정 뷰', () => {
+    it('주별 뷰를 선택 후 해당 주에 일정이 없으면, 일정이 표시되지 않는다.', async () => {
+      // GIVEN: 기존 일정 가져오기
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT)
+      );
 
-  setup(<App />);
+      // WHEN: 저번 달로 이동
+      const prevBtn = await waitFor(() => screen.getByTestId(CALENDAR_TEST_ID.PREV));
+      act(() => fireEvent.click(prevBtn));
 
-  // ! 일정 로딩 완료 후 테스트
-  await screen.findByText('일정 로딩 완료!');
+      // WHEN: 주별 뷰로 전환
+      const viewBtn = await waitFor(() => screen.getByTestId(CALENDAR_TEST_ID.VIEW));
+      act(() => fireEvent.change(viewBtn, { target: { value: 'week' } }));
 
-  expect(screen.queryByText('10분 후 기존 회의 일정이 시작됩니다.')).not.toBeInTheDocument();
+      // THEN: 9월 주 일정이 없으니 일정이 표시되지 않아야 한다.
+      expect(screen.queryByText('검색 결과가 없습니다.')).toBeInTheDocument();
+    });
 
-  act(() => {
-    vi.advanceTimersByTime(1000);
+    it('주별 뷰 선택 후 해당 일자에 일정이 존재한다면 해당 일정이 정확히 표시된다', async () => {
+      // GIVEN: 기존 일정 가져오기
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT)
+      );
+
+      // WHEN: 주 별로 전환
+      const viewBtn = await screen.findByTestId('calendar-view-button');
+      act(() => {
+        fireEvent.change(viewBtn, { target: { value: 'week' } });
+      });
+
+      // THEN: 일정과 달력에 이벤트가 표기되어 있어야 한다.
+      const scheduleList = await waitFor(() => screen.findByTestId('event-list'));
+
+      expect(within(scheduleList).getByText('점심 약속')).toBeInTheDocument();
+      expect(within(scheduleList).getByText('식당 A')).toBeInTheDocument();
+      expect(within(scheduleList).getByText('카테고리: 개인')).toBeInTheDocument();
+      expect(within(scheduleList).getByText('19:00 - 22:00')).toBeInTheDocument();
+      expect(within(scheduleList).getByText('2024-10-01')).toBeInTheDocument();
+
+      const calender = await waitFor(() => screen.findByTestId('calender'));
+      expect(within(calender).getByText('점심 약속')).toBeInTheDocument();
+    });
+
+    it('월별 뷰에 일정이 없으면, 일정이 표시되지 않아야 한다.', async () => {
+      // GIVEN: 기존 일정 가져오기
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT)
+      );
+      // 월별 뷰로 전환
+      const viewBtn = await screen.findByTestId('calendar-view-button');
+      act(() => {
+        fireEvent.change(viewBtn, { target: { value: 'month' } });
+      });
+      // 저번 달로 이동 (9월)
+      const prevBtn = await waitFor(() => screen.getByTestId('calendar-prev-btn'));
+      act(() => fireEvent.click(prevBtn));
+
+      // THEN: 일정이 표시되지 않아야 한다.
+      const scheduleList = await waitFor(() => screen.findByTestId('event-list'));
+      expect(within(scheduleList).getByText('검색 결과가 없습니다.')).toBeInTheDocument();
+    });
+
+    it('월별 뷰에 일정이 정확히 표시되는지 확인한다', async () => {
+      // GIVEN: 기존 일정 가져오기
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT)
+      );
+      // 월별 뷰로 전환
+      const viewBtn = await screen.findByTestId('calendar-view-button');
+      act(() => {
+        fireEvent.change(viewBtn, { target: { value: 'month' } });
+      });
+
+      // THEN: 모든 일정이 표시되어야 한다.
+      await checkAllEvent();
+    });
+
+    it('달력에 1월 1일(신정)이 공휴일로 표시되는지 확인한다', async () => {
+      // GIVEN: 기존 일정 가져오기
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT)
+      );
+
+      const prevBtn = await waitFor(() => screen.getByTestId(CALENDAR_TEST_ID.PREV));
+      let month = 10;
+      while (month !== 1) {
+        month -= 1;
+        act(() => fireEvent.click(prevBtn));
+      }
+      expect(screen.getByText(/1월/)).toBeInTheDocument();
+      const calender = await waitFor(() => screen.findByTestId('calender'));
+      expect(within(calender).getByText('신정')).toBeInTheDocument();
+    });
   });
 
-  expect(screen.getByText('10분 후 기존 회의 일정이 시작됩니다.')).toBeInTheDocument();
+  describe('검색 기능', () => {
+    it('검색 결과가 없으면, "검색 결과가 없습니다."가 표시되어야 한다.', async () => {
+      const searchInput = await waitFor(() => screen.findByTestId(EVENT_TEST_ID.SEARCH));
+      act(() => fireEvent.change(searchInput, { target: { value: '검색 결과가 없는 검색어' } }));
+
+      const eventList = await waitFor(() => screen.getByTestId('event-list'));
+      expect(within(eventList).getByText('검색 결과가 없습니다.')).toBeInTheDocument();
+    });
+
+    it("'팀 회의'를 검색하면 해당 제목을 가진 일정이 리스트에 노출된다", async () => {
+      const searchInput = await waitFor(() => screen.findByTestId(EVENT_TEST_ID.SEARCH));
+      act(() => fireEvent.change(searchInput, { target: { value: '팀 회의' } }));
+
+      const scheduleList = await waitFor(() => screen.findByTestId('event-list'));
+
+      expect(within(scheduleList).getByText('팀 회의')).toBeInTheDocument();
+      expect(within(scheduleList).getByText('회의실 D')).toBeInTheDocument();
+      expect(within(scheduleList).getByText('카테고리: 업무')).toBeInTheDocument();
+      expect(within(scheduleList).getByText('14:00 - 15:00')).toBeInTheDocument();
+      expect(within(scheduleList).getByText('2024-10-24')).toBeInTheDocument();
+    });
+
+    it('검색어를 지우면 모든 일정이 다시 표시되어야 한다', async () => {
+      const searchInput = await waitFor(() => screen.findByTestId('search-schedule'));
+      act(() => fireEvent.change(searchInput, { target: { value: '' } }));
+
+      // THEN: 모든 일정이 표시되어야 한다.
+      await checkAllEvent();
+    });
+  });
+
+  describe('일정 충돌', () => {
+    it('겹치는 시간에 새 일정을 추가할 때 경고가 표시된다', async () => {
+      // GIVEN: 기존 일정 가져오기
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT)
+      );
+
+      const events = queryEvent.current.fetchEvents.events;
+      const NEW_EVENT = createEvent({
+        id: String(events.length + 1),
+        date: events[0].date,
+        startTime: events[0].startTime,
+        endTime: events[0].endTime,
+      });
+
+      const EDIT_AREA = await waitFor(() => screen.getByTestId(EDIT_AREA_TEST_ID));
+
+      await fillEventForm({
+        container: EDIT_AREA,
+        events: [
+          { type: 'input', testId: FORM_TEST_ID.TITLE, value: NEW_EVENT.title },
+          { type: 'input', testId: FORM_TEST_ID.DATE, value: NEW_EVENT.date },
+          { type: 'input', testId: FORM_TEST_ID.START_TIME, value: NEW_EVENT.startTime },
+          { type: 'input', testId: FORM_TEST_ID.END_TIME, value: NEW_EVENT.endTime },
+          { type: 'input', testId: FORM_TEST_ID.DESCRIPTION, value: NEW_EVENT.description },
+          { type: 'input', testId: FORM_TEST_ID.LOCATION, value: NEW_EVENT.location },
+          { type: 'select', testId: FORM_TEST_ID.CATEGORY, value: NEW_EVENT.category },
+          {
+            type: 'select',
+            testId: FORM_TEST_ID.NOTIFICATION_TIME,
+            value: String(NEW_EVENT.notificationTime),
+          },
+        ],
+      });
+
+      const SUBMIT_BUTTON = within(EDIT_AREA).getByTestId('event-submit-button');
+      await waitFor(() => expect(SUBMIT_BUTTON).toHaveTextContent('일정 추가'));
+      await userEvent.click(SUBMIT_BUTTON);
+
+      await waitFor(() => expect(screen.getByText('일정 겹침 경고')).toBeInTheDocument());
+    });
+
+    it('기존 일정의 시간을 수정하여 충돌이 발생하면 경고가 노출된다', async () => {
+      // GIVEN: 기존 일정 가져오기
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT)
+      );
+
+      const events = queryEvent.current.fetchEvents.events;
+
+      const OTHER_EVENT = createEvent({
+        date: events[3].date,
+        startTime: events[3].startTime,
+        endTime: events[3].endTime,
+      }) as Event;
+
+      const scheduleList = await waitFor(() => screen.findByTestId('event-list'));
+      const editButton = await waitFor(() =>
+        within(scheduleList).getByTestId(`event-edit-${events[0].id}`)
+      );
+      await userEvent.click(editButton);
+
+      // WHEN: 다른 이벤트와 일정이 겹치게 세팅
+      const EDIT_AREA = await waitFor(() => screen.getByTestId(EDIT_AREA_TEST_ID));
+      await fillEventForm({
+        container: EDIT_AREA,
+        events: [
+          { type: 'input', testId: FORM_TEST_ID.DATE, value: OTHER_EVENT.date },
+          { type: 'input', testId: FORM_TEST_ID.START_TIME, value: OTHER_EVENT.startTime },
+          { type: 'input', testId: FORM_TEST_ID.END_TIME, value: OTHER_EVENT.endTime },
+        ],
+      });
+      const SUBMIT_BUTTON = within(EDIT_AREA).getByTestId('event-submit-button');
+      await waitFor(() => expect(SUBMIT_BUTTON).toHaveTextContent('일정 수정'));
+      await userEvent.click(SUBMIT_BUTTON);
+
+      await waitFor(() => expect(screen.getByText('일정 겹침 경고')).toBeInTheDocument());
+    });
+
+    it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트가 노출된다', async () => {
+      // GIVEN: 기존 일정 가져오기
+      await waitFor(() =>
+        expect(queryEvent.current.fetchEvents.events).toHaveLength(MOCK_EVENTS_COUNT)
+      );
+
+      // WHEN: 알림 충족하는 시간이 되었을 때
+      vi.advanceTimersByTime(1000 * 60 * 60 * 18 + 1000 * 60 * 50);
+
+      const ALERT = await waitFor(() => screen.getByTestId(NOTIFICATION_TEST_ID.ALERT));
+      expect(within(ALERT).getByText('10분 후 점심 약속 일정이 시작됩니다.')).toBeInTheDocument();
+    });
+  });
 });
