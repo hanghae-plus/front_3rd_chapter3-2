@@ -3,6 +3,7 @@ import { render, screen, within, act, fireEvent } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
+import { Mock } from 'vitest';
 
 import {
   setupMockHandlerCreation,
@@ -10,6 +11,7 @@ import {
   setupMockHandlerUpdating,
 } from '../__mocks__/handlersUtils';
 import App from '../App';
+import { useEventForm } from '../hooks/useEventForm';
 import { server } from '../setupTests';
 import { Event } from '../types';
 
@@ -39,6 +41,7 @@ const saveSchedule = async (
 
   await user.click(screen.getByTestId('event-submit-button'));
 };
+
 // 1. 반복 유형 선택
 describe('반복 유형 선택', () => {
   it('반복 유형 옵션이 올바르게 렌더링되어야 한다', () => {
@@ -68,5 +71,29 @@ describe('반복 유형 선택', () => {
 
     expect(defaultOption.selected).toBeFalsy();
     expect(selectedOption.selected).toBeTruthy();
+  });
+
+  // 2. 반복 간격 설정
+  describe('반복 간격 설정', () => {
+    it('각 반복 유형에 대해 올바른 간격을 설정할 수 있어야 한다', async () => {
+      const { user } = setup(<App />);
+      const repeatCheckbox = screen.getByLabelText('반복 일정');
+      user.click(repeatCheckbox);
+
+      const repeatIntervalInput = screen.getByLabelText('반복 간격');
+      await user.type(repeatIntervalInput, '3');
+
+      expect(repeatIntervalInput).toHaveValue(3);
+    });
+
+    it('간격 입력이 정수가 아니면 에러를 표시해야 한다', async () => {
+      const { user } = setup(<App />);
+      const repeatCheckbox = screen.getByLabelText('반복 일정');
+      user.click(repeatCheckbox);
+
+      const repeatIntervalInput = screen.getByLabelText('반복 간격');
+      await user.type(repeatIntervalInput, '1.5');
+      expect(screen.getByText('반복 간격은 1 이상의 정수여야 합니다.')).toBeInTheDocument();
+    });
   });
 });
