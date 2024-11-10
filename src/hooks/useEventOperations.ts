@@ -36,11 +36,21 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
           body: JSON.stringify(eventData),
         });
       } else {
+        // 반복일정이 아닐 경우
         response = await fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(eventData),
         });
+
+        // 반복일정일 경우
+        // 반복 일정 데이터 생성
+        // - 반복 유형
+        // - 반복 간격
+        // - 종료일이 있을 경우
+        //  - 종료일까지 데이터 생성
+        // - 종료일이 없을 경우
+        //  - 2050년까지 데이터 생성
       }
 
       if (!response.ok) {

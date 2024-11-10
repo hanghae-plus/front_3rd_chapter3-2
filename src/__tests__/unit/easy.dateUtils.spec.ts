@@ -1,5 +1,9 @@
 import { Event } from '../../types';
 import {
+  addDays,
+  addMonths,
+  addWeeks,
+  addYears,
   fillZero,
   formatDate,
   formatMonth,
@@ -9,7 +13,9 @@ import {
   getWeekDates,
   getWeeksAtMonth,
   isDateInRange,
+  isLeapYear,
 } from '../../utils/dateUtils';
+import { assertDate } from '../utils';
 
 describe('getDaysInMonth', () => {
   it('1월은 31일 수를 반환한다', () => {
@@ -297,4 +303,130 @@ describe('formatDate', () => {
     const testDate = new Date('2023-12-05');
     expect(formatDate(testDate)).toBe('2023-12-05');
   });
+});
+
+describe('isLeapYear', () => {
+  test.each([
+    { year: 1, expected: false, description: '1은 윤년이 아닙니다' },
+    { year: 4, expected: true, description: '4는 윤년입니다' },
+    { year: 100, expected: false, description: '100은 100으로 나누어떨어지므로 윤년이 아닙니다' },
+    { year: 400, expected: true, description: '400은 400으로 나누어떨어지므로 윤년입니다' },
+    { year: 1900, expected: false, description: '1900은 100으로 나누어떨어지므로 윤년이 아닙니다' },
+    { year: 2000, expected: true, description: '2000은 400으로 나누어떨어지므로 윤년입니다' },
+    {
+      year: 2004,
+      expected: true,
+      description: '2004는 4로 나누어떨어지고 100으로 나누어떨어지지 않으므로 윤년입니다',
+    },
+    {
+      year: 2008,
+      expected: true,
+      description: '2008은 4로 나누어떨어지고 100으로 나누어떨어지지 않으므로 윤년입니다',
+    },
+    {
+      year: 2010,
+      expected: false,
+      description: '2010은 4로 나누어떨어지지 않으므로 윤년이 아닙니다',
+    },
+    {
+      year: 2012,
+      expected: true,
+      description: '2012는 4로 나누어떨어지고 100으로 나누어떨어지지 않으므로 윤년입니다',
+    },
+    {
+      year: 2024,
+      expected: true,
+      description: '2024는 4로 나누어떨어지고 100으로 나누어떨어지지 않으므로 윤년입니다',
+    },
+  ])('$description', ({ year, expected }) => {
+    expect(isLeapYear(year)).toBe(expected);
+  });
+});
+
+describe('addDays', () => {
+  it('다음날 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-12-31');
+    const tomorrow = addDays(today, 1);
+    assertDate(tomorrow, new Date('2025-01-01'));
+  });
+
+  it('이틀 뒤 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-12-30');
+    const next = addDays(today, 2);
+    assertDate(next, new Date('2025-01-01'));
+  });
+
+  // TODO: 경계값 테스트?
+});
+
+describe('addWeeks', () => {
+  it('다음주 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-12-31');
+    const next = addWeeks(today, 1);
+    assertDate(next, new Date('2025-01-07'));
+  });
+
+  it('2주 뒤 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-12-31');
+    const next = addWeeks(today, 2);
+    assertDate(next, new Date('2025-01-14'));
+  });
+});
+
+describe('addMonths', () => {
+  it('다음달 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-01-01');
+    const next = addMonths(today, 1);
+    assertDate(next, new Date('2024-02-01'));
+  });
+
+  it('2달 뒤 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-01-01');
+    const next = addMonths(today, 2);
+    assertDate(next, new Date('2024-03-01'));
+  });
+
+  it('윤년이 아닐 경우 2월의 마지막 날인 28일을 반환한다', () => {
+    const today = new Date('2025-01-29');
+    const next = addMonths(today, 1);
+    assertDate(next, new Date('2025-02-28'));
+  });
+
+  it('다음 달에 30일이 없을 경우 다음 달의 마지막 날짜를 반환한다', () => {
+    const today = new Date('2024-01-30');
+    const next = addMonths(today, 1);
+    assertDate(next, new Date('2024-02-29'));
+  });
+
+  it('다음 달에 31일이 없을 경우 다음 달의 마지막 날짜를 반환한다', () => {
+    const today = new Date('2024-10-31');
+    const next = addMonths(today, 1);
+    assertDate(next, new Date('2024-11-30'));
+  });
+
+  // TODO: 경계값 테스트
+  // TODO: 유효하지 않은 월에 대한 처리
+});
+
+describe('addYears', () => {
+  it('다음 년도의 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-01-28');
+    const next = addYears(today, 1);
+    assertDate(next, new Date('2025-01-28'));
+  });
+
+  it('2년 뒤 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-01-28');
+    const next = addYears(today, 2);
+    assertDate(next, new Date('2026-01-28'));
+  });
+
+  it('다음 년도가 윤년이 아닐 경우, 2/28일을 반환한다', () => {
+    const today = new Date('2024-02-29');
+    const next = addYears(today, 1);
+    assertDate(next, new Date('2025-02-28'));
+  });
+
+  // TODO: 경계값 테스트
+  // TODO: 유효하지 않은 년에 대한 처리
 });
