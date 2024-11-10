@@ -23,11 +23,18 @@ const setup = (element: ReactElement) => {
 };
 
 // ! Hard 여기 제공 안함
-const saveSchedule = async (
-  user: UserEvent,
-  form: Omit<Event, 'id' | 'notificationTime' | 'repeat'>
-) => {
-  const { title, date, startTime, endTime, location, description, category } = form;
+const saveSchedule = async (user: UserEvent, form: Event) => {
+  const {
+    title,
+    date,
+    startTime,
+    endTime,
+    location,
+    description,
+    category,
+    notificationTime,
+    repeat,
+  } = form;
 
   await user.click(screen.getAllByText('일정 추가')[0]);
 
@@ -38,6 +45,9 @@ const saveSchedule = async (
   await user.type(screen.getByLabelText('설명'), description);
   await user.type(screen.getByLabelText('위치'), location);
   await user.selectOptions(screen.getByLabelText('카테고리'), category);
+  await user.selectOptions(screen.getByLabelText('반복 유형'), repeat.type);
+  await user.type(screen.getByLabelText('반복 간격'), repeat.interval.toString());
+  await user.type(screen.getByLabelText('반복 종료일'), repeat.endDate ?? '');
 
   await user.click(screen.getByTestId('event-submit-button'));
 };
@@ -95,5 +105,51 @@ describe('반복 유형 선택', () => {
       await user.type(repeatIntervalInput, '1.5');
       expect(screen.getByText('반복 간격은 1 이상의 정수여야 합니다.')).toBeInTheDocument();
     });
+  });
+});
+
+// 3. 반복 일정 표시
+describe('반복 일정 표시', () => {
+  it('반복 일정에 아이콘이 표시되어야 한다', async () => {
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({
+          events: [
+            {
+              id: 1,
+              title: '팀 회의',
+              date: '2024-10-15',
+              startTime: '09:00',
+              endTime: '10:00',
+              description: '주간 팀 미팅',
+              location: '회의실 A',
+              category: '업무',
+              repeat: { type: 'weekly', interval: 0 },
+              notificationTime: 10,
+            },
+            {
+              id: 2,
+              title: '프로젝트 계획',
+              date: '2024-10-16',
+              startTime: '14:00',
+              endTime: '15:00',
+              description: '새 프로젝트 계획 수립',
+              location: '회의실 B',
+              category: '업무',
+              repeat: { type: 'none', interval: 0 },
+              notificationTime: 10,
+            },
+          ],
+        });
+      })
+    );
+    setup(<App />);
+
+    // 렌더링 시 아이콘 확인
+    const repeatIcon = screen.getByTestId('repeat-icon-1');
+    expect(repeatIcon).toBeInTheDocument();
+
+    // 반복이 아닌 일정에는 아이콘이 없어야 함
+    expect(screen.queryByTestId('repeat-icon-2')).not.toBeInTheDocument();
   });
 });
