@@ -39,7 +39,7 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
@@ -162,7 +162,9 @@ function App() {
       setOverlappingEvents(overlapping);
       setIsOverlapDialogOpen(true);
     } else {
-      if (isRepeating && repeatType !== 'none' && repeatEndDate) {
+      if (editingEvent && editingEvent.repeat.type !== 'none' && !isRepeating) {
+        await saveEvent({ ...eventData, repeat: { type: 'none', interval: 1 } });
+      } else if (isRepeating && repeatType !== 'none' && repeatEndDate) {
         const dates = generateRecurringEvents(date, repeatInterval, repeatType, repeatEndDate);
         const recurringEvents = dates.map((eventDate) => ({
           ...eventData,
@@ -175,9 +177,18 @@ function App() {
       } else {
         await saveEvent(eventData);
       }
+
       resetForm();
     }
   };
+
+  useEffect(() => {
+    if (!isRepeating) {
+      setRepeatType('none');
+      setRepeatInterval(1);
+      setRepeatEndDate('');
+    }
+  }, [isRepeating]);
 
   const renderWeekView = () => {
     const weekDates = getWeekDates(currentDate);
@@ -215,7 +226,9 @@ function App() {
                         >
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
-                            {event.repeat.type === 'monthly' && <AtSignIcon />}
+                            {event.repeat.type !== 'none' && (
+                              <AtSignIcon aria-label="at-sign-icon" />
+                            )}
                             <Text fontSize="sm" noOfLines={1}>
                               {event.title}
                             </Text>
@@ -286,7 +299,9 @@ function App() {
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
                                   <Text fontSize="sm" noOfLines={1}>
-                                    {event.repeat.type === 'monthly' && <AtSignIcon />}
+                                    {event.repeat.type !== 'none' && (
+                                      <AtSignIcon aria-label="at-sign-icon" />
+                                    )}
                                     {event.title}
                                   </Text>
                                 </HStack>
@@ -485,7 +500,7 @@ function App() {
                         fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
                         color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
                       >
-                        {event.repeat.type === 'monthly' && <AtSignIcon />}
+                        {event.repeat.type !== 'none' && <AtSignIcon aria-label="at-sign-icon" />}
                         {event.title}
                       </Text>
                     </HStack>
