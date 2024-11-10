@@ -44,8 +44,6 @@ export const useEventForm = (initialEvent?: Event) => {
   };
 
   const handleDateChange = (date: string) => {
-    console.log(date, 'handleDateChange');
-    // const newDate = e.target.value;
     setDate(date);
 
     if (isRepeating && repeatType !== 'none') {
@@ -72,7 +70,7 @@ export const useEventForm = (initialEvent?: Event) => {
     setRepeatInterval(1);
     setRepeatEndDate('');
     setNotificationTime(10);
-    setDateError(null); // 수정된 이벤트에 대해서는 초기화
+    setDateError(null);
   };
 
   const editEvent = (event: Event) => {
