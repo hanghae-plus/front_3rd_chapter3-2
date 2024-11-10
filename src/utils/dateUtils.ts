@@ -1,4 +1,4 @@
-import { Event } from '../types.ts';
+import { Event, EventForm } from '../types.ts';
 
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
@@ -112,11 +112,13 @@ export function formatDate(currentDate: Date, day?: number) {
  * 주어진 날짜와 반복 유형에 따라 다음 반복 날짜를 계산합니다.
  * @param currentDate - 현재 날짜를 'YYYY-MM-DD' 형식의 문자열로 입력
  * @param repeatType - 반복 유형 ('daily', 'weekly', 'monthly', 'yearly')
+ * @param interval - 반복 간격 (양의 정수)
  * @returns 다음 반복 날짜를 'YYYY-MM-DD' 형식의 문자열로 반환
  */
 export function calculateNextDate(
   currentDate: string,
-  repeatType: 'daily' | 'weekly' | 'monthly' | 'yearly'
+  repeatType: 'daily' | 'weekly' | 'monthly' | 'yearly',
+  interval: number = 1
 ): string {
   // 현재 날짜 문자열을 연, 월, 일로 분리
   const [yearStr, monthStr, dayStr] = currentDate.split('-');
@@ -130,12 +132,12 @@ export function calculateNextDate(
   switch (repeatType) {
     case 'daily':
       // 하루 추가
-      date.setDate(date.getDate() + 1);
+      date.setDate(date.getDate() + interval);
       break;
 
     case 'weekly':
       // 일주일 추가
-      date.setDate(date.getDate() + 7);
+      date.setDate(date.getDate() + 7 * interval);
       break;
 
     case 'monthly':
@@ -143,7 +145,7 @@ export function calculateNextDate(
         // 현재 날짜를 유지
         const currentDay = date.getDate();
         // 다음 달의 일수 확인
-        const daysInNextMonth = getDaysInMonth(date.getFullYear(), date.getMonth() + 1 + 1);
+        const daysInNextMonth = getDaysInMonth(date.getFullYear(), date.getMonth() + interval + 1);
 
         // 현재 일이 다음 달에 존재하지 않으면 마지막 날로 조정
         if (currentDay > daysInNextMonth) {
@@ -152,7 +154,7 @@ export function calculateNextDate(
           date.setDate(currentDay);
         }
         // 한 달 추가
-        date.setMonth(date.getMonth() + 1);
+        date.setMonth(date.getMonth() + interval);
       }
       break;
 
@@ -162,7 +164,7 @@ export function calculateNextDate(
         const currentMonth = date.getMonth();
         const currentDay = date.getDate();
         // 다음 해의 해당 월 일수 확인
-        const daysInNextYearMonth = getDaysInMonth(date.getFullYear() + 1, currentMonth + 1);
+        const daysInNextYearMonth = getDaysInMonth(date.getFullYear() + interval, currentMonth + 1);
 
         // 현재 일이 다음 해의 해당 월에 존재하지 않으면 마지막 날로 조정
         if (currentDay > daysInNextYearMonth) {
@@ -171,18 +173,64 @@ export function calculateNextDate(
           date.setDate(currentDay);
         }
         // 한 해 추가
-        date.setFullYear(date.getFullYear() + 1);
+        date.setFullYear(date.getFullYear() + interval);
       }
       break;
 
     default:
       throw new Error('유효하지 않은 반복 유형입니다.');
   }
-  // 'YYYY-MM-DD' 형식으로 날짜를 포맷
+  // 반복 간격이 1 이상인지 확인
+  if (interval < 1) {
+    throw new Error('반복 간격은 1 이상의 정수여야 합니다.');
+  } // 'YYYY-MM-DD' 형식으로 날짜를 포맷
   return formatDate(date);
-  // const nextYear = date.getFullYear();
-  // const nextMonth = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작
-  // const nextDay = String(date.getDate()).padStart(2, '0');
+}
 
-  // return `${nextYear}-${nextMonth}-${nextDay}`;
+/**
+ * 주어진 이벤트 데이터에 반복 설정을 적용하여 반복된 이벤트 데이터 리스트를 생성합니다.
+ * @param eventData - 반복 설정이 적용된 이벤트 데이터
+ * @returns 반복된 이벤트 데이터 리스트
+ */
+export function generateRepeatingEvents(eventData: Event | EventForm): Event | EventForm[] {
+  const { repeat } = eventData;
+
+  // 반복 유형이 'none'인 경우, 원본 이벤트만 반환
+  if (repeat.type === 'none') {
+    return [eventData];
+  }
+
+  // 반복 간격이 1 이상인지 확인
+  if (repeat.interval < 1) {
+    throw new Error('반복 간격은 1 이상의 정수여야 합니다.');
+  }
+
+  // 종료 날짜가 설정되어 있는지 확인
+  if (!repeat.endDate) {
+    // throw new Error('반복 종료 날짜가 필요합니다.');
+    repeat.endDate = '2025-06-30';
+  }
+
+  const dates: string[] = [];
+  let currentDate = eventData.date;
+
+  // 반복 종료 조건을 명확히 설정하여 무한 루프 방지
+  while (currentDate <= repeat.endDate) {
+    dates.push(currentDate);
+    const nextDate = calculateNextDate(currentDate, repeat.type, repeat.interval);
+
+    // 다음 날짜가 유효하지 않거나 현재 날짜와 같거나 이전 날짜인 경우 루프 종료
+    if (!nextDate || nextDate <= currentDate) {
+      break;
+    }
+
+    currentDate = nextDate;
+  }
+
+  // 생성된 날짜들을 기반으로 새로운 이벤트 데이터 리스트 생성
+  return dates.map((date) => ({
+    ...eventData,
+    date,
+    id: undefined, // 새로운 이벤트이므로 ID는 undefined로 설정 (백엔드에서 처리)
+  }));
 }
