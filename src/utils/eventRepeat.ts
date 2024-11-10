@@ -1,5 +1,5 @@
 import { Event } from '../types';
-import { isLeapYear } from './dateUtils';
+import { formatDate, isLeapYear } from './dateUtils';
 
 const getMonthlyNextEventDate = (currentDate: Date, interval: number): Date => {
   const currentDay = currentDate.getDate();
@@ -65,4 +65,20 @@ export const getNextEventDate = (event: Event, currentDate: Date): Date | null =
   }
 };
 
-export const getRepeatEvents = (event: Event): Event[] => {};
+export const getRepeatEvents = (event: Event): Event[] => {
+  const { repeat } = event;
+
+  const newEvents = [];
+  const endDate = new Date(repeat.endDate || '2050-12-31');
+
+  let currentDate: Date | null = new Date(event.date);
+
+  while (currentDate && currentDate <= endDate) {
+    newEvents.push({ ...event, date: formatDate(currentDate) });
+
+    const nextEventDate = getNextEventDate(event, currentDate);
+    currentDate = nextEventDate;
+  }
+
+  return newEvents;
+};
