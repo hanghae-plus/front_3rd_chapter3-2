@@ -13,6 +13,7 @@ function containsTerm(target: string, term: string) {
 }
 
 function searchEvents(events: Event[], term: string) {
+  console.log(events);
   return events.filter(
     ({ title, description, location }) =>
       containsTerm(title, term) || containsTerm(description, term) || containsTerm(location, term)

@@ -1,6 +1,7 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 import { Event, RepeatType } from '../types';
+import { isValidDateForRepeat } from '../utils/dateUtils.ts';
 import { getTimeErrorMessage } from '../utils/timeValidation';
 
 type TimeErrorRecord = Record<'startTimeError' | 'endTimeError', string | null>;
@@ -20,7 +21,11 @@ export const useEventForm = (initialEvent?: Event) => {
   const [notificationTime, setNotificationTime] = useState(initialEvent?.notificationTime || 10);
 
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
 
+  useEffect(() => {
+    console.log(isRepeating, 'isRepeating');
+  }, [isRepeating]);
   const [{ startTimeError, endTimeError }, setTimeError] = useState<TimeErrorRecord>({
     startTimeError: null,
     endTimeError: null,
@@ -38,6 +43,22 @@ export const useEventForm = (initialEvent?: Event) => {
     setTimeError(getTimeErrorMessage(startTime, newEndTime));
   };
 
+  const handleDateChange = (date: string) => {
+    console.log(date, 'handleDateChange');
+    // const newDate = e.target.value;
+    setDate(date);
+
+    if (isRepeating && repeatType !== 'none') {
+      if (!isValidDateForRepeat(date, repeatType)) {
+        setDateError('유효하지 않은 날짜입니다.');
+      } else {
+        setDateError(null);
+      }
+    } else {
+      setDateError(null);
+    }
+  };
+
   const resetForm = () => {
     setTitle('');
     setDate('');
@@ -51,6 +72,7 @@ export const useEventForm = (initialEvent?: Event) => {
     setRepeatInterval(1);
     setRepeatEndDate('');
     setNotificationTime(10);
+    setDateError(null); // 수정된 이벤트에 대해서는 초기화
   };
 
   const editEvent = (event: Event) => {
@@ -73,7 +95,7 @@ export const useEventForm = (initialEvent?: Event) => {
     title,
     setTitle,
     date,
-    setDate,
+    setDate: handleDateChange,
     startTime,
     setStartTime,
     endTime,
@@ -102,5 +124,6 @@ export const useEventForm = (initialEvent?: Event) => {
     handleEndTimeChange,
     resetForm,
     editEvent,
+    dateError,
   };
 };

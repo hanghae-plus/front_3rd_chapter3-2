@@ -30,6 +30,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     try {
       let response;
       if (editing) {
+        console.log(eventData);
         response = await fetch(`/api/events/${(eventData as Event).id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
