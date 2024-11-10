@@ -17,7 +17,7 @@ beforeAll(() => {
 beforeEach(() => {
   expect.hasAssertions(); // ? Med: 이걸 왜 써야하는지 물어보자
 
-  vi.setSystemTime(new Date('2024-10-01')); // ? Med: 이걸 왜 써야하는지 물어보자
+  vi.setSystemTime(new Date('2024-11-05')); // ? Med: 이걸 왜 써야하는지 물어보자
 });
 
 afterEach(() => {

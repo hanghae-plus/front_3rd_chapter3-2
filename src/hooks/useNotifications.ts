@@ -1,12 +1,15 @@
 import { useInterval } from '@chakra-ui/react';
-import { useState } from 'react';
+import { atom, useAtom } from 'jotai';
 
 import { Event } from '../types';
 import { createNotificationMessage, getUpcomingEvents } from '../utils/notificationUtils';
 
+const notificationsAtom = atom<{ id: string; message: string }[]>([]);
+const notifiedEventsAtom = atom<string[]>([]);
+
 export const useNotifications = (events: Event[]) => {
-  const [notifications, setNotifications] = useState<{ id: string; message: string }[]>([]);
-  const [notifiedEvents, setNotifiedEvents] = useState<string[]>([]);
+  const [notifications, setNotifications] = useAtom(notificationsAtom);
+  const [notifiedEvents, setNotifiedEvents] = useAtom(notifiedEventsAtom);
 
   const checkUpcomingEvents = () => {
     const now = new Date();
