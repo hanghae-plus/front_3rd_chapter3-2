@@ -1,7 +1,6 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 
 import { Event, RepeatType } from '../types';
-import { isValidDateForRepeat } from '../utils/dateUtils.ts';
 import { getTimeErrorMessage } from '../utils/timeValidation';
 
 type TimeErrorRecord = Record<'startTimeError' | 'endTimeError', string | null>;
@@ -23,9 +22,6 @@ export const useEventForm = (initialEvent?: Event) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [dateError, setDateError] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log(isRepeating, 'isRepeating');
-  }, [isRepeating]);
   const [{ startTimeError, endTimeError }, setTimeError] = useState<TimeErrorRecord>({
     startTimeError: null,
     endTimeError: null,
@@ -43,17 +39,16 @@ export const useEventForm = (initialEvent?: Event) => {
     setTimeError(getTimeErrorMessage(startTime, newEndTime));
   };
 
-  const handleDateChange = (date: string) => {
-    setDate(date);
+  const handleDateChange = (newDate: string) => {
+    const [year, month, day] = newDate.split('-').map(Number);
+    const lastDayOfMonth = new Date(year, month, 0).getDate();
 
-    if (isRepeating && repeatType !== 'none') {
-      if (!isValidDateForRepeat(date, repeatType)) {
-        setDateError('유효하지 않은 날짜입니다.');
-      } else {
-        setDateError(null);
-      }
+    if (month === 2 && day === 29 && new Date(year, 1, 29).getDate() !== 29) {
+      setDate(`${year}-02-28`);
+    } else if (day > lastDayOfMonth) {
+      setDate(`${year}-${String(month).padStart(2, '0')}-${lastDayOfMonth}`);
     } else {
-      setDateError(null);
+      setDate(newDate);
     }
   };
 

@@ -1,4 +1,4 @@
-import { Event, RepeatType } from '../types.ts';
+import { Event } from '../types.ts';
 
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
@@ -108,19 +108,3 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
-
-export const isValidDateForRepeat = (dateString: string, repeatType: RepeatType): boolean => {
-  const [_, month, day] = dateString.split('-');
-
-  if (repeatType === 'monthly') {
-    return Number(day) <= 28;
-  }
-
-  if (repeatType === 'yearly') {
-    if (Number(month) === 2 && Number(day) === 29) {
-      return false;
-    }
-  }
-
-  return true;
-};
