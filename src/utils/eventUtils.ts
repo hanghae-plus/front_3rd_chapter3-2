@@ -1,5 +1,5 @@
+import { getWeekDates, isDateInRange } from '../entities/calendar/lib/calendarUtils';
 import { Event } from '../types';
-import { getWeekDates, isDateInRange } from './dateUtils';
 
 function filterEventsByDateRange(events: Event[], start: Date, end: Date): Event[] {
   return events.filter((event) => {
