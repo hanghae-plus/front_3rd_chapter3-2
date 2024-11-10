@@ -104,6 +104,34 @@ export function formatDate(currentDate: Date, day?: number) {
 }
 
 /**
+ * @function isValidRepeatDateForType
+ * @desc 주어진 날짜가 특정 반복 유형에 대해 유효한지 확인
+ * @param formattedDate - "YYYY-MM-DD" 형식의 날짜 문자열
+ * @param repeatType - 반복 유형 (monthly, yearly 등)
+ * @returns 날짜가 유효하면 true, 그렇지 않으면 false
+ */
+
+export const isValidRepeatDateForType = (formattedDate: string, repeatType: RepeatType): boolean => {
+  const [year, month, day] = formattedDate.split('-').map(Number);
+
+  if (!year || !month || !day) {
+    return false;
+  }
+
+  if (repeatType === 'monthly') {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    return day <= daysInMonth;
+  }
+
+  if (repeatType === 'yearly') {
+    return !(month === 2 && day === 29 && !isLeapYear(year));
+  }
+
+  return true;
+};
+
+
+/**
  * @function isLeapYear
  * @desc 윤년을 확인하는 함수
  * @param year - 검사할 연도
