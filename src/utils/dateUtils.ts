@@ -108,4 +108,11 @@ export function formatDate(currentDate: Date, day?: number) {
   ].join('-');
 }
 
-export const isLeapYear = (year: number): boolean => {};
+export const isLeapYear = (year: number): boolean => {
+  // 400으로 나누어 떨어지면 윤년
+  if (year % 400 === 0) return true;
+  // 100으로 나누어 떨어지면 평년
+  if (year % 100 === 0) return false;
+  // 4로 나누어 떨어지면 윤년
+  return year % 4 === 0;
+};
