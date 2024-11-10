@@ -1,4 +1,4 @@
-import { Event } from '../types';
+import { Event, RepeatType } from '../types';
 import { getWeekDates, isDateInRange } from './dateUtils';
 
 function filterEventsByDateRange(events: Event[], start: Date, end: Date): Event[] {
@@ -47,4 +47,36 @@ export function getFilteredEvents(
   }
 
   return searchedEvents;
+}
+
+export function generateRecurringEvents(
+  startDate: string,
+  interval: number,
+  repeatType: RepeatType,
+  endDate: string
+): string[] {
+  const dates = [];
+  const currentDate = new Date(startDate);
+  const end = new Date(endDate);
+
+  while (currentDate <= end) {
+    dates.push(currentDate.toISOString().split('T')[0]);
+
+    switch (repeatType) {
+      case 'daily':
+        currentDate.setDate(currentDate.getDate() + interval);
+        break;
+      case 'weekly':
+        currentDate.setDate(currentDate.getDate() + interval * 7);
+        break;
+      case 'monthly':
+        currentDate.setMonth(currentDate.getMonth() + interval);
+        break;
+      case 'yearly':
+        currentDate.setFullYear(currentDate.getFullYear() + interval);
+        break;
+    }
+  }
+
+  return dates;
 }

@@ -1,4 +1,5 @@
 import {
+  AtSignIcon,
   BellIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -55,6 +56,7 @@ import {
   getWeeksAtMonth,
 } from './utils/dateUtils';
 import { findOverlappingEvents } from './utils/eventOverlap';
+import { generateRecurringEvents } from './utils/eventUtils.ts';
 import { getTimeErrorMessage } from './utils/timeValidation';
 
 const categories = ['업무', '개인', '가족', '기타'];
@@ -160,7 +162,19 @@ function App() {
       setOverlappingEvents(overlapping);
       setIsOverlapDialogOpen(true);
     } else {
-      await saveEvent(eventData);
+      if (isRepeating && repeatType !== 'none' && repeatEndDate) {
+        const dates = generateRecurringEvents(date, repeatInterval, repeatType, repeatEndDate);
+        const recurringEvents = dates.map((eventDate) => ({
+          ...eventData,
+          date: eventDate,
+        }));
+
+        for (const event of recurringEvents) {
+          await saveEvent(event);
+        }
+      } else {
+        await saveEvent(eventData);
+      }
       resetForm();
     }
   };
@@ -201,6 +215,7 @@ function App() {
                         >
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
+                            {event.repeat.type === 'monthly' && <AtSignIcon />}
                             <Text fontSize="sm" noOfLines={1}>
                               {event.title}
                             </Text>
@@ -271,6 +286,7 @@ function App() {
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
                                   <Text fontSize="sm" noOfLines={1}>
+                                    {event.repeat.type === 'monthly' && <AtSignIcon />}
                                     {event.title}
                                   </Text>
                                 </HStack>
@@ -464,10 +480,12 @@ function App() {
                   <VStack align="start">
                     <HStack>
                       {notifiedEvents.includes(event.id) && <BellIcon color="red.500" />}
+
                       <Text
                         fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
                         color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
                       >
+                        {event.repeat.type === 'monthly' && <AtSignIcon />}
                         {event.title}
                       </Text>
                     </HStack>
