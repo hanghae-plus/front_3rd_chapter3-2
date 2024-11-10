@@ -43,7 +43,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-11-11'));
-    expect(nextEventDate).toBe(new Date('2024-11-12'));
+    expect(nextEventDate).toStrictEqual(new Date('2024-11-12'));
   });
 
   it('이벤트의 repeat type이 daily이고 interval이 2이면 다다음 날을 반환한다.', () => {
@@ -65,7 +65,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-11-11'));
-    expect(nextEventDate).toBe(new Date('2024-11-13'));
+    expect(nextEventDate).toStrictEqual(new Date('2024-11-13'));
   });
 
   it('이벤트의 repeat type이 weekly이고 interval이 1이면 일주일 후를 반환한다.', () => {
@@ -87,7 +87,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-11-10'));
-    expect(nextEventDate).toBe(new Date('2024-11-17'));
+    expect(nextEventDate).toStrictEqual(new Date('2024-11-17'));
   });
 
   it('이벤트의 repeat type이 weekly이고 interval이 2이면 이주 후를 반환한다.', () => {
@@ -109,7 +109,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-11-10'));
-    expect(nextEventDate).toBe(new Date('2024-11-24'));
+    expect(nextEventDate).toStrictEqual(new Date('2024-11-24'));
   });
 
   it('이벤트의 repeat type이 monthly이고 interval이 1이면 한 달 후를 반환한다.', () => {
@@ -131,7 +131,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-11-10'));
-    expect(nextEventDate).toBe(new Date('2024-12-10'));
+    expect(nextEventDate).toStrictEqual(new Date('2024-12-10'));
   });
 
   it('이벤트의 repeat type이 monthly이고 interval이 2이면 두달 후를 반환한다.', () => {
@@ -153,7 +153,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-11-10'));
-    expect(nextEventDate).toBe(new Date('2025-01-10'));
+    expect(nextEventDate).toStrictEqual(new Date('2025-01-10'));
   });
 
   it('이벤트의 repeat type이 yearly이고 interval이 1이면 일 년 후를 반환한다.', () => {
@@ -175,7 +175,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-11-10'));
-    expect(nextEventDate).toBe(new Date('2025-11-10'));
+    expect(nextEventDate).toStrictEqual(new Date('2025-11-10'));
   });
 
   it('이벤트의 repeat type이 yearly이고 interval이 2이면 이년 후를 반환한다.', () => {
@@ -197,7 +197,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-11-10'));
-    expect(nextEventDate).toBe(new Date('2026-11-10'));
+    expect(nextEventDate).toStrictEqual(new Date('2026-11-10'));
   });
 
   it('2월 29일 설정된 이벤트의 repeat type이 yearly이면 다음 윤년의 2월 29일을 반환한다.', () => {
@@ -219,7 +219,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-02-29'));
-    expect(nextEventDate).toBe(new Date('2028-02-29'));
+    expect(nextEventDate).toStrictEqual(new Date('2028-02-29'));
   });
 
   it('2월 29일 설정된 이벤트의 repeat type이 yearly이고 interval이 2이면 다다음 윤년의 2월 29일을 반환한다.', () => {
@@ -241,7 +241,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-02-29'));
-    expect(nextEventDate).toBe(new Date('2032-02-29'));
+    expect(nextEventDate).toStrictEqual(new Date('2032-02-29'));
   });
 
   it('3월 31일 설정된 이벤트의 repeat type이 monthly이면 5월 31일을 반환한다.', () => {
@@ -263,7 +263,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-03-31'));
-    expect(nextEventDate).toBe(new Date('2024-05-31'));
+    expect(nextEventDate).toStrictEqual(new Date('2024-05-31'));
   });
 
   it('3월 31일 설정된 이벤트의 repeat type이 monthly이고 interval이 2이면 7월 31일을 반환한다.', () => {
@@ -285,7 +285,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-03-31'));
-    expect(nextEventDate).toBe(new Date('2024-07-31'));
+    expect(nextEventDate).toStrictEqual(new Date('2024-07-31'));
   });
 
   it('3월 31일 설정된 이벤트의 repeat type이 monthly이고 interval이 3이면 다음 해 1월 31일을 반환한다.', () => {
@@ -307,7 +307,7 @@ describe('getNextEventDate', () => {
     };
 
     const nextEventDate = getNextEventDate(event, new Date('2024-03-31'));
-    expect(nextEventDate).toBe(new Date('2025-01-31'));
+    expect(nextEventDate).toStrictEqual(new Date('2025-01-31'));
   });
 });
 
