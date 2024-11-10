@@ -13,6 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 
+import { EventCell } from './EventCell';
 import { WEEKDAYS } from '../../constants/constants';
 import { Event } from '../../types';
 import { formatWeek, getWeekDates } from '../../utils/dateUtils';
@@ -47,25 +48,7 @@ export const WeekView = ({ currentDate, filteredEvents, notifiedEvents }: Props)
                 {filteredEvents
                   .filter((event) => new Date(event.date).toDateString() === date.toDateString())
                   .map((event) => {
-                    const isNotified = notifiedEvents.includes(event.id);
-                    return (
-                      <Box
-                        key={event.id}
-                        p={1}
-                        my={1}
-                        bg={isNotified ? 'red.100' : 'gray.100'}
-                        borderRadius="md"
-                        fontWeight={isNotified ? 'bold' : 'normal'}
-                        color={isNotified ? 'red.500' : 'inherit'}
-                      >
-                        <HStack spacing={1}>
-                          {isNotified && <BellIcon />}
-                          <Text fontSize="sm" noOfLines={1}>
-                            {event.title}
-                          </Text>
-                        </HStack>
-                      </Box>
-                    );
+                    return <EventCell event={event} notifiedEvents={notifiedEvents} />;
                   })}
               </Td>
             ))}
