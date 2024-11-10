@@ -2,6 +2,7 @@ import { ChangeEvent, useState } from 'react';
 
 import { Event, RepeatType } from '../types';
 import { getTimeErrorMessage } from '../utils/timeValidation';
+import { isLeapYear } from '../utils/dateUtils.ts';
 
 type TimeErrorRecord = Record<'startTimeError' | 'endTimeError', string | null>;
 
@@ -13,7 +14,9 @@ export const useEventForm = (initialEvent?: Event) => {
   const [description, setDescription] = useState(initialEvent?.description || '');
   const [location, setLocation] = useState(initialEvent?.location || '');
   const [category, setCategory] = useState(initialEvent?.category || '');
-  const [isRepeating, setIsRepeating] = useState(initialEvent?.repeat.type !== 'none');
+  const [isRepeating, setIsRepeating] = useState(
+    !!initialEvent?.repeat.type && initialEvent.repeat.type !== 'none'
+  );
   const [repeatType, setRepeatType] = useState<RepeatType>(initialEvent?.repeat.type || 'none');
   const [repeatInterval, setRepeatInterval] = useState(initialEvent?.repeat.interval || 1);
   const [repeatEndDate, setRepeatEndDate] = useState(initialEvent?.repeat.endDate || '');
@@ -30,6 +33,28 @@ export const useEventForm = (initialEvent?: Event) => {
     const newStartTime = e.target.value;
     setStartTime(newStartTime);
     setTimeError(getTimeErrorMessage(newStartTime, endTime));
+  };
+
+  const validateAndSetDate = (newDate: string) => {
+    const [year, month, day] = newDate.split('-').map(Number);
+    let adjustedDate = new Date(year, month - 1, day);
+
+    if (isNaN(adjustedDate.getTime())) {
+      throw new Error('유효하지 않은 날짜입니다.');
+    }
+
+    // 예외 처리 : 윤년이 아닌 해의 2월 29일을 2월 28일로 조정
+    if (month === 2 && day === 29 && !isLeapYear(year)) {
+      adjustedDate = new Date(year, 1, 28);
+    }
+
+    // 예외 처리 : 31일이 없는 달에는 30일로 조정
+    const lastDayOfMonth = new Date(year, month, 0).getDate();
+    if (day > lastDayOfMonth) {
+      adjustedDate = new Date(year, month - 1, lastDayOfMonth);
+    }
+
+    setDate(adjustedDate.toISOString().split('T')[0]);
   };
 
   const handleEndTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +98,7 @@ export const useEventForm = (initialEvent?: Event) => {
     title,
     setTitle,
     date,
-    setDate,
+    setDate: validateAndSetDate,
     startTime,
     setStartTime,
     endTime,
