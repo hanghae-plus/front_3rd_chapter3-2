@@ -1,9 +1,14 @@
+/* eslint-disable no-unused-vars */
 import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import { Event, EventForm } from '../types';
 
-export const useEventOperations = (editing: boolean, onSave?: () => void) => {
+export const useEventOperations = (
+  editing: boolean,
+  changeRepeatEvent: (events: Event[]) => void,
+  onSave?: () => void
+) => {
   const [events, setEvents] = useState<Event[]>([]);
   const toast = useToast();
 
@@ -15,6 +20,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       }
       const { events } = await response.json();
       setEvents(events);
+      changeRepeatEvent(events);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({

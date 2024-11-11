@@ -11,6 +11,7 @@ import { useEditingEvent } from './hooks/useEditingEvent.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
 import { useNotifications } from './hooks/useNotifications.ts';
+import { useRepeatEvent } from './hooks/useRepeatEvent.ts';
 import { useSearch } from './hooks/useSearch.ts';
 
 const notificationOptions = [
@@ -27,8 +28,12 @@ function App() {
     setEventForm: eventFormState.setEventForm,
     setIsRepeating: eventFormState.setIsRepeating,
   });
-  const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
-    setEditingEvent(null)
+  const { repeatEvent, changeRepeatEvent, deleteRepeatEvent, deleteRepeatEventInstance } =
+    useRepeatEvent();
+  const { events, saveEvent, deleteEvent } = useEventOperations(
+    Boolean(editingEvent),
+    changeRepeatEvent,
+    () => setEditingEvent(null)
   );
 
   const { notifications, notifiedEvents, setNotifications } = useNotifications(events);

@@ -2,11 +2,11 @@ import { useState } from 'react';
 
 import { Event, RepeatEvent } from '../types';
 
-export const useRepeatEvent = (events: Event[]) => {
+export const useRepeatEvent = () => {
   const [repeatEvent, setRepeatEvent] = useState<RepeatEvent[]>([]);
 
   // 반복일정을 전체 변경
-  const changeRepeatEvent = () => {};
+  const changeRepeatEvent = (events: Event[]) => {};
 
   // 일정의 반복일정 전체를 삭제
   const deleteRepeatEvent = () => {};
