@@ -44,11 +44,11 @@ export const useEventForm = (initialEvent?: Event) => {
 
   const handleRepeatIntervalChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newRepeatInterval = Number(e.target.value);
-    setRepeatInterval(newRepeatInterval);
     if (newRepeatInterval < 1 || !Number.isInteger(newRepeatInterval)) {
       setRepeatIntervalError('반복 간격은 1 이상의 정수여야 합니다.');
       return;
     }
+    setRepeatInterval(newRepeatInterval);
     setRepeatIntervalError(null);
   };
 
