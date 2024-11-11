@@ -79,6 +79,16 @@ export const EventManageForm = () => {
       return;
     }
 
+    if (isRepeating && Number(repeatInterval) < 1) {
+      toast({
+        title: '반복 간격을 1 이상의 숫자로 입력해주세요.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
       title,
