@@ -89,7 +89,6 @@ function App() {
     repeatType,
     setRepeatType,
     repeatInterval,
-    setRepeatInterval,
     repeatEndDate,
     repeatCount,
     setRepeatEndDate,
