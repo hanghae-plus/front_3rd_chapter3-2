@@ -23,6 +23,24 @@ export const setupMockHandler = (initEvents = [] as Event[]) => {
       return HttpResponse.json(newEvent, { status: 201 });
     }),
 
+    http.post('/api/events-list', async ({ request }) => {
+      const body = (await request.json()) as { events: Event[] };
+
+      body.events.forEach((event: Event) => {
+        const isRepeatEvent = event.repeat.type !== 'none';
+        events.push({
+          ...event,
+          id: String(events.length + 1),
+          repeat: {
+            ...event.repeat,
+            id: isRepeatEvent ? String(events.length + 1) : undefined,
+          },
+        });
+      });
+
+      return HttpResponse.json(body.events, { status: 201 });
+    }),
+
     http.put('/api/events/:id', async ({ request, params }) => {
       const { id } = params;
 
