@@ -1,5 +1,10 @@
 import { RepeatType } from '../../../entities/event/model/types';
 
+export interface TimeErrorRecord {
+  startTimeError: string | null;
+  endTimeError: string | null;
+}
+
 export interface EventFormState {
   title: string;
   date: string;
@@ -13,4 +18,9 @@ export interface EventFormState {
   repeatInterval: number;
   repeatEndDate: string;
   notificationTime: number;
+}
+
+export interface FormErrors {
+  startTime: string | null;
+  endTime: string | null;
 }

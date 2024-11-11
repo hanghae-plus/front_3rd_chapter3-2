@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
@@ -46,7 +47,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       if (!response.ok) {
         throw new Error('Failed to save event');
       }
-
+      console.log('여기를 지나는가');
       await fetchEvents();
       onSave?.();
       toast({
@@ -103,7 +104,6 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
   useEffect(() => {
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { events, fetchEvents, saveEvent, deleteEvent };

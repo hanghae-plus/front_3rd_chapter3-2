@@ -1,106 +1,84 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useCallback, useState } from 'react';
 
-import { Event, RepeatType } from '../types';
-import { getTimeErrorMessage } from '../utils/timeValidation';
+import { validateTime } from '../features/event-form/lib/validation';
+import { EventFormState, FormErrors } from '../features/event-form/model/types';
+import { Event } from '../types';
 
-type TimeErrorRecord = Record<'startTimeError' | 'endTimeError', string | null>;
+interface UseEventFormReturn {
+  formState: EventFormState;
+  errors: FormErrors;
+  editingEvent: Event | null;
+  setEditingEvent: Dispatch<SetStateAction<Event | null>>;
+  handleInputChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  handleCheckboxChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleSubmit: () => void;
+}
 
-export const useEventForm = (initialEvent?: Event) => {
-  const [title, setTitle] = useState(initialEvent?.title || '');
-  const [date, setDate] = useState(initialEvent?.date || '');
-  const [startTime, setStartTime] = useState(initialEvent?.startTime || '');
-  const [endTime, setEndTime] = useState(initialEvent?.endTime || '');
-  const [description, setDescription] = useState(initialEvent?.description || '');
-  const [location, setLocation] = useState(initialEvent?.location || '');
-  const [category, setCategory] = useState(initialEvent?.category || '');
-  const [isRepeating, setIsRepeating] = useState(initialEvent?.repeat.type !== 'none');
-  const [repeatType, setRepeatType] = useState<RepeatType>(initialEvent?.repeat.type || 'none');
-  const [repeatInterval, setRepeatInterval] = useState(initialEvent?.repeat.interval || 1);
-  const [repeatEndDate, setRepeatEndDate] = useState(initialEvent?.repeat.endDate || '');
-  const [notificationTime, setNotificationTime] = useState(initialEvent?.notificationTime || 10);
+export const useEventForm = (initialEvent: Event | null): UseEventFormReturn => {
+  const [editingEvent, setEditingEvent] = useState<Event | null>(initialEvent);
 
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-
-  const [{ startTimeError, endTimeError }, setTimeError] = useState<TimeErrorRecord>({
-    startTimeError: null,
-    endTimeError: null,
+  const [formState, setFormState] = useState<EventFormState>({
+    title: initialEvent?.title || '',
+    date: initialEvent?.date || '',
+    startTime: initialEvent?.startTime || '',
+    endTime: initialEvent?.endTime || '',
+    description: initialEvent?.description || '',
+    location: initialEvent?.location || '',
+    category: initialEvent?.category || '',
+    isRepeating: initialEvent?.repeat.type !== 'none',
+    repeatType: initialEvent?.repeat.type || 'none',
+    repeatInterval: initialEvent?.repeat.interval || 1,
+    repeatEndDate: initialEvent?.repeat.endDate || '',
+    notificationTime: initialEvent?.notificationTime || 10,
   });
 
-  const handleStartTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newStartTime = e.target.value;
-    setStartTime(newStartTime);
-    setTimeError(getTimeErrorMessage(newStartTime, endTime));
-  };
+  const [errors, setErrors] = useState<FormErrors>({
+    startTime: null,
+    endTime: null,
+  });
 
-  const handleEndTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newEndTime = e.target.value;
-    setEndTime(newEndTime);
-    setTimeError(getTimeErrorMessage(startTime, newEndTime));
-  };
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
 
-  const resetForm = () => {
-    setTitle('');
-    setDate('');
-    setStartTime('');
-    setEndTime('');
-    setDescription('');
-    setLocation('');
-    setCategory('');
-    setIsRepeating(false);
-    setRepeatType('none');
-    setRepeatInterval(1);
-    setRepeatEndDate('');
-    setNotificationTime(10);
-  };
+    setFormState((prev) => {
+      const newState = { ...prev, [name]: value };
 
-  const editEvent = (event: Event) => {
-    setEditingEvent(event);
-    setTitle(event.title);
-    setDate(event.date);
-    setStartTime(event.startTime);
-    setEndTime(event.endTime);
-    setDescription(event.description);
-    setLocation(event.location);
-    setCategory(event.category);
-    setIsRepeating(event.repeat.type !== 'none');
-    setRepeatType(event.repeat.type);
-    setRepeatInterval(event.repeat.interval);
-    setRepeatEndDate(event.repeat.endDate || '');
-    setNotificationTime(event.notificationTime);
-  };
+      if (name === 'startTime' || name === 'endTime') {
+        const startTime = name === 'startTime' ? value : prev.startTime;
+        const endTime = name === 'endTime' ? value : prev.endTime;
+        setErrors(validateTime(startTime, endTime));
+      }
+
+      return newState;
+    });
+  }, []);
+
+  const handleCheckboxChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormState((prev) => ({ ...prev, [name]: checked }));
+  }, []);
+
+  const handleSubmit = useCallback(() => {
+    if (!formState.title || !formState.date || !formState.startTime || !formState.endTime) {
+      return;
+    }
+
+    const timeErrors = validateTime(formState.startTime, formState.endTime);
+    if (timeErrors.startTime || timeErrors.endTime) {
+      setErrors(timeErrors);
+      return;
+    }
+
+    // TODO: 폼 제출 로직
+  }, [formState]);
 
   return {
-    title,
-    setTitle,
-    date,
-    setDate,
-    startTime,
-    setStartTime,
-    endTime,
-    setEndTime,
-    description,
-    setDescription,
-    location,
-    setLocation,
-    category,
-    setCategory,
-    isRepeating,
-    setIsRepeating,
-    repeatType,
-    setRepeatType,
-    repeatInterval,
-    setRepeatInterval,
-    repeatEndDate,
-    setRepeatEndDate,
-    notificationTime,
-    setNotificationTime,
-    startTimeError,
-    endTimeError,
+    formState,
+    errors,
     editingEvent,
     setEditingEvent,
-    handleStartTimeChange,
-    handleEndTimeChange,
-    resetForm,
-    editEvent,
+    handleInputChange,
+    handleCheckboxChange,
+    handleSubmit,
   };
 };

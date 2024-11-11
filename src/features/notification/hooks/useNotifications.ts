@@ -11,7 +11,6 @@ export const useNotifications = (events: Event[]) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notifiedEvents, setNotifiedEvents] = useState<string[]>([]);
 
-  // 알림 검사 및 생성
   useEffect(() => {
     const checkNotifications = () => {
       events.forEach((event) => {

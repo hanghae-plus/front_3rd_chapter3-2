@@ -12,9 +12,9 @@ export interface Event {
   date: string;
   startTime: string;
   endTime: string;
-  description?: string;
-  location?: string;
-  category?: string;
+  description: string;
+  location: string;
+  category: string;
   repeat: EventRepeat;
   notificationTime: number;
 }

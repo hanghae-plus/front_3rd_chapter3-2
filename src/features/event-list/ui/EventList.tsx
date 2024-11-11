@@ -1,5 +1,5 @@
 import { Text } from '@chakra-ui/react';
-import { useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 
 import { Event } from '../../../entities/event/model/types';
 import { EventCard } from '../../../entities/event/ui/EventCard';
@@ -9,15 +9,25 @@ import { VStack } from '../../../shared/ui/Stack';
 import { useEventList } from '../hooks/useEventList';
 
 interface EventListProps {
-  notifiedEvents: string[]; // 알림 상태를 props로 받음
+  notifiedEvents: string[];
+  setEditingEvent: Dispatch<SetStateAction<Event | null>>;
+  events: Event[];
+  fetchEvents: () => void;
+  onDelete: (id: string) => Promise<void>;
 }
 
-export const EventList = ({ notifiedEvents }: EventListProps) => {
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-
+export const EventList = ({
+  notifiedEvents,
+  setEditingEvent,
+  events,
+  fetchEvents,
+  onDelete,
+}: EventListProps) => {
   const { searchTerm, filteredEvents, handleSearch, handleEdit, handleDelete } = useEventList({
-    editingEvent,
     setEditingEvent,
+    events,
+    fetchEvents,
+    onDelete,
   });
 
   return (
