@@ -363,3 +363,82 @@ describe('반복 일정 표시', () => {
     expect(normalEventListIcon).not.toBeInTheDocument();
   });
 });
+
+describe('반복 일정 종료', () => {
+  it('특정 날짜까지 반복되는 일정이 정상적으로 생성되어야 한다', async () => {
+    setUpMockHandlerRepeatCreation();
+    const { user } = setup(<App />);
+
+    await saveScheduleRepeat(user, {
+      title: '매일 회의',
+      date: '2024-01-01',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '설명',
+      location: '위치',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-01-03' },
+    });
+
+    await assertEventOnDate('2024-01-01', '2024년 1월');
+    await assertEventOnDate('2024-01-02', '2024년 1월');
+    await assertEventOnDate('2024-01-03', '2024년 1월');
+
+    vi.setSystemTime(new Date('2024-01-04T09:00:00'));
+    cleanup();
+    setup(<App />);
+
+    const eventList = within(screen.getByTestId('event-list'));
+    await expect(eventList.findByText('매일 회의')).rejects.toThrow();
+  });
+
+  it('종료일이 2025-06-30 이후인 경우 자동으로 2025-06-30로 설정되어야 한다', async () => {
+    setUpMockHandlerRepeatCreation();
+    const { user } = setup(<App />);
+
+    await saveScheduleRepeat(user, {
+      title: '매월 회의',
+      date: '2024-01-01',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '설명',
+      location: '위치',
+      category: '업무',
+      repeat: { type: 'monthly', interval: 1, endDate: '2026-01-01' },
+    });
+
+    await assertEventOnDate('2025-06-30', '2025년 6월');
+
+    vi.setSystemTime(new Date('2025-07-01T09:00:00'));
+    cleanup();
+    setup(<App />);
+
+    const eventList = within(screen.getByTestId('event-list'));
+    await expect(eventList.findByText('매월 회의')).rejects.toThrow();
+  });
+
+  it('종료일이 없는 경우 2025-06-30까지 반복되어야 한다', async () => {
+    setUpMockHandlerRepeatCreation();
+    const { user } = setup(<App />);
+
+    await saveScheduleRepeat(user, {
+      title: '매주 회의',
+      date: '2024-01-01',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '설명',
+      location: '위치',
+      category: '업무',
+      repeat: { type: 'weekly', interval: 1 },
+    });
+
+    await assertEventOnDate('2025-06-30', '2025년 6월');
+
+    vi.setSystemTime(new Date('2025-07-01T09:00:00'));
+    cleanup();
+    setup(<App />);
+
+    const eventList = within(screen.getByTestId('event-list'));
+    await expect(eventList.findByText('매주 회의')).rejects.toThrow();
+  });
+});
