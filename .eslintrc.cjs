@@ -1,6 +1,6 @@
 module.exports = {
   root: true,
-  plugins: ['react', 'react-hooks', 'prettier'],
+  plugins: ['react', 'react-hooks', 'prettier', '@typescript-eslint'],
   extends: [
     'eslint:recommended',
     'plugin:react-hooks/recommended',
@@ -20,7 +20,7 @@ module.exports = {
     ecmaVersion: 2022,
   },
   rules: {
-    'no-unused-vars': 'warn',
+    'no-unused-vars': ['error', { args: 'none' }],
     'react/prop-types': 'off',
     'import/order': [
       'error',
@@ -31,6 +31,15 @@ module.exports = {
           caseInsensitive: true,
         },
         'newlines-between': 'always',
+      },
+    ],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+        args: 'none', // 매개변수 타입 선언 무시
       },
     ],
   },

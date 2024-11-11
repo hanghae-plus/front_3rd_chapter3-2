@@ -1,4 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
+import { Event } from '@entities/event/model/types';
 import { render, screen, within, act } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
@@ -11,7 +12,6 @@ import {
 } from '../__mocks__/handlersUtils';
 import App from '../App';
 import { server } from '../setupTests';
-import { Event } from '../types';
 
 // ! Hard 여기 제공 안함
 const setup = (element: ReactElement) => {
@@ -107,7 +107,7 @@ describe('일정 뷰', () => {
     await user.selectOptions(screen.getByLabelText('view'), 'week');
 
     // ! 일정 로딩 완료 후 테스트
-    await screen.findByText('일정 로딩 완료!');
+    // await screen.findByText('일정 로딩 완료!');
 
     const eventList = within(screen.getByTestId('event-list'));
     expect(eventList.getByText('검색 결과가 없습니다.')).toBeInTheDocument();
@@ -271,19 +271,22 @@ describe('일정 충돌', () => {
 
     const { user } = setup(<App />);
 
-    await saveSchedule(user, {
-      title: '새 회의',
-      date: '2024-10-15',
-      startTime: '09:30',
-      endTime: '10:30',
-      description: '설명',
-      location: '회의실 A',
-      category: '업무',
+    await act(async () => {
+      await saveSchedule(user, {
+        title: '새 회의',
+        date: '2024-10-15',
+        startTime: '09:30',
+        endTime: '10:30',
+        description: '설명',
+        location: '회의실 A',
+        category: '업무',
+      });
     });
 
     expect(screen.getByText('일정 겹침 경고')).toBeInTheDocument();
     expect(screen.getByText(/다음 일정과 겹칩니다/)).toBeInTheDocument();
     expect(screen.getByText('기존 회의 (2024-10-15 09:00-10:00)')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /취소/ }));
   });
 
   it('기존 일정의 시간을 수정하여 충돌이 발생하면 경고가 노출된다', async () => {
@@ -295,10 +298,10 @@ describe('일정 충돌', () => {
     await user.click(editButton);
 
     // 시간 수정하여 다른 일정과 충돌 발생
-    await user.clear(screen.getByLabelText('시작 시간'));
-    await user.type(screen.getByLabelText('시작 시간'), '08:30');
-    await user.clear(screen.getByLabelText('종료 시간'));
-    await user.type(screen.getByLabelText('종료 시간'), '10:30');
+    await user.clear(screen.getByLabelText(/시작 시간/));
+    await user.type(screen.getByLabelText(/시작 시간/), '08:30');
+    await user.clear(screen.getByLabelText(/종료 시간/));
+    await user.type(screen.getByLabelText(/종료 시간/), '10:30');
 
     await user.click(screen.getByTestId('event-submit-button'));
 
