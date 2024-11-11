@@ -5,8 +5,8 @@ import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import React from 'react';
 
-import { EventManageForm } from '../components/eventManageView/EventManageForm';
-import { editingEventAtom } from '../hooks/useEventForm';
+import { EventManageForm } from '../../components/eventManageView/EventManageForm';
+import { editingEventAtom } from '../../hooks/useEventForm';
 
 interface ProviderProps {
   initialValues: [atom: any, value: any][];

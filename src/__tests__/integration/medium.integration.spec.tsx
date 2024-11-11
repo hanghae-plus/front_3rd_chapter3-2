@@ -3,10 +3,10 @@ import { render, screen, within, waitFor } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { Provider } from 'jotai';
 
-import { setupMockHandler } from '../__mocks__/handlersUtils';
-import { events } from '../__mocks__/response/events.json' assert { type: 'json' };
-import App from '../App';
-import { Event } from '../types';
+import { setupMockHandler } from '../../__mocks__/handlersUtils';
+import { events } from '../../__mocks__/response/events.json' assert { type: 'json' };
+import App from '../../App';
+import { Event } from '../../types';
 
 const renderApp = () => {
   return render(

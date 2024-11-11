@@ -5,10 +5,10 @@ import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import React from 'react';
 
-import { setupMockHandler } from '../__mocks__/handlersUtils';
-import App from '../App';
-import { EventManageForm } from '../components/eventManageView/EventManageForm';
-import { Event } from '../types';
+import { setupMockHandler } from '../../__mocks__/handlersUtils';
+import App from '../../App';
+import { EventManageForm } from '../../components/eventManageView/EventManageForm';
+import { Event } from '../../types';
 
 interface ProviderProps {
   initialValues: [atom: any, value: any][];
