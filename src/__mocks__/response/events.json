@@ -1,7 +1,7 @@
 {
   "events": [
     {
-      "id": "1",
+      "id": "2ab06561-10f8-4e7f-8128-4b2dd343c6b9",
       "title": "기존 회의",
       "date": "2024-10-15",
       "startTime": "09:00",
@@ -9,7 +9,7 @@
       "description": "기존 팀 미팅",
       "location": "회의실 B",
       "category": "업무",
-      "repeat": { "type": "none", "interval": 0 },
+      "repeat": { "type": "monthly", "interval": 1 },
       "notificationTime": 10
     }
   ]

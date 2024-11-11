@@ -190,7 +190,7 @@ describe('검색 기능', () => {
         return HttpResponse.json({
           events: [
             {
-              id: 1,
+              id: '2ab06561-10f8-4e7f-8128-4b2dd343c6b9',
               title: '팀 회의',
               date: '2024-10-15',
               startTime: '09:00',
@@ -202,7 +202,7 @@ describe('검색 기능', () => {
               notificationTime: 10,
             },
             {
-              id: 2,
+              id: 'd39ff583-36bf-40e8-b78f-a8760e708d3a',
               title: '프로젝트 계획',
               date: '2024-10-16',
               startTime: '14:00',
@@ -264,7 +264,7 @@ describe('일정 충돌', () => {
   it('겹치는 시간에 새 일정을 추가할 때 경고가 표시된다', async () => {
     setupMockHandlerCreation([
       {
-        id: '1',
+        id: '2ab06561-10f8-4e7f-8128-4b2dd343c6b9',
         title: '기존 회의',
         date: '2024-10-15',
         startTime: '09:00',

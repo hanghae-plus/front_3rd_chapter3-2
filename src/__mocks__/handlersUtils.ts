@@ -23,7 +23,7 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
 export const setupMockHandlerUpdating = () => {
   const mockEvents: Event[] = [
     {
-      id: '1',
+      id: '2ab06561-10f8-4e7f-8128-4b2dd343c6b9',
       title: '기존 회의',
       date: '2024-10-15',
       startTime: '09:00',
@@ -35,7 +35,7 @@ export const setupMockHandlerUpdating = () => {
       notificationTime: 10,
     },
     {
-      id: '2',
+      id: 'd39ff583-36bf-40e8-b78f-a8760e708d3a',
       title: '기존 회의2',
       date: '2024-10-15',
       startTime: '11:00',
@@ -66,7 +66,7 @@ export const setupMockHandlerUpdating = () => {
 export const setupMockHandlerDeletion = () => {
   const mockEvents: Event[] = [
     {
-      id: '1',
+      id: '2ab06561-10f8-4e7f-8128-4b2dd343c6b9',
       title: '삭제할 이벤트',
       date: '2024-10-15',
       startTime: '09:00',

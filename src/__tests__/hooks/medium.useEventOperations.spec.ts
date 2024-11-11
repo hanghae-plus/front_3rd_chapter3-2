@@ -27,7 +27,7 @@ it('저장되어있는 초기 이벤트 데이터를 적절하게 불러온다',
 
   expect(result.current.events).toEqual([
     {
-      id: '1',
+      id: '2ab06561-10f8-4e7f-8128-4b2dd343c6b9',
       title: '기존 회의',
       date: '2024-10-15',
       startTime: '09:00',
@@ -35,7 +35,10 @@ it('저장되어있는 초기 이벤트 데이터를 적절하게 불러온다',
       description: '기존 팀 미팅',
       location: '회의실 B',
       category: '업무',
-      repeat: { type: 'none', interval: 0 },
+      repeat: {
+        interval: 1,
+        type: 'monthly',
+      },
       notificationTime: 10,
     },
   ]);
@@ -76,9 +79,9 @@ it("새로 정의된 'title', 'endTime' 기준으로 적절하게 일정이 업�
   await act(() => Promise.resolve(null));
 
   const updatedEvent: Event = {
-    id: '1',
+    id: '2ab06561-10f8-4e7f-8128-4b2dd343c6b9',
     date: '2024-10-15',
-    startTime: '09:00',
+    startTime: '10:00',
     description: '기존 팀 미팅',
     location: '회의실 B',
     category: '업무',
