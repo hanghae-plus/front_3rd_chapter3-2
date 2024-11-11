@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 import { http, HttpResponse } from 'msw';
 
 import { server } from '../setupTests';
@@ -24,6 +26,7 @@ export const setUpMockHandlerRepeatCreation = (initEvents = [] as Event[]) => {
       const processedEvents = newEventList.map((event) => {
         return {
           ...event,
+          id: randomUUID(),
           repeat: {
             ...event.repeat,
           },
