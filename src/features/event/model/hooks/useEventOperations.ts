@@ -9,7 +9,6 @@ export const useEventOperations = () => {
   const [isOverlapDialogOpen, setIsOverlapDialogOpen] = useState(false);
   const [overlappingEvents, setOverlappingEvents] = useState<Event[]>([]);
   const { setEditingEvent } = useEventFormStore();
-  const onSave = () => setEditingEvent(null);
 
   const toast = useToast();
 
@@ -32,43 +31,57 @@ export const useEventOperations = () => {
     }
   };
 
+  const createEvents = async (eventData: Event | EventForm) => {
+    const response = await fetch('/api/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(eventData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save event');
+    }
+
+    toast({
+      title: '일정이 추가되었습니다.',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+
+  const updateEvent = async (eventData: Event | EventForm) => {
+    await fetch(`/api/events/${(eventData as Event).id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(eventData),
+    });
+
+    toast({
+      title: '일정이 수정되었습니다.',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+
+  const createRepeatEvents = async (eventData: Event | EventForm) => {
+    await fetch('/api/events-list', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(eventData),
+    });
+  };
+
   const saveEvent = async (eventData: Event | EventForm, isEditing: boolean) => {
     try {
-      let response;
       if (isEditing) {
-        response = await fetch(`/api/events/${(eventData as Event).id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
-
-        toast({
-          title: '일정이 수정되었습니다.',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        });
+        updateEvent(eventData);
       } else {
-        response = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
-
-        toast({
-          title: '일정이 추가되었습니다.',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        });
+        createEvents(eventData);
       }
-
-      if (!response.ok) {
-        throw new Error('Failed to save event');
-      }
-
       await fetchEvents();
-      onSave?.();
+      setEditingEvent(null);
     } catch (error) {
       console.error('Error saving event:', error);
       toast({

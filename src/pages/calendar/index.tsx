@@ -4,7 +4,7 @@ import { useEventOperations } from '@features/event/model/hooks';
 import { useNotifications } from '@features/notification/model/hooks';
 import { useSearch } from '@features/search/model/hooks';
 import { CalendarView } from '@widgets/calendar/ui';
-import { AddEventForm, ClashEventDialog, EventView } from '@widgets/event/ui';
+import { EventFormField, ClashEventDialog, EventView } from '@widgets/event/ui';
 import { NotificationDialog } from '@widgets/notification/ui';
 
 export const CalendarPage = () => {
@@ -16,7 +16,7 @@ export const CalendarPage = () => {
   return (
     <Box w="full" h="100vh" m="auto" p={5}>
       <Flex gap={6} h="full">
-        <AddEventForm events={events} saveEvent={saveEvent} />
+        <EventFormField events={events} saveEvent={saveEvent} />
 
         <CalendarView
           view={view}

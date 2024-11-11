@@ -1,5 +1,5 @@
-import { Event } from '../../types';
-import { createNotificationMessage, getUpcomingEvents } from '../../utils/notificationUtils';
+import { Event } from '@entities/event/model/types';
+import { createNotificationMessage, getUpcomingEvents } from '@features/notification/model/utils';
 
 describe('getUpcomingEvents', () => {
   const events: Event[] = [

@@ -19,7 +19,7 @@ const notificationOptions = [
   { value: 60, label: '1시간 전' },
 ];
 
-export const AddEventForm = ({ events, saveEvent }: EventFormProps) => {
+export const EventFormField = ({ events, saveEvent }: EventFormProps) => {
   const {
     title,
     setTitle,
@@ -39,12 +39,12 @@ export const AddEventForm = ({ events, saveEvent }: EventFormProps) => {
   } = useEventFormStore();
 
   return (
-    <VStack w="400px" spacing={5} align="stretch">
+    <VStack w="300px" spacing={5} align="stretch">
       <Heading>{editingEvent ? '일정 수정' : '일정 추가'}</Heading>
 
       <InputField label="제목" value={title} onChange={setTitle} />
 
-      <InputField label="날짜" value={date} onChange={setDate} />
+      <InputField type="date" label="날짜" value={date} onChange={setDate} />
 
       <SelectScheduleField />
 

@@ -1,9 +1,8 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { Event } from '@entities/event/model/types';
 import { render, screen } from '@testing-library/react';
+import { EventFormField } from '@widgets/event/ui';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-import { AddEventForm } from '../AddEventForm';
 
 // 모킹된 값을 제어하기 위한 변수
 let mockEditingEvent: Event | null = null;
@@ -34,7 +33,7 @@ vi.mock('@features/event/ui', () => ({
   RepeatForm: () => <div data-testid="repeat-form">Repeat Form</div>,
 }));
 
-describe('AddEventForm', () => {
+describe('EventFormField', () => {
   const mockEvents: Event[] = [];
   const mockSaveEvent = vi.fn();
 
@@ -51,7 +50,7 @@ describe('AddEventForm', () => {
   it('컴포넌트가 정상적으로 렌더링됨', () => {
     render(
       <ChakraProvider>
-        <AddEventForm {...defaultProps} />
+        <EventFormField {...defaultProps} />
       </ChakraProvider>
     );
 
@@ -68,7 +67,7 @@ describe('AddEventForm', () => {
   it('모든 카테고리 옵션이 렌더링됨', () => {
     render(
       <ChakraProvider>
-        <AddEventForm {...defaultProps} />
+        <EventFormField {...defaultProps} />
       </ChakraProvider>
     );
 
@@ -84,7 +83,7 @@ describe('AddEventForm', () => {
   it('알림 설정 옵션이 올바르게 렌더링됨', () => {
     render(
       <ChakraProvider>
-        <AddEventForm {...defaultProps} />
+        <EventFormField {...defaultProps} />
       </ChakraProvider>
     );
 
@@ -102,7 +101,7 @@ describe('AddEventForm', () => {
 
     render(
       <ChakraProvider>
-        <AddEventForm {...defaultProps} />
+        <EventFormField {...defaultProps} />
       </ChakraProvider>
     );
 

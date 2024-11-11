@@ -1,49 +1,36 @@
-import { Event, EventForm } from '@entities/event/model/types';
+import { Event } from '@entities/event/model/types';
+import { http } from '@shared/api';
 
-const BASE_URL = '/api/events';
+interface EventsResponse {
+  events: Event[];
+}
 
-export const eventApi = {
-  async fetchEvents(): Promise<{ events: Event[] }> {
-    const response = await fetch(BASE_URL);
-    if (!response.ok) {
-      throw new Error('Failed to fetch events');
-    }
-    return response.json();
+export const eventsApi = {
+  getEvents() {
+    return http.get<EventsResponse>('/api/events');
   },
 
-  async createEvent(eventData: EventForm): Promise<Event> {
-    const response = await fetch(BASE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(eventData),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to create event');
-    }
-    return response.json();
+  createEvent(event: Omit<Event, 'id'>) {
+    return http.post<Event>('/api/events', event);
   },
 
-  async updateEvent(id: string, eventData: Event): Promise<Event> {
-    const response = await fetch(`${BASE_URL}/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(eventData),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to update event');
-    }
-    return response.json();
+  updateEvent(id: string, event: Partial<Event>) {
+    return http.put<Event>(`/api/events/${id}`, event);
   },
 
-  async deleteEvent(id: string): Promise<void> {
-    const response = await fetch(`${BASE_URL}/${id}`, {
-      method: 'DELETE',
-    });
+  deleteEvent(id: string) {
+    return http.delete(`/api/events/${id}`);
+  },
 
-    if (!response.ok) {
-      throw new Error('Failed to delete event');
-    }
+  createEventsList(events: Omit<Event, 'id'>[]) {
+    return http.post<Event[]>('/api/events-list', { events });
+  },
+
+  updateEventsList(events: Partial<Event>[]) {
+    return http.put<Event[]>('/api/events-list', { events });
+  },
+
+  deleteEventsList(eventIds: string[]) {
+    return http.delete('/api/events-list', { data: { eventIds } });
   },
 };

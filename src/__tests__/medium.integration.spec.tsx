@@ -1,4 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
+import { Event } from '@entities/event/model/types';
 import { render, screen, within, act } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
@@ -11,7 +12,6 @@ import {
 } from '../__mocks__/handlersUtils';
 import App from '../App';
 import { server } from '../setupTests';
-import { Event } from '../types';
 
 // ! Hard 여기 제공 안함
 const setup = (element: ReactElement) => {
@@ -271,14 +271,16 @@ describe('일정 충돌', () => {
 
     const { user } = setup(<App />);
 
-    await saveSchedule(user, {
-      title: '새 회의',
-      date: '2024-10-15',
-      startTime: '09:30',
-      endTime: '10:30',
-      description: '설명',
-      location: '회의실 A',
-      category: '업무',
+    await act(async () => {
+      await saveSchedule(user, {
+        title: '새 회의',
+        date: '2024-10-15',
+        startTime: '09:30',
+        endTime: '10:30',
+        description: '설명',
+        location: '회의실 A',
+        category: '업무',
+      });
     });
 
     expect(screen.getByText('일정 겹침 경고')).toBeInTheDocument();
