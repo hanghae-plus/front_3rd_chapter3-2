@@ -11,11 +11,12 @@ import {
   Button,
   useToast,
 } from '@chakra-ui/react';
+import React from 'react';
 
 import { CATEGORIES, NOTIFICATION_OPTIONS } from './@constant';
 import { useEventForm } from './@hooks/useEventForm';
 import { useCombinedContext } from '../../provider';
-import { EventForm, RepeatType, Event } from '../../types';
+import { EventForm, Event } from '../../types';
 import { findOverlappingEvents } from '../../utils/eventOverlap';
 import { getTimeErrorMessage } from '../../utils/timeValidation';
 
@@ -23,28 +24,8 @@ export function AddOrEdit() {
   const { events, saveEvent, editingEvent, openOverlapDialog } = useCombinedContext();
 
   const {
-    title,
-    setTitle,
-    date,
-    setDate,
-    startTime,
-    endTime,
-    description,
-    setDescription,
-    location,
-    setLocation,
-    category,
-    setCategory,
-    isRepeating,
-    setIsRepeating,
-    repeatType,
-    setRepeatType,
-    repeatInterval,
-    setRepeatInterval,
-    repeatEndDate,
-    setRepeatEndDate,
-    notificationTime,
-    setNotificationTime,
+    eventForm,
+    setEventForm,
     handleStartTimeChange,
     handleEndTimeChange,
     startTimeError,
@@ -52,10 +33,26 @@ export function AddOrEdit() {
     resetForm,
   } = useEventForm(editingEvent || undefined);
 
+  const {
+    title,
+    date,
+    startTime,
+    endTime,
+    description,
+    location,
+    category,
+    repeat,
+    notificationTime,
+  } = eventForm;
+
+  const { type, interval, endDate } = repeat;
+
   const toast = useToast();
 
+  const isRepeating = repeat.type !== 'none';
+
   const addOrUpdateEvent = async () => {
-    if (!title || !date || !startTime || !endTime) {
+    if (!title || !date || !startTime || !endTime || (isRepeating && !endDate)) {
       toast({
         title: '필수 정보를 모두 입력해주세요.',
         status: 'error',
@@ -77,19 +74,7 @@ export function AddOrEdit() {
 
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
-      title,
-      date,
-      startTime,
-      endTime,
-      description,
-      location,
-      category,
-      repeat: {
-        type: isRepeating ? repeatType : 'none',
-        interval: repeatInterval,
-        endDate: repeatEndDate || undefined,
-      },
-      notificationTime,
+      ...eventForm,
     };
 
     const overlapping = findOverlappingEvents(eventData, events);
@@ -102,18 +87,37 @@ export function AddOrEdit() {
       resetForm();
     }
   };
+
+  const onClickRepeatCheckbox = () => {
+    setEventForm((prev) => ({
+      ...prev,
+      repeat: { ...repeat, type: isRepeating ? 'none' : 'daily' },
+    }));
+  };
+
+  const onChangeEventForm = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setEventForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const onChangeRepeatForm = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setEventForm((prev) => ({ ...prev, repeat: { ...repeat, [name]: value } }));
+  };
+
+  console.log(events);
   return (
     <VStack w="400px" spacing={5} align="stretch">
       <Heading>{editingEvent ? '일정 수정' : '일정 추가'}</Heading>
 
       <FormControl>
         <FormLabel>제목</FormLabel>
-        <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+        <Input value={title} name="title" onChange={onChangeEventForm} />
       </FormControl>
 
       <FormControl>
         <FormLabel>날짜</FormLabel>
-        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        <Input type="date" value={date} name="date" onChange={onChangeEventForm} />
       </FormControl>
 
       <HStack width="100%">
@@ -145,17 +149,17 @@ export function AddOrEdit() {
 
       <FormControl>
         <FormLabel>설명</FormLabel>
-        <Input value={description} onChange={(e) => setDescription(e.target.value)} />
+        <Input value={description} name="description" onChange={onChangeEventForm} />
       </FormControl>
 
       <FormControl>
         <FormLabel>위치</FormLabel>
-        <Input value={location} onChange={(e) => setLocation(e.target.value)} />
+        <Input value={location} name="location" onChange={onChangeEventForm} />
       </FormControl>
 
       <FormControl>
         <FormLabel>카테고리</FormLabel>
-        <Select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <Select value={category} name="category" onChange={onChangeEventForm}>
           <option value="">카테고리 선택</option>
           {CATEGORIES.map((cat) => (
             <option key={cat} value={cat}>
@@ -167,17 +171,14 @@ export function AddOrEdit() {
 
       <FormControl>
         <FormLabel>반복 설정</FormLabel>
-        <Checkbox isChecked={isRepeating} onChange={(e) => setIsRepeating(e.target.checked)}>
+        <Checkbox isChecked={isRepeating} onChange={onClickRepeatCheckbox}>
           반복 일정
         </Checkbox>
       </FormControl>
 
       <FormControl>
         <FormLabel>알림 설정</FormLabel>
-        <Select
-          value={notificationTime}
-          onChange={(e) => setNotificationTime(Number(e.target.value))}
-        >
+        <Select value={notificationTime} name="notificationTime" onChange={onChangeEventForm}>
           {NOTIFICATION_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -190,10 +191,7 @@ export function AddOrEdit() {
         <VStack width="100%">
           <FormControl>
             <FormLabel>반복 유형</FormLabel>
-            <Select
-              value={repeatType}
-              onChange={(e) => setRepeatType(e.target.value as RepeatType)}
-            >
+            <Select value={type} onChange={onChangeRepeatForm}>
               <option value="daily">매일</option>
               <option value="weekly">매주</option>
               <option value="monthly">매월</option>
@@ -205,18 +203,15 @@ export function AddOrEdit() {
               <FormLabel>반복 간격</FormLabel>
               <Input
                 type="number"
-                value={repeatInterval}
-                onChange={(e) => setRepeatInterval(Number(e.target.value))}
+                name="interval"
+                value={interval}
+                onChange={onChangeRepeatForm}
                 min={1}
               />
             </FormControl>
             <FormControl>
               <FormLabel>반복 종료일</FormLabel>
-              <Input
-                type="date"
-                value={repeatEndDate}
-                onChange={(e) => setRepeatEndDate(e.target.value)}
-              />
+              <Input type="date" name="endDate" value={endDate} onChange={onChangeRepeatForm} />
             </FormControl>
           </HStack>
         </VStack>
