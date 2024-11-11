@@ -45,6 +45,16 @@ const renderEventManageForm = (initialValues?: [atom: any, value: any][]) => {
   }
 };
 
+const renderApp = () => {
+  return render(
+    <ChakraProvider>
+      <Provider>
+        <App />
+      </Provider>
+    </ChakraProvider>
+  );
+};
+
 describe('반복 설정 토글 옵션', () => {
   it('반복 일정 미설정 시 반복 유형 옵션이 뜨지 않는다.', async () => {
     renderEventManageForm();
@@ -174,7 +184,7 @@ it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된
   ];
 
   setupMockHandler(initEvents);
-  renderEventManageForm();
+  renderApp();
 
   const eventList = await screen.findByTestId('event-list');
 
@@ -244,7 +254,7 @@ it('반복 일정을 삭제하면 해당 일정만 삭제된다.', async () => {
   ];
 
   setupMockHandler(initEvents);
-  renderEventManageForm();
+  renderApp();
 
   const eventList = await screen.findByTestId('event-list');
 
