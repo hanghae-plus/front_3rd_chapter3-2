@@ -1,52 +1,202 @@
 import { expect } from 'vitest';
-import { RepeatType } from '../../types';
 import { createRepeatEvent } from '../../utils/createRepeatEvent';
 
 describe('createRepeatEvent', () => {
   it('반복 날짜가 1일마다 반복되어야 하고, 입력한 시작 날짜와 종료 날짜를 모두 포함해야 한다.', () => {
-    const result = createRepeatEvent('2024-11-01', 1, 'daily' as RepeatType, '2024-11-05');
-    expect(result).toEqual(['2024-11-01', '2024-11-02', '2024-11-03', '2024-11-04', '2024-11-05']);
+    const event: Event = {
+      id: '1',
+      title: '기존 일정',
+      date: '2024-11-04',
+      startTime: '13:00',
+      endTime: '14:00',
+      description: 'CoreTech Weekly Standup',
+      location: 'CoreTech 회의실',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-11-08' },
+      notificationTime: 10,
+    };
+
+    const result = createRepeatEvent(event);
+
+    expect(result).toEqual([
+      '2024-11-04',
+      '2024-11-05',
+      '2024-11-06',
+      '2024-11-07',
+      '2024-11-08',
+    ]);
   });
 
   it('반복 날짜가 1주마다 반복되어야 하고, 입력한 시작 날짜와 종료 날짜를 모두 포함해야 한다.', () => {
-    const result = createRepeatEvent('2024-11-01', 1, 'weekly' as RepeatType, '2024-11-29');
-    expect(result).toEqual(['2024-11-01', '2024-11-08', '2024-11-15', '2024-11-22', '2024-11-29']);
+    const event: Event = {
+      id: '2',
+      title: '해리와 과제하기',
+      date: '2024-11-11',
+      startTime: '18:00',
+      endTime: '22:00',
+      description: '항해 플러스 8주차 과제하기',
+      location: '스파크플러스',
+      category: '개인',
+      repeat: { type: 'weekly', interval: 1, endDate: '2024-12-09' },
+      notificationTime: 0,
+    };
+
+    const result = createRepeatEvent(event);
+
+    expect(result).toEqual([
+      '2024-11-11',
+      '2024-11-18',
+      '2024-11-25',
+      '2024-12-02',
+      '2024-12-09',
+    ]);
   });
 
   it('반복 날짜가 1개월마다 반복되어야 하고, 입력한 시작 날짜와 종료 날짜를 모두 포함해야 한다.', () => {
-    const result = createRepeatEvent('2024-11-01', 1, 'monthly' as RepeatType, '2025-04-01');
+    const event: Event = {
+      id: '1',
+      title: '기존 일정',
+      date: '2024-11-04',
+      startTime: '13:00',
+      endTime: '14:00',
+      description: 'CoreTech Weekly Standup',
+      location: 'CoreTech 회의실',
+      category: '업무',
+      repeat: { type: 'monthly', interval: 1, endDate: '2025-04-04' },
+      notificationTime: 10,
+    };
+
+    const result = createRepeatEvent(event);
+
     expect(result).toEqual([
-      '2024-11-01',
-      '2024-12-01',
-      '2025-01-01',
-      '2025-02-01',
-      '2025-03-01',
-      '2025-04-01',
+      '2024-11-04',
+      '2024-12-04',
+      '2025-01-04',
+      '2025-02-04',
+      '2025-03-04',
+      '2025-04-04',
     ]);
   });
 
   it('반복 날짜가 1년마다 반복되어야 하고, 입력한 시작 날짜와 종료 날짜를 모두 포함해야 한다.', () => {
-    const result = createRepeatEvent('2024-11-01', 1, 'yearly' as RepeatType, '2028-11-01');
-    expect(result).toEqual(['2024-11-01', '2025-11-01', '2026-11-01', '2027-11-01', '2028-11-01']);
+    const event: Event = {
+      id: '2',
+      title: '해리와 과제하기',
+      date: '2024-11-11',
+      startTime: '18:00',
+      endTime: '22:00',
+      description: '항해 플러스 8주차 과제하기',
+      location: '스파크플러스',
+      category: '개인',
+      repeat: { type: 'yearly', interval: 1, endDate: '2028-11-11' },
+      notificationTime: 0,
+    };
+
+    const result = createRepeatEvent(event);
+
+    expect(result).toEqual([
+      '2024-11-11',
+      '2025-11-11',
+      '2026-11-11',
+      '2027-11-11',
+      '2028-11-11',
+    ]);
   });
 
   it('반복 날짜가 2일마다 반복되어야 하고, 종료 날짜를 초과하지 않는 범위 내에서 반복되어야 한다.', () => {
-    const result = createRepeatEvent('2024-11-01', 2, 'daily' as RepeatType, '2024-11-10');
-    expect(result).toEqual(['2024-11-01', '2024-11-03', '2024-11-05', '2024-11-07', '2024-11-09']);
+    const event: Event = {
+      id: '1',
+      title: '기존 일정',
+      date: '2024-11-04',
+      startTime: '13:00',
+      endTime: '14:00',
+      description: 'CoreTech Weekly Standup',
+      location: 'CoreTech 회의실',
+      category: '업무',
+      repeat: { type: 'daily', interval: 2, endDate: '2024-11-12' },
+      notificationTime: 10,
+    };
+
+    const result = createRepeatEvent(event);
+
+    expect(result).toEqual([
+      '2024-11-04',
+      '2024-11-06',
+      '2024-11-08',
+      '2024-11-10',
+      '2024-11-12',
+    ]);
   });
 
   it('반복 날짜가 3주마다 반복되어야 하고, 종료 날짜를 초과하지 않는 범위 내에서 반복되어야 한다.', () => {
-    const result = createRepeatEvent('2024-11-01', 3, 'weekly' as RepeatType, '2025-01-31');
-    expect(result).toEqual(['2024-11-01', '2024-11-22', '2024-12-13', '2025-01-03', '2025-01-24']);
+    const event: Event = {
+      id: '2',
+      title: '해리와 과제하기',
+      date: '2024-11-11',
+      startTime: '18:00',
+      endTime: '22:00',
+      description: '항해 플러스 8주차 과제하기',
+      location: '스파크플러스',
+      category: '개인',
+      repeat: { type: 'weekly', interval: 3, endDate: '2025-01-31' },
+      notificationTime: 0,
+    };
+
+    const result = createRepeatEvent(event);
+
+    expect(result).toEqual([
+      '2024-11-11',
+      '2024-12-02',
+      '2024-12-23',
+      '2025-01-13',
+    ]);
   });
 
   it('반복 날짜가 3개월마다 반복되어야 하고, 종료 날짜를 초과하지 않는 범위 내에서 반복되어야 한다.', () => {
-    const result = createRepeatEvent('2024-11-01', 3, 'monthly' as RepeatType, '2025-11-01');
-    expect(result).toEqual(['2024-11-01', '2025-02-01', '2025-05-01', '2025-08-01', '2025-11-01']);
+    const event: Event = {
+      id: '1',
+      title: '기존 일정',
+      date: '2024-11-04',
+      startTime: '13:00',
+      endTime: '14:00',
+      description: 'CoreTech Weekly Standup',
+      location: 'CoreTech 회의실',
+      category: '업무',
+      repeat: { type: 'monthly', interval: 3, endDate: '2025-11-04' },
+      notificationTime: 10,
+    };
+
+    const result = createRepeatEvent(event);
+
+    expect(result).toEqual([
+      '2024-11-04',
+      '2025-02-04',
+      '2025-05-04',
+      '2025-08-04',
+      '2025-11-04',
+    ]);
   });
 
   it('반복 일정이 종료 날짜 이전까지 정확하게 생성되어야 한다.', () => {
-    const result = createRepeatEvent('2024-11-01', 1, 'weekly' as RepeatType, '2024-11-15');
-    expect(result).toEqual(['2024-11-01', '2024-11-08', '2024-11-15']);
+    const event: Event = {
+      id: '2',
+      title: '해리와 과제하기',
+      date: '2024-11-11',
+      startTime: '18:00',
+      endTime: '22:00',
+      description: '항해 플러스 8주차 과제하기',
+      location: '스파크플러스',
+      category: '개인',
+      repeat: { type: 'weekly', interval: 1, endDate: '2024-11-25' },
+      notificationTime: 0,
+    };
+
+    const result = createRepeatEvent(event);
+
+    expect(result).toEqual([
+      '2024-11-11',
+      '2024-11-18',
+      '2024-11-25',
+    ]);
   });
 });
