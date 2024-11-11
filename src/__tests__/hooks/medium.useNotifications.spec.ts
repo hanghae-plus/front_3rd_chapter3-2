@@ -18,7 +18,7 @@ it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다
   const notificationTime = 5;
   const mockEvents: Event[] = [
     {
-      id: 1,
+      id: '1',
       title: '테스트 이벤트',
       date: formatDate(new Date()),
       startTime: parseHM(Date.now() + 10 * 분),
@@ -50,8 +50,8 @@ it('index를 기준으로 알림을 적절하게 제거할 수 있다', () => {
 
   act(() => {
     result.current.setNotifications([
-      { id: 1, message: '테스트 알림 1' },
-      { id: 2, message: '테스트 알림 2' },
+      { id: '1', message: '테스트 알림 1' },
+      { id: '2', message: '테스트 알림 2' },
     ]);
   });
 
@@ -68,7 +68,7 @@ it('index를 기준으로 알림을 적절하게 제거할 수 있다', () => {
 it('이미 알림이 발생한 이벤트에 대해서는 중복 알림이 발생하지 않아야 한다', () => {
   const mockEvents: Event[] = [
     {
-      id: 1,
+      id: '1',
       title: '테스트 이벤트',
       date: formatDate(new Date()),
       startTime: parseHM(Date.now() + 10 * 분),
