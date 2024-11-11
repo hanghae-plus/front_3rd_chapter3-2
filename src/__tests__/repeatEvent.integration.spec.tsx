@@ -74,9 +74,11 @@ describe('반복 일정 생성', () => {
       description: '설명',
       location: '위치',
       category: '업무',
-      repeat: { type: 'daily', interval: 2, endDate: '2024-01-05' },
+      repeat: { type: 'daily', interval: 1, endDate: '2024-01-05' },
     });
 
+    await assertEventOnDate('2024-01-01', '2024년 1월');
+    await assertEventOnDate('2024-01-02', '2024년 1월');
     await assertEventOnDate('2024-01-03', '2024년 1월');
   });
 
@@ -92,10 +94,30 @@ describe('반복 일정 생성', () => {
       description: '설명',
       location: '위치',
       category: '업무',
-      repeat: { type: 'weekly', interval: 2, endDate: '2024-02-01' },
+      repeat: { type: 'weekly', interval: 1, endDate: '2024-02-01' },
     });
 
     await assertEventOnDate('2024-01-15', '2024년 1월');
+    await assertEventOnDate('2024-01-29', '2024년 1월');
+  });
+
+  it('매달 반복 일정이 정상적으로 생성되어야 한다', async () => {
+    setUpMockHandlerRepeatCreation();
+    const { user } = setup(<App />);
+
+    await saveScheduleRepeat(user, {
+      title: '주간 회의',
+      date: '2024-01-01',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '설명',
+      location: '위치',
+      category: '업무',
+      repeat: { type: 'monthly', interval: 1, endDate: '2024-03-01' },
+    });
+
+    await assertEventOnDate('2024-02-01', '2024년 2월');
+    await assertEventOnDate('2024-03-01', '2024년 3월');
   });
 
   it('월말에서 다음달 초로 넘어가는 일일 반복이 정상 동작해야 한다', async () => {
