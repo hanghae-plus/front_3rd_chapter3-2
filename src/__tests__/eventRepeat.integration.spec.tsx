@@ -289,3 +289,39 @@ it('반복 일정을 삭제하면 해당 일정만 삭제된다.', async () => {
 
   expect(within(eventList).getAllByText('팀 회의 타이틀')).toHaveLength(2);
 });
+
+it('단일 일정을 반복 일정으로 변경하면 해당 일정이 반복 일정으로 변경된다.', async () => {
+  const initEvents: Event[] = [
+    {
+      id: '1',
+      title: '팀 회의 타이틀',
+      date: '2024-11-03',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '팀 회의',
+      location: '회의실',
+      category: '업무',
+      repeat: {
+        type: 'none',
+        interval: 1,
+      },
+      notificationTime: 10,
+    },
+  ];
+
+  setupMockHandler(initEvents);
+  renderApp();
+
+  const eventList = await screen.findByTestId('event-list');
+
+  const editButton = await within(eventList).findByRole('button', { name: 'Edit event' });
+  await userEvent.click(editButton);
+
+  await userEvent.click(screen.getByRole('checkbox', { name: /반복 일정/ }));
+  await userEvent.type(screen.getByLabelText(/반복 종료일/), '2024-11-05');
+
+  await userEvent.click(screen.getByRole('button', { name: /일정 수정/ }));
+
+  expect(within(eventList).getAllByText('팀 회의 타이틀')).toHaveLength(3);
+  expect(await screen.findAllByLabelText('Repeat event')).toHaveLength(3);
+});
