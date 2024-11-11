@@ -6,6 +6,7 @@ import { useHydrateAtoms } from 'jotai/utils';
 import React from 'react';
 
 import { setupMockHandler } from '../__mocks__/handlersUtils';
+import App from '../App';
 import { EventManageForm } from '../components/eventManageView/EventManageForm';
 import { Event } from '../types';
 
@@ -202,7 +203,7 @@ it('반복 일정을 삭제하면 해당 일정만 삭제된다.', async () => {
   const initEvents: Event[] = [
     {
       id: '1',
-      title: '팀 회의',
+      title: '팀 회의 타이틀',
       date: '2024-11-03',
       startTime: '09:00',
       endTime: '10:00',
@@ -219,7 +220,7 @@ it('반복 일정을 삭제하면 해당 일정만 삭제된다.', async () => {
     },
     {
       id: '2',
-      title: '팀 회의',
+      title: '팀 회의 타이틀',
       date: '2024-11-04',
       startTime: '09:00',
       endTime: '10:00',
@@ -236,7 +237,7 @@ it('반복 일정을 삭제하면 해당 일정만 삭제된다.', async () => {
     },
     {
       id: '3',
-      title: '팀 회의',
+      title: '팀 회의 타이틀',
       date: '2024-11-05',
       startTime: '09:00',
       endTime: '10:00',
@@ -259,7 +260,9 @@ it('반복 일정을 삭제하면 해당 일정만 삭제된다.', async () => {
   const eventList = await screen.findByTestId('event-list');
 
   const deleteButton = await within(eventList).findAllByRole('button', { name: 'Delete event' });
+  expect(deleteButton).toHaveLength(3);
   await userEvent.click(deleteButton[0]);
 
-  expect(within(eventList).getAllByText('팀 회의')).toHaveLength(2);
+  screen.debug(eventList);
+  expect(within(eventList).getAllByText('팀 회의 타이틀')).toHaveLength(2);
 });
