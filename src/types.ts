@@ -24,5 +24,5 @@ export interface Event extends EventForm {
 
 export interface RepeatEvent extends RepeatInfo {
   eventId: string;
-  event: Omit<Event, 'id' | 'repeat'> & { repeatId: string };
+  event: Array<Omit<Event, 'id' | 'repeat'> & { repeatId: string }>;
 }
