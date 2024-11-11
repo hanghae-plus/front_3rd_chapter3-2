@@ -1,3 +1,4 @@
+/* eslint-disable cypress/unsafe-to-chain-command */
 import '@testing-library/cypress/add-commands';
 
 Cypress.Commands.add('fillEventForm', (event) => {
