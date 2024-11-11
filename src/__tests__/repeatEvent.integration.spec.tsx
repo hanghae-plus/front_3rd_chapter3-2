@@ -365,7 +365,7 @@ describe('반복 일정 표시', () => {
 });
 
 describe('반복 일정 종료', () => {
-  it('특정 날짜까지 반복되는 일정이 정상적으로 생성되어야 한다', async () => {
+  it('종료 일정이 있다면 종료 일정 이후 일정이 삭제 된다.', async () => {
     setUpMockHandlerRepeatCreation();
     const { user } = setup(<App />);
 
