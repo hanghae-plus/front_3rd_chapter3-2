@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 import { findEventIndexById } from '@utils/findUtil';
 import { http, HttpResponse } from 'msw';
 
@@ -22,7 +24,7 @@ export const handlers = [
   // POST: 새로운 이벤트 추가
   http.post('/api/events', async ({ request }) => {
     const newEvent = (await request.json()) as EventForm;
-    const updatedEvent = { ...newEvent, id: String(mockEvents.length + 1) };
+    const updatedEvent = { id: randomUUID(), ...newEvent };
     mockEvents = [...mockEvents, updatedEvent];
     return HttpResponse.json(updatedEvent, { status: 201 });
   }),
