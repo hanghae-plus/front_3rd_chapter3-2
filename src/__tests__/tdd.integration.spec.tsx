@@ -243,3 +243,60 @@ describe('반복 일정 단일 수정', () => {
     expect(repeatIcon2).toBeInTheDocument();
   });
 });
+// 6. 반복 일정 단일 삭제
+describe('반복 일정 단일 삭제', () => {
+  it('반복 일정을 단일 삭제하면 해당 일정만 삭제되어야 한다', async () => {
+    const mockEvents: Event[] = [
+      {
+        id: '1',
+        title: '팀 회의',
+        date: '2024-10-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '주간 팀 미팅',
+        location: '회의실 A',
+        category: '업무',
+        repeat: { type: 'weekly', interval: 1, count: 2 },
+        notificationTime: 10,
+      },
+      {
+        id: '2',
+        title: '팀 회의',
+        date: '2024-10-22',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '주간 팀 미팅',
+        location: '회의실 A',
+        category: '업무',
+        repeat: { type: 'weekly', interval: 1, count: 2 },
+        notificationTime: 10,
+      },
+    ];
+    setupMockHandlerCreation(mockEvents);
+
+    const { user } = setup(<App />);
+
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({ events: mockEvents });
+      }),
+      http.delete('/api/events/:id', ({ params }) => {
+        const { id } = params;
+        const index = mockEvents.findIndex((event) => event.id === id);
+
+        mockEvents.splice(index, 1);
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+    // 삭제 버튼 클릭
+    const allDeleteButton = await screen.findAllByLabelText('Delete event');
+    await user.click(allDeleteButton[0]);
+    const eventList = within(screen.getByTestId('event-list'));
+    // 모든 반복이벤트가 지워지지않았는지 확인(same title)
+    expect(eventList.getByText('팀 회의')).toBeInTheDocument();
+    // 첫 번째 이벤트가 더 이상 화면에 존재하지 않는지 확인
+    expect(eventList.queryByText('2024-10-15')).not.toBeInTheDocument();
+    // 두 번째 이벤트는 여전히 존재하는지 확인
+    expect(eventList.getByText('2024-10-22')).toBeInTheDocument();
+  });
+});
