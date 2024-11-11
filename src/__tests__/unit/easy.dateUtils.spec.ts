@@ -338,62 +338,221 @@ describe('calculateNextDate', () => {
   });
 });
 describe('generateRepeatingEvents', () => {
-  it('반복 횟수 없이 종료 날짜가 지정된 경우, 종료 날짜까지 반복된 날짜 배열을 생성해야 한다', () => {
-    const dates = generateRepeatingEvents(
+  it('반복 횟수 없이 종료 날짜가 지정된 경우, 종료 날짜까지 반복된 이벤트 배열을 생성해야 한다', () => {
+    const dates = generateRepeatingEvents({
+      id: '1',
+      title: '이벤트 1',
+      date: '2024-04-27',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '',
+      location: '',
+      category: '',
+      repeat: { type: 'weekly', interval: 1, endDate: '2024-05-11' },
+      notificationTime: 0,
+    });
+    expect(dates).toEqual([
       {
-        id: '1',
-        title: '이벤트 1',
-        date: '2024-04-27',
-        startTime: '09:00',
-        endTime: '10:00',
-        description: '',
-        location: '',
         category: '',
-        repeat: { type: 'weekly', interval: 1 },
+        date: '2024-04-27',
+        description: '',
+        endTime: '10:00',
+        id: undefined,
+        location: '',
         notificationTime: 0,
+        repeat: {
+          endDate: '2024-05-11',
+          interval: 1,
+          type: 'weekly',
+        },
+        startTime: '09:00',
+        title: '이벤트 1',
       },
-      undefined,
-      '2024-05-11'
-    );
-    expect(dates).toEqual(['2024-04-27', '2024-05-04', '2024-05-11']);
+      {
+        category: '',
+        date: '2024-05-04',
+        description: '',
+        endTime: '10:00',
+        id: undefined,
+        location: '',
+        notificationTime: 0,
+        repeat: {
+          endDate: '2024-05-11',
+          interval: 1,
+          type: 'weekly',
+        },
+        startTime: '09:00',
+        title: '이벤트 1',
+      },
+      {
+        category: '',
+        date: '2024-05-11',
+        description: '',
+        endTime: '10:00',
+        id: undefined,
+        location: '',
+        notificationTime: 0,
+        repeat: {
+          endDate: '2024-05-11',
+          interval: 1,
+          type: 'weekly',
+        },
+        startTime: '09:00',
+        title: '이벤트 1',
+      },
+    ]);
   });
 
-  it('종료 날짜 없이 반복 횟수가 지정된 경우, 반복 횟수만큼 반복된 날짜 배열을 생성해야 한다', () => {
-    const dates = generateRepeatingEvents(
+  it('종료 날짜 없이 반복 횟수가 지정된 경우, 반복 횟수만큼 반복된 이벤트 배열을 생성해야 한다', () => {
+    const dates = generateRepeatingEvents({
+      id: '1',
+      title: '이벤트 1',
+      date: '2024-04-27',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '',
+      location: '',
+      category: '',
+      repeat: { type: 'weekly', interval: 1, count: 5 },
+      notificationTime: 0,
+    });
+    expect(dates).toEqual([
       {
-        id: '1',
-        title: '이벤트 1',
-        date: '2024-04-27',
-        startTime: '09:00',
-        endTime: '10:00',
-        description: '',
-        location: '',
         category: '',
-        repeat: { type: 'weekly', interval: 1 },
+        date: '2024-04-27',
+        description: '',
+        endTime: '10:00',
+        id: undefined,
+        location: '',
         notificationTime: 0,
+        repeat: {
+          count: 5,
+          endDate: '2025-06-30',
+          interval: 1,
+          type: 'weekly',
+        },
+        startTime: '09:00',
+        title: '이벤트 1',
       },
-      5
-    );
-    expect(dates).toEqual(['2024-04-27', '2024-05-04', '2024-05-11', '2024-05-18', '2024-05-25']);
+      {
+        category: '',
+        date: '2024-05-04',
+        description: '',
+        endTime: '10:00',
+        id: undefined,
+        location: '',
+        notificationTime: 0,
+        repeat: {
+          count: 5,
+          endDate: '2025-06-30',
+          interval: 1,
+          type: 'weekly',
+        },
+        startTime: '09:00',
+        title: '이벤트 1',
+      },
+      {
+        category: '',
+        date: '2024-05-11',
+        description: '',
+        endTime: '10:00',
+        id: undefined,
+        location: '',
+        notificationTime: 0,
+        repeat: {
+          count: 5,
+          endDate: '2025-06-30',
+          interval: 1,
+          type: 'weekly',
+        },
+        startTime: '09:00',
+        title: '이벤트 1',
+      },
+      {
+        category: '',
+        date: '2024-05-18',
+        description: '',
+        endTime: '10:00',
+        id: undefined,
+        location: '',
+        notificationTime: 0,
+        repeat: {
+          count: 5,
+          endDate: '2025-06-30',
+          interval: 1,
+          type: 'weekly',
+        },
+        startTime: '09:00',
+        title: '이벤트 1',
+      },
+      {
+        category: '',
+        date: '2024-05-25',
+        description: '',
+        endTime: '10:00',
+        id: undefined,
+        location: '',
+        notificationTime: 0,
+        repeat: {
+          count: 5,
+          endDate: '2025-06-30',
+          interval: 1,
+          type: 'weekly',
+        },
+        startTime: '09:00',
+        title: '이벤트 1',
+      },
+    ]);
   });
 
-  it('반복 횟수와 종료 날짜가 모두 지정된 경우, 먼저 반복 횟수를 우선시하여 날짜 배열을 생성해야 한다', () => {
-    const dates = generateRepeatingEvents(
+  it('반복 횟수와 종료 날짜가 모두 지정된 경우, 먼저 반복 횟수를 우선시하여 이벤트 배열을 생성해야 한다', () => {
+    const dates = generateRepeatingEvents({
+      id: '1',
+      title: '이벤트 1',
+      date: '2024-04-27',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '',
+      location: '',
+      category: '',
+      repeat: { type: 'weekly', interval: 1, endDate: '2024-05-11', count: 2 },
+      notificationTime: 0,
+    });
+    expect(dates).toEqual([
       {
-        id: '1',
-        title: '이벤트 1',
-        date: '2024-04-27',
-        startTime: '09:00',
-        endTime: '10:00',
-        description: '',
-        location: '',
+        id: undefined,
         category: '',
-        repeat: { type: 'weekly', interval: 1 },
+        date: '2024-04-27',
+        description: '',
+        endTime: '10:00',
+        location: '',
         notificationTime: 0,
+        repeat: {
+          count: 2,
+          endDate: '2024-05-11',
+          interval: 1,
+          type: 'weekly',
+        },
+        startTime: '09:00',
+        title: '이벤트 1',
       },
-      2,
-      '2024-05-11'
-    );
-    expect(dates).toEqual(['2024-04-27', '2024-05-04']);
+      {
+        id: undefined,
+        category: '',
+        date: '2024-05-04',
+        description: '',
+        endTime: '10:00',
+        location: '',
+        notificationTime: 0,
+        repeat: {
+          count: 2,
+          endDate: '2024-05-11',
+          interval: 1,
+          type: 'weekly',
+        },
+        startTime: '09:00',
+        title: '이벤트 1',
+      },
+    ]);
   });
 });
