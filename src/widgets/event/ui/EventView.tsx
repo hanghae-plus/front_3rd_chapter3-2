@@ -20,7 +20,7 @@ export const EventView = ({
 }: EventViewProps) => {
   const { editEvent } = useEventFormStore();
   return (
-    <VStack data-testid="event-list" w="300px" h="full" overflowY="auto">
+    <VStack data-testid="event-list" w="290px" h="full" overflowY="auto">
       <FormControl>
         <FormLabel>일정 검색</FormLabel>
         <Input

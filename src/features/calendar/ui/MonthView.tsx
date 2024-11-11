@@ -37,7 +37,6 @@ export const MonthView = ({
               {week.map((day, dayIndex) => {
                 const dateString = day ? formatDate(currentDate, day) : '';
                 const holiday = holidays[dateString];
-
                 return (
                   <Td
                     key={dayIndex}

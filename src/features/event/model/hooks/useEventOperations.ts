@@ -59,6 +59,7 @@ export const useEventOperations = () => {
       await createRepeatEvents(repeatedEvents);
       return;
     }
+
     try {
       let response;
       if (isEditing) {

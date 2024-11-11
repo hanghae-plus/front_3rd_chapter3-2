@@ -46,5 +46,7 @@ export function getFilteredEvents(
     return filterEventsByDateRangeAtMonth(searchedEvents, currentDate);
   }
 
+  console.log(searchedEvents);
+
   return searchedEvents;
 }

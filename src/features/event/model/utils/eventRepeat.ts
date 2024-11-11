@@ -1,14 +1,33 @@
 import { Event, EventForm } from '@entities/event/model/types';
 
 /**
+ * @description 윤년인지 확인하는 함수
+ * @param year 년도
+ * @returns 윤년 여부
+ */
+function isLeapYear(year: number): boolean {
+  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+}
+
+/**
+ * @description 날짜가 2월 29일인지 확인하는 함수
+ * @param date 날짜
+ * @returns 2월 29일 여부
+ */
+function isFebruary29(date: Date): boolean {
+  return date.getMonth() === 1 && date.getDate() === 29;
+}
+
+/**
  * @description 반복 이벤트의 다음 날짜를 계산하는 함수
  * @param date 기준 날짜
  * @param type 반복 유형
  * @param interval 반복 간격
  * @returns 다음 날짜
  */
-function calculateNextDate(date: Date, type: string, interval: number): Date {
+function calculateNextDate(date: Date, type: string, interval: number): Date | null {
   const newDate = new Date(date);
+  const isStartDateFeb29 = isFebruary29(date);
 
   switch (type) {
     case 'daily':
@@ -18,10 +37,36 @@ function calculateNextDate(date: Date, type: string, interval: number): Date {
       newDate.setDate(date.getDate() + interval * 7);
       break;
     case 'monthly':
-      newDate.setMonth(date.getMonth() + interval);
+      if (isStartDateFeb29) {
+        // 2월 29일인 경우 월간 반복에서 제외
+        return null;
+      } else {
+        newDate.setMonth(date.getMonth() + interval);
+      }
       break;
     case 'yearly':
-      newDate.setFullYear(date.getFullYear() + interval);
+      if (isStartDateFeb29) {
+        // 2월 29일인 경우, 다음 윤년을 찾음
+        let nextYear = date.getFullYear() + interval;
+
+        // 다음 간격의 연도가 윤년이 아니면 그 다음 윤년을 찾음
+        while (!isLeapYear(nextYear)) {
+          nextYear += interval;
+        }
+
+        // 종료일을 넘어가면 null 반환
+        const endDate = new Date(date);
+        endDate.setFullYear(nextYear);
+        if (endDate > new Date(date)) {
+          newDate.setFullYear(nextYear);
+          newDate.setMonth(1); // 1은 2월을 의미
+          newDate.setDate(29);
+        } else {
+          return null;
+        }
+      } else {
+        newDate.setFullYear(date.getFullYear() + interval);
+      }
       break;
   }
   return newDate;
@@ -68,13 +113,20 @@ export function generateRepeatedEvents(baseEvent: Event | EventForm): Omit<Event
   if (!endRepeatDate) return events;
 
   let currentDate = startDate;
+
   const isTrue = true;
   while (isTrue) {
-    currentDate = calculateNextDate(currentDate, type, interval);
+    // 다음 날짜 계산
+    const nextDate = calculateNextDate(currentDate, type, interval);
 
-    if (currentDate > endRepeatDate) break;
+    // nextDate가 null이면 더 이상 반복하지 않음
+    if (!nextDate) break;
 
-    events.push(createRepeatedEvent(baseEvent, currentDate));
+    // 종료일을 넘어가면 반복 중단
+    if (nextDate > endRepeatDate) break;
+
+    events.push(createRepeatedEvent(baseEvent, nextDate));
+    currentDate = nextDate;
   }
 
   return events;
