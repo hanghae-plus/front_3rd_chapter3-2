@@ -21,7 +21,8 @@ import { findOverlappingEvents } from '../../utils/eventOverlap';
 import { getTimeErrorMessage } from '../../utils/timeValidation';
 
 export function AddOrEdit() {
-  const { events, saveEvent, editingEvent, openOverlapDialog } = useCombinedContext();
+  const { events, saveEvent, editingEvent, openOverlapDialog, setOverlappingEvents } =
+    useCombinedContext();
 
   const {
     eventForm,
@@ -79,7 +80,7 @@ export function AddOrEdit() {
 
     const overlapping = findOverlappingEvents(eventData, events);
     if (overlapping.length > 0) {
-      findOverlappingEvents(eventData, events);
+      setOverlappingEvents(overlapping);
       openOverlapDialog(eventData as Event);
       resetForm();
     } else {
@@ -105,7 +106,6 @@ export function AddOrEdit() {
     setEventForm((prev) => ({ ...prev, repeat: { ...repeat, [name]: value } }));
   };
 
-  console.log(events);
   return (
     <VStack w="400px" spacing={5} align="stretch">
       <Heading>{editingEvent ? '일정 수정' : '일정 추가'}</Heading>
