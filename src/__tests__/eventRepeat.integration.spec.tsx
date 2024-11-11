@@ -133,7 +133,6 @@ it('반복 일정 추가 시 캘린더에 Repeat Event 아이콘이 표시된다
   setupMockHandler();
   renderApp();
 
-  // ! HINT. event를 추가 제거하고 저장하는 로직을 잘 살펴보고, 만약 그대로 구현한다면 어떤 문제가 있을 지 고민해보세요.
   await userEvent.type(screen.getByLabelText(/제목/), '팀 회의 제목');
   await userEvent.type(screen.getByLabelText(/날짜/), '2024-11-03');
   await userEvent.type(screen.getByLabelText(/시작 시간/), '09:00');
@@ -143,18 +142,21 @@ it('반복 일정 추가 시 캘린더에 Repeat Event 아이콘이 표시된다
   await userEvent.selectOptions(screen.getByLabelText(/카테고리/), '업무');
 
   await userEvent.click(screen.getByRole('checkbox', { name: /반복 일정/ }));
+  await userEvent.type(screen.getByLabelText(/반복 종료일/), '2024-11-05');
 
   await userEvent.click(screen.getByRole('button', { name: /일정 추가/ }));
-  await userEvent.type(screen.getByLabelText(/날짜/), '2024-11-05');
 
-  expect(await screen.findAllByRole('button', { name: 'Repeat event' })).toHaveLength(3);
+  const eventList = await screen.findByTestId('event-list');
+
+  expect(within(eventList).getAllByText('팀 회의 제목')).toHaveLength(3);
+  expect(screen.getAllByLabelText('Repeat event')).toHaveLength(3);
 });
 
 it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된다.', async () => {
   const initEvents: Event[] = [
     {
       id: '1',
-      title: '팀 회의',
+      title: '팀 회의 제목',
       date: '2024-11-03',
       startTime: '09:00',
       endTime: '10:00',
@@ -171,7 +173,7 @@ it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된
     },
     {
       id: '2',
-      title: '팀 회의',
+      title: '팀 회의 제목',
       date: '2024-11-04',
       startTime: '09:00',
       endTime: '10:00',
@@ -188,7 +190,7 @@ it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된
     },
     {
       id: '3',
-      title: '팀 회의',
+      title: '팀 회의 제목',
       date: '2024-11-05',
       startTime: '09:00',
       endTime: '10:00',
@@ -213,11 +215,12 @@ it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된
   const editButton = await within(eventList).findAllByRole('button', { name: 'Edit event' });
   await userEvent.click(editButton[0]);
 
-  await userEvent.clear(screen.getByLabelText(/제목/));
-  await userEvent.type(screen.getByLabelText(/제목/), '팀 회의 수정');
+  await userEvent.clear(screen.getByLabelText(/설명/));
+  await userEvent.type(screen.getByLabelText(/설명/), '팀 회의 설명 수정');
   await userEvent.click(screen.getByRole('button', { name: /일정 수정/ }));
 
-  expect(await screen.findAllByRole('button', { name: 'Repeat event' })).toHaveLength(2);
+  expect(within(eventList).getAllByText('팀 회의 제목')).toHaveLength(3);
+  expect(await screen.findAllByLabelText('Repeat event')).toHaveLength(2);
 });
 
 it('반복 일정을 삭제하면 해당 일정만 삭제된다.', async () => {
