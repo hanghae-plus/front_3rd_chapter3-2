@@ -229,3 +229,84 @@ describe('반복 유형 선택', () => {
     expect(screen.getByLabelText('반복 유형')).toBeInTheDocument();
   });
 });
+
+describe('반복 간격 설정', () => {
+  it('2일마다 반복되는 일정이 정상적으로 생성되어야 한다', async () => {
+    setUpMockHandlerRepeatCreation();
+    const { user } = setup(<App />);
+
+    await saveScheduleRepeat(user, {
+      title: '2일마다 회의',
+      date: '2024-01-01',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '설명',
+      location: '위치',
+      category: '업무',
+      repeat: { type: 'daily', interval: 2, endDate: '2024-01-05' },
+    });
+
+    await assertEventOnDate('2024-01-01', '2024년 1월'); // 초기 생성
+    await assertEventOnDate('2024-01-03', '2024년 1월'); // 2일 후
+    await assertEventOnDate('2024-01-05', '2024년 1월'); // 4일 후
+  });
+
+  it('3주마다 반복되는 일정이 정상적으로 생성되어야 한다', async () => {
+    setUpMockHandlerRepeatCreation();
+    const { user } = setup(<App />);
+
+    await saveScheduleRepeat(user, {
+      title: '3주마다 회의',
+      date: '2024-01-01',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '설명',
+      location: '위치',
+      category: '업무',
+      repeat: { type: 'weekly', interval: 3, endDate: '2024-02-01' },
+    });
+
+    await assertEventOnDate('2024-01-01', '2024년 1월'); // 초기 생성
+    await assertEventOnDate('2024-01-22', '2024년 1월'); // 3주 후
+  });
+
+  it('2개월마다 반복되는 일정이 정상적으로 생성되어야 한다', async () => {
+    setUpMockHandlerRepeatCreation();
+    const { user } = setup(<App />);
+
+    await saveScheduleRepeat(user, {
+      title: '2개월마다 회의',
+      date: '2024-01-15',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '설명',
+      location: '위치',
+      category: '업무',
+      repeat: { type: 'monthly', interval: 2, endDate: '2024-05-15' },
+    });
+
+    await assertEventOnDate('2024-01-15', '2024년 1월'); // 초기 생성
+    await assertEventOnDate('2024-03-15', '2024년 3월'); // 2개월 후
+    await assertEventOnDate('2024-05-15', '2024년 5월'); // 4개월 후
+  });
+
+  it('2년마다 반복되는 일정이 정상적으로 생성되어야 한다', async () => {
+    setUpMockHandlerRepeatCreation();
+    const { user } = setup(<App />);
+
+    await saveScheduleRepeat(user, {
+      title: '2년마다 회의',
+      date: '2024-01-15',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '설명',
+      location: '위치',
+      category: '업무',
+      repeat: { type: 'yearly', interval: 2, endDate: '2028-01-15' },
+    });
+
+    await assertEventOnDate('2024-01-15', '2024년 1월'); // 초기 생성
+    await assertEventOnDate('2026-01-15', '2026년 1월'); // 2년 후
+    await assertEventOnDate('2028-01-15', '2028년 1월'); // 4년 후
+  });
+});
