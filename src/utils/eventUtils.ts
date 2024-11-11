@@ -57,7 +57,7 @@ export function generateRecurringEvents(
 ): string[] {
   const dates = [];
   const currentDate = new Date(startDate);
-  const end = new Date(endDate);
+  const end = endDate ? new Date(endDate) : new Date('2025-06-30');
 
   while (currentDate <= end) {
     dates.push(currentDate.toISOString().split('T')[0]);

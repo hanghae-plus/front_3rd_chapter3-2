@@ -11,7 +11,7 @@ interface CalendarViewProps {
 }
 
 const CalendarView = ({ events }: CalendarViewProps) => {
-  const { view, setView, navigate } = useCalendarView();
+  const { view, setView, navigate, currentDate } = useCalendarView();
 
   return (
     <VStack flex={1} spacing={5} align="stretch">
@@ -34,12 +34,15 @@ const CalendarView = ({ events }: CalendarViewProps) => {
         <IconButton
           aria-label="Next"
           icon={<ChevronRightIcon />}
-          onClick={() => navigate('next')}
+          onClick={() => {
+            console.log('hello');
+            navigate('next');
+          }}
         />
       </HStack>
 
       {view === 'week' && <CalendarWeekView events={events} />}
-      {view === 'month' && <CalendarMonthView events={events} />}
+      {view === 'month' && <CalendarMonthView events={events} currentDate={currentDate} />}
     </VStack>
   );
 };

@@ -13,7 +13,9 @@ export const useEventForm = (initialEvent?: Event) => {
   const [description, setDescription] = useState(initialEvent?.description || '');
   const [location, setLocation] = useState(initialEvent?.location || '');
   const [category, setCategory] = useState(initialEvent?.category || '');
-  const [isRepeating, setIsRepeating] = useState(initialEvent?.repeat.type !== 'none');
+  const [isRepeating, setIsRepeating] = useState(
+    initialEvent?.repeat.type && initialEvent?.repeat.type !== 'none'
+  );
   const [repeatType, setRepeatType] = useState<RepeatType>(initialEvent?.repeat.type || 'none');
   const [repeatInterval, setRepeatInterval] = useState(initialEvent?.repeat.interval || 1);
   const [repeatEndDate, setRepeatEndDate] = useState(initialEvent?.repeat.endDate || '');
@@ -36,6 +38,19 @@ export const useEventForm = (initialEvent?: Event) => {
     const newEndTime = e.target.value;
     setEndTime(newEndTime);
     setTimeError(getTimeErrorMessage(startTime, newEndTime));
+  };
+
+  const handleDateChange = (newDate: string) => {
+    const [year, month, day] = newDate.split('-').map(Number);
+    const lastDayOfMonth = new Date(year, month, 0).getDate();
+
+    if (month === 2 && day === 29 && new Date(year, 1, 29).getDate() !== 29) {
+      setDate(`${year}-02-28`);
+    } else if (day > lastDayOfMonth) {
+      setDate(`${year}-${String(month).padStart(2, '0')}-${lastDayOfMonth}`);
+    } else {
+      setDate(newDate);
+    }
   };
 
   const resetForm = () => {
@@ -62,18 +77,25 @@ export const useEventForm = (initialEvent?: Event) => {
     setDescription(event.description);
     setLocation(event.location);
     setCategory(event.category);
-    setIsRepeating(event.repeat.type !== 'none');
-    setRepeatType(event.repeat.type);
-    setRepeatInterval(event.repeat.interval);
-    setRepeatEndDate(event.repeat.endDate || '');
-    setNotificationTime(event.notificationTime);
+
+    if (event.repeat.type !== 'none') {
+      setIsRepeating(false);
+      setRepeatType('none');
+      setRepeatInterval(1);
+      setRepeatEndDate('');
+    } else {
+      setIsRepeating(event.repeat.type !== 'none');
+      setRepeatType(event.repeat.type);
+      setRepeatInterval(event.repeat.interval);
+      setRepeatEndDate(event.repeat.endDate || '');
+    }
   };
 
   return {
     title,
     setTitle,
     date,
-    setDate,
+    setDate: handleDateChange,
     startTime,
     setStartTime,
     endTime,

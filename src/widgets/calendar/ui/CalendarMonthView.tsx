@@ -1,4 +1,4 @@
-import { BellIcon } from '@chakra-ui/icons';
+import { AtSignIcon, BellIcon } from '@chakra-ui/icons';
 import {
   Box,
   Heading,
@@ -27,9 +27,10 @@ import { useNotifications } from '../../../features/notification/model/useNotifi
 
 interface CalendarMonthViewProps {
   events: Event[];
+  currentDate: Date;
 }
-const CalendarMonthView = ({ events }: CalendarMonthViewProps) => {
-  const { view, currentDate, holidays } = useCalendarView();
+const CalendarMonthView = ({ events, currentDate }: CalendarMonthViewProps) => {
+  const { view, holidays } = useCalendarView();
   const { filteredEvents } = useSearch(events, currentDate, view);
   const { notifiedEvents } = useNotifications(events);
 
@@ -85,6 +86,9 @@ const CalendarMonthView = ({ events }: CalendarMonthViewProps) => {
                             >
                               <HStack spacing={1}>
                                 {isNotified && <BellIcon />}
+                                {event.repeat.type !== 'none' && (
+                                  <AtSignIcon aria-label="at-sign-icon" />
+                                )}
                                 <Text fontSize="sm" noOfLines={1}>
                                   {event.title}
                                 </Text>

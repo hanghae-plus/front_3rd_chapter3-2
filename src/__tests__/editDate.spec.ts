@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { describe, vi } from 'vitest';
 
 import { setupMockHandlerCreation, setupMockHandlerUpdating } from '../__mocks__/handlersUtils.ts';
-import { useEventForm } from '../hooks/useEventForm.ts';
+import { useEventForm } from '../features/event/model/useEventForm.ts';
 import { Event, RepeatType } from '../types.ts';
 import { generateRecurringEvents } from '../utils/eventUtils.ts';
 
@@ -49,6 +49,11 @@ describe('editDate', () => {
         description: '',
         location: '',
         category: '',
+        repeat: {
+          type: 'none',
+          interval: 1,
+          endDate: '2025-12-31',
+        },
         notificationTime: 10,
       });
     });
@@ -60,6 +65,6 @@ describe('editDate', () => {
     expect(eventFormResult.current.isRepeating).toBe(false);
     expect(eventFormResult.current.repeatType).toBe('none');
     expect(eventFormResult.current.repeatInterval).toBe(1);
-    expect(eventFormResult.current.repeatEndDate).toBe('');
+    expect(eventFormResult.current.repeatEndDate).toBe('2025-12-31');
   });
 });

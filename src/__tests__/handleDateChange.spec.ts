@@ -1,6 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-
-import { useEventForm } from '../hooks/useEventForm.ts';
+import { useEventForm } from '../features/event/model/useEventForm.ts';
 
 describe('setDate(handleDateChange)', () => {
   it.skip('윤년이 아닌 해의 2월 29일을 2월 28일로 조정해야 한다 > 리팩토링 전', () => {

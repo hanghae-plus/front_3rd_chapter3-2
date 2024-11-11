@@ -29,6 +29,8 @@ import { useSearch } from '../features/event/model/useSearch.ts';
 import EventSearch from '../features/event/ui/EventSearch.tsx';
 import NotificationDialog from '../widgets/notification/ui/NotificationDialog.tsx';
 import NotificationMessage from '../widgets/notification/ui/NotificationMessage.tsx';
+import { generateRecurringEvents } from '../utils/eventUtils.ts';
+import { useEffect } from 'react';
 
 const CalendarPage = () => {
   const {
@@ -112,15 +114,42 @@ const CalendarPage = () => {
       },
       notificationTime,
     };
+    console.log('Editing Event:', editingEvent, isRepeating, eventData);
 
     const overlapping = findOverlappingEvents(eventData, events);
     if (overlapping.length > 0) {
       openOverlapDialog(overlapping);
     } else {
-      await saveEvent(eventData);
+      if (editingEvent && editingEvent.repeat.type !== 'none' && !isRepeating) {
+        console.log('else1', eventData);
+        await saveEvent({ ...eventData, repeat: { type: 'none', interval: 1 } });
+      }
+      if (isRepeating && repeatType !== 'none') {
+        const dates = generateRecurringEvents(date, repeatInterval, repeatType, repeatEndDate);
+        const recurringEvents = dates.map((eventDate) => ({
+          ...eventData,
+          date: eventDate,
+        }));
+
+        for (const event of recurringEvents) {
+          await saveEvent(event);
+        }
+      } else {
+        console.log('hello');
+        await saveEvent(eventData);
+      }
+
       resetForm();
     }
   };
+
+  // useEffect(() => {
+  //   if (!isRepeating) {
+  //     setRepeatType('none');
+  //     setRepeatInterval(1);
+  //     setRepeatEndDate('');
+  //   }
+  // }, [isRepeating]);
 
   return (
     <Box w="full" h="100vh" m="auto" p={5}>
@@ -189,6 +218,7 @@ const CalendarPage = () => {
 
           <FormControl>
             <FormLabel>반복 설정</FormLabel>
+            <div>{isRepeating}</div>
             <Checkbox isChecked={isRepeating} onChange={(e) => setIsRepeating(e.target.checked)}>
               반복 일정
             </Checkbox>

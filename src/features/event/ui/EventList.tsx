@@ -1,4 +1,4 @@
-import { BellIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { AtSignIcon, BellIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { Box, HStack, IconButton, Text, VStack } from '@chakra-ui/react';
 
 import { Event } from '../../../entities/event/model/type.ts';
@@ -24,6 +24,7 @@ const EventList = ({ notifiedEvents, event, editEvent, deleteEvent }: EventListP
               fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
               color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
             >
+              {event.repeat.type !== 'none' && <AtSignIcon aria-label="at-sign-icon" />}
               {event.title}
             </Text>
           </HStack>

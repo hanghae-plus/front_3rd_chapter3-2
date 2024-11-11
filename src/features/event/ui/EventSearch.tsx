@@ -9,8 +9,8 @@ import { useSearch } from '../model/useSearch.ts';
 interface EventSearchProps {
   events: Event[];
   filteredEvents: Event[];
-  editEvent: void;
-  deleteEvent: void;
+  editEvent: () => void;
+  deleteEvent: () => void;
 }
 
 const EventSearch = ({ events, deleteEvent, editEvent }: EventSearchProps) => {
@@ -35,6 +35,7 @@ const EventSearch = ({ events, deleteEvent, editEvent }: EventSearchProps) => {
       ) : (
         filteredEvents.map((event: Event) => (
           <EventList
+            key={event.id}
             event={event}
             editEvent={editEvent}
             deleteEvent={deleteEvent}

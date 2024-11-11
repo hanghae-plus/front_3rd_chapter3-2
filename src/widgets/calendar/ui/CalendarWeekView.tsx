@@ -1,4 +1,4 @@
-import { BellIcon } from '@chakra-ui/icons';
+import { AtSignIcon, BellIcon } from '@chakra-ui/icons';
 import {
   Box,
   Heading,
@@ -65,6 +65,7 @@ const CalendarWeekView = ({ events }: CalendarWeekViewProps) => {
                       >
                         <HStack spacing={1}>
                           {isNotified && <BellIcon />}
+                          {event.repeat.type !== 'none' && <AtSignIcon aria-label="at-sign-icon" />}
                           <Text fontSize="sm" noOfLines={1}>
                             {event.title}
                           </Text>
