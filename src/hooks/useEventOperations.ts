@@ -30,26 +30,26 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
       let response;
-      if (eventData.repeat.type !== 'none') {
-        if (editing) {
-          response = await fetch(`/api/events-list`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ events: generateRepeatingEvents(eventData) }),
-          });
-        } else {
+      if (editing) {
+        // 일정 수정 시 , 단일로 수정 (반복일정->일반일정)
+        const editEvent: EventForm = {
+          ...eventData,
+          repeat: {
+            ...eventData.repeat,
+            type: 'none',
+          },
+        };
+        response = await fetch(`/api/events/${(editEvent as Event).id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(editEvent),
+        });
+      } else {
+        if (eventData.repeat.type !== 'none') {
           response = await fetch('/api/events-list', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ events: generateRepeatingEvents(eventData) }),
-          });
-        }
-      } else {
-        if (editing) {
-          response = await fetch(`/api/events/${(eventData as Event).id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(eventData),
           });
         } else {
           response = await fetch('/api/events', {
@@ -58,10 +58,10 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
             body: JSON.stringify(eventData),
           });
         }
+      }
 
-        if (!response.ok) {
-          throw new Error('Failed to save event');
-        }
+      if (!response.ok) {
+        throw new Error('Failed to save event');
       }
 
       await fetchEvents();
