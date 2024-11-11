@@ -147,3 +147,45 @@ describe('반복 일정 표시', () => {
     expect(within(eventList).queryByTestId('repeat-icon-2')).not.toBeInTheDocument();
   });
 });
+
+// 4. 반복 종료 조건 설정
+describe('반복 종료 조건 설정', () => {
+  it('특정 날짜까지 종료 옵션을 선택하면 날짜 입력 필드가 표시되어야 한다', () => {
+    const { user } = setup(<App />);
+    const repeatCheckbox = screen.getByLabelText('반복 일정');
+    user.click(repeatCheckbox);
+
+    const endConditionDateRadio = screen.getByLabelText('특정 날짜까지');
+    user.click(endConditionDateRadio);
+
+    expect(screen.getByLabelText('종료 날짜')).toBeInTheDocument();
+  });
+
+  it('특정 횟수만큼 종료 옵션을 선택하면 횟수 입력 필드가 표시되어야 한다', () => {
+    const { user } = setup(<App />);
+    const repeatCheckbox = screen.getByLabelText('반복 일정');
+    user.click(repeatCheckbox);
+
+    const endConditionCountRadio = screen.getByLabelText('특정 횟수만큼');
+    user.click(endConditionCountRadio);
+
+    expect(screen.getByLabelText('횟수')).toBeInTheDocument();
+  });
+
+  it('종료 없음 옵션을 선택하면 추가 입력 필드가 숨겨져야 한다', () => {
+    const { user } = setup(<App />);
+    const repeatCheckbox = screen.getByLabelText('반복 일정');
+    user.click(repeatCheckbox);
+    // 먼저 특정 날짜까지 선택
+    const endConditionDateRadio = screen.getByLabelText('특정 날짜까지');
+    user.click(endConditionDateRadio);
+    expect(screen.getByLabelText('종료 날짜')).toBeInTheDocument();
+
+    // 종료 없음 선택
+    const endConditionNoneRadio = screen.getByLabelText('종료 없음');
+    user.click(endConditionNoneRadio);
+
+    expect(screen.queryByLabelText('종료 날짜')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('횟수')).not.toBeInTheDocument();
+  });
+});

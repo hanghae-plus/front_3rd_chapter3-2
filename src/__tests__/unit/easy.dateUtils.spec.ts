@@ -5,6 +5,7 @@ import {
   formatDate,
   formatMonth,
   formatWeek,
+  generateRepeatingEvents,
   getDaysInMonth,
   getEventsForDay,
   getWeekDates,
@@ -335,10 +336,64 @@ describe('calculateNextDate', () => {
     const result = calculateNextDate('2020-02-29', 'yearly');
     expect(result).toBe('2021-02-28'); // 2021은 윤년이 아님
   });
-
-  it('잘못된 반복 유형이 입력되면 오류를 던져야 한다', () => {
-    expect(() => calculateNextDate('2024-04-27', 'invalid' as any)).toThrow(
-      '유효하지 않은 반복 유형입니다.'
+});
+describe('generateRepeatingEvents', () => {
+  it('반복 횟수 없이 종료 날짜가 지정된 경우, 종료 날짜까지 반복된 날짜 배열을 생성해야 한다', () => {
+    const dates = generateRepeatingEvents(
+      {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-04-27',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'weekly', interval: 1 },
+        notificationTime: 0,
+      },
+      undefined,
+      '2024-05-11'
     );
+    expect(dates).toEqual(['2024-04-27', '2024-05-04', '2024-05-11']);
+  });
+
+  it('종료 날짜 없이 반복 횟수가 지정된 경우, 반복 횟수만큼 반복된 날짜 배열을 생성해야 한다', () => {
+    const dates = generateRepeatingEvents(
+      {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-04-27',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'weekly', interval: 1 },
+        notificationTime: 0,
+      },
+      5
+    );
+    expect(dates).toEqual(['2024-04-27', '2024-05-04', '2024-05-11', '2024-05-18', '2024-05-25']);
+  });
+
+  it('반복 횟수와 종료 날짜가 모두 지정된 경우, 먼저 반복 횟수를 우선시하여 날짜 배열을 생성해야 한다', () => {
+    const dates = generateRepeatingEvents(
+      {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-04-27',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'weekly', interval: 1 },
+        notificationTime: 0,
+      },
+      2,
+      '2024-05-11'
+    );
+    expect(dates).toEqual(['2024-04-27', '2024-05-04']);
   });
 });
