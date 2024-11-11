@@ -30,19 +30,18 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
       let response;
-      console.log(eventData.repeat.type);
       if (eventData.repeat.type !== 'none') {
         if (editing) {
           response = await fetch(`/api/events-list`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(generateRepeatingEvents(eventData)),
+            body: JSON.stringify({ events: generateRepeatingEvents(eventData) }),
           });
         } else {
           response = await fetch('/api/events-list', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(generateRepeatingEvents(eventData)),
+            body: JSON.stringify({ events: generateRepeatingEvents(eventData) }),
           });
         }
       } else {

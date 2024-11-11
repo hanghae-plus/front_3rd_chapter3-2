@@ -1,5 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act, fireEvent } from '@testing-library/react';
+import { render, screen, within, act } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
@@ -110,46 +110,40 @@ describe('반복 유형 선택', () => {
 
 // 3. 반복 일정 표시
 describe('반복 일정 표시', () => {
-  it('반복 일정에 아이콘이 표시되어야 한다', async () => {
-    server.use(
-      http.get('/api/events', () => {
-        return HttpResponse.json({
-          events: [
-            {
-              id: 1,
-              title: '팀 회의',
-              date: '2024-10-15',
-              startTime: '09:00',
-              endTime: '10:00',
-              description: '주간 팀 미팅',
-              location: '회의실 A',
-              category: '업무',
-              repeat: { type: 'weekly', interval: 0 },
-              notificationTime: 10,
-            },
-            {
-              id: 2,
-              title: '프로젝트 계획',
-              date: '2024-10-16',
-              startTime: '14:00',
-              endTime: '15:00',
-              description: '새 프로젝트 계획 수립',
-              location: '회의실 B',
-              category: '업무',
-              repeat: { type: 'none', interval: 0 },
-              notificationTime: 10,
-            },
-          ],
-        });
-      })
-    );
+  it('반복 일정에는 "repeat" 아이콘이 표시되어야 한다', async () => {
+    setupMockHandlerCreation([
+      {
+        id: '1',
+        title: '팀 회의',
+        date: '2024-10-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '주간 팀 미팅',
+        location: '회의실 A',
+        category: '업무',
+        repeat: { type: 'weekly', interval: 1 },
+        notificationTime: 10,
+      },
+      {
+        id: '2',
+        title: '프로젝트 계획',
+        date: '2024-10-16',
+        startTime: '14:00',
+        endTime: '15:00',
+        description: '새 프로젝트 계획 수립',
+        location: '회의실 B',
+        category: '업무',
+        repeat: { type: 'none', interval: 1 },
+        notificationTime: 10,
+      },
+    ]);
     setup(<App />);
-
-    // 렌더링 시 아이콘 확인
-    const repeatIcon = screen.getByTestId('repeat-icon-1');
+    // ! 일정 로딩 완료 후 테스트
+    await screen.findByText('일정 로딩 완료!');
+    const eventList = screen.getByTestId('event-list');
+    const repeatIcon = within(eventList).getByTestId('repeat-icon-1');
     expect(repeatIcon).toBeInTheDocument();
-
     // 반복이 아닌 일정에는 아이콘이 없어야 함
-    expect(screen.queryByTestId('repeat-icon-2')).not.toBeInTheDocument();
+    expect(within(eventList).queryByTestId('repeat-icon-2')).not.toBeInTheDocument();
   });
 });
