@@ -40,6 +40,35 @@ const saveSchedule = async (
   await user.click(screen.getByTestId('event-submit-button'));
 };
 
+const saveScheduleWithRepeat = async (
+  user: UserEvent,
+  form: Omit<Event, 'id' | 'notificationTime'>
+) => {
+  const { title, date, startTime, endTime, location, description, category, repeat } = form;
+
+  await user.click(screen.getAllByText('일정 추가')[0]);
+
+  await user.type(screen.getByLabelText('제목'), title);
+  await user.type(screen.getByLabelText('날짜'), date);
+  await user.type(screen.getByLabelText('시작 시간'), startTime);
+  await user.type(screen.getByLabelText('종료 시간'), endTime);
+  await user.type(screen.getByLabelText('설명'), description);
+  await user.type(screen.getByLabelText('위치'), location);
+  await user.selectOptions(screen.getByLabelText('카테고리'), category);
+  const repeatCheckbox = screen.getByLabelText('반복 일정') as HTMLInputElement;
+  if (!repeatCheckbox.checked) {
+    await user.click(repeatCheckbox);
+  }
+  await user.selectOptions(screen.getByLabelText('반복 유형'), repeat.type);
+  await user.clear(screen.getByLabelText('반복 간격'));
+  await user.type(screen.getByLabelText('반복 간격'), repeat.interval.toString());
+  if (repeat.endDate) {
+    await user.type(screen.getByLabelText('반복 종료일'), repeat.endDate);
+  }
+
+  await user.click(screen.getByTestId('event-submit-button'));
+};
+
 describe('일정 CRUD 및 기본 기능', () => {
   it('입력한 새로운 일정 정보에 맞춰 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
     setupMockHandlerCreation();
@@ -323,4 +352,96 @@ it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트
   });
 
   expect(screen.getByText('10분 후 기존 회의 일정이 시작됩니다.')).toBeInTheDocument();
+});
+
+describe('반복 유형 선택', () => {
+  // - 일정 생성 또는 수정 시 반복 유형을 선택할 수 있다.
+  // - 반복 유형은 다음과 같다: 매일, 매주, 매월, 매년
+  // - 만약, 윤년 29일에 또는 31일에 매월 또는 매년 반복일정을 설정한다면 어떻게 처리할까요? 다른 서비스를 참고해보시고 자유롭게 작성해보세요.
+
+  it('매일 반복 유형을 선택하면 매일 반복되는 일정이 생성된다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+    await saveScheduleWithRepeat(user, {
+      title: '매일 반복 일정',
+      date: '2024-10-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '매일 반복되는 일정을 설정합니다.',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1 },
+    });
+    const monthView = within(screen.getByTestId('month-view'));
+    const date16Td = monthView.getByText('16').closest('td')!;
+    const date17Td = monthView.getByText('17').closest('td')!;
+    expect(within(date16Td).getByText('매일 반복 일정')).toBeInTheDocument();
+    expect(within(date17Td).getByText('매일 반복 일정')).toBeInTheDocument();
+  });
+  it('매주 반복 유형을 선택하면 매주 반복되는 일정이 생성된다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+    await saveScheduleWithRepeat(user, {
+      title: '매주 반복 일정',
+      date: '2024-10-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '매주 반복되는 일정을 설정합니다.',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { type: 'weekly', interval: 1 },
+    });
+    const monthView = within(screen.getByTestId('month-view'));
+    const date16Td = monthView.getByText('16').closest('td')!;
+    const date23Td = monthView.getByText('23').closest('td')!;
+    expect(within(date16Td).getByText('매주 반복 일정')).toBeInTheDocument();
+    expect(within(date23Td).getByText('매주 반복 일정')).toBeInTheDocument();
+  });
+  it('매월 반복 유형을 선택하면 매월 반복되는 일정이 생성된다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+    await saveScheduleWithRepeat(user, {
+      title: '매월 반복 일정',
+      date: '2024-10-31',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '매월 반복 일정',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { type: 'monthly', interval: 1 },
+    });
+    const monthView = within(screen.getByTestId('month-view'));
+    const date31Td10 = monthView.getByText('31').closest('td')!;
+    expect(within(date31Td10).getByText('매월 반복 일정')).toBeInTheDocument();
+    await user.click(await screen.findByLabelText('Next'));
+    await user.click(await screen.findByLabelText('Next'));
+    const date31Td12 = monthView.getByText('31').closest('td')!;
+    expect(within(date31Td12).getByText('매월 반복 일정')).toBeInTheDocument();
+  });
+  it('매년 반복 유형을 선택하면 매년 반복되는 일정이 생성된다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+    await saveScheduleWithRepeat(user, {
+      title: '매년 반복 일정',
+      date: '2024-10-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '매년 반복 일정',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { type: 'yearly', interval: 1 },
+    });
+    const monthView = within(screen.getByTestId('month-view'));
+    const date16Td2024 = monthView.getByText('16').closest('td')!;
+    expect(within(date16Td2024).getByText('매년 반복 일정')).toBeInTheDocument();
+    for (let i = 0; i < 12; i++) {
+      await user.click(await screen.findByLabelText('Next'));
+    }
+    const date16Td2025 = monthView.getByText('16').closest('td')!;
+    expect(within(date16Td2025).getByText('매년 반복 일정')).toBeInTheDocument();
+  });
 });
