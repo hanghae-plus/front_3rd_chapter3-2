@@ -1,4 +1,4 @@
-import { BellIcon } from '@chakra-ui/icons';
+import { BellIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import { Box, HStack, Text } from '@chakra-ui/react';
 
 import { Event } from '../../types';
@@ -23,6 +23,7 @@ export const EventCell = ({ event, notifiedEvents }: Props) => {
     >
       <HStack spacing={1}>
         {isNotified && <BellIcon />}
+        {event.repeat.type !== 'none' && <RepeatClockIcon aria-label="Repeat event" />}
         <Text fontSize="sm" noOfLines={1}>
           {event.title}
         </Text>
