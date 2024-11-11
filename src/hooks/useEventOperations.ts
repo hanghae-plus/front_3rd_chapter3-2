@@ -30,7 +30,6 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
       let response;
-
       if (editing) {
         response = await fetch(`/api/events/${(eventData as Event).id}`, {
           method: 'PUT',
@@ -38,6 +37,14 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
           body: JSON.stringify(eventData),
         });
       } else {
+        response = await fetch('/api/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(eventData),
+        });
+      }
+
+      if (eventData.repeat.type !== 'none') {
         response = await fetch('/api/events-list', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
