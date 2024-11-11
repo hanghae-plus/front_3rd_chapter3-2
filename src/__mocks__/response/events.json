@@ -2,14 +2,38 @@
   "events": [
     {
       "id": "1",
-      "title": "기존 회의",
-      "date": "2024-10-15",
-      "startTime": "09:00",
-      "endTime": "10:00",
-      "description": "기존 팀 미팅",
-      "location": "회의실 B",
-      "category": "업무",
-      "repeat": { "type": "none", "interval": 0 },
+      "title": "회의",
+      "date": "2024-10-01",
+      "startTime": "10:00",
+      "endTime": "11:00",
+      "description": "Description 1",
+      "location": "Location 1",
+      "category": "Work",
+      "repeat": { "type": "weekly", "interval": 1 },
+      "notificationTime": 30
+    },
+    {
+      "id": "2",
+      "title": "점심",
+      "date": "2024-10-02",
+      "startTime": "12:00",
+      "endTime": "13:00",
+      "description": "Description 2",
+      "location": "Location 2",
+      "category": "Meeting",
+      "repeat": { "type": "weekly", "interval": 1 },
+      "notificationTime": 15
+    },
+    {
+      "id": "3",
+      "title": "스크럼",
+      "date": "2024-10-28",
+      "startTime": "14:00",
+      "endTime": "15:00",
+      "description": "Description 3",
+      "location": "Location 3",
+      "category": "Meeting",
+      "repeat": { "type": "monthly", "interval": 1 },
       "notificationTime": 10
     }
   ]

@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import { events } from '../__mocks__/response/events.json' assert { type: 'json' };
-import { Event } from '../types';
+import { Event } from '../entities/event/model/type.ts';
 
 export const handlers = [
   http.get('/api/events', () => {
@@ -10,17 +10,18 @@ export const handlers = [
 
   http.post('/api/events', async ({ request }) => {
     const newEvent = (await request.json()) as Event;
-    newEvent.id = String(events.length + 1);
+    newEvent.id = (events.length + 1).toString(); // 새로운 ID 생성
+
     return HttpResponse.json(newEvent, { status: 201 });
   }),
 
   http.put('/api/events/:id', async ({ params, request }) => {
     const { id } = params;
     const updatedEvent = (await request.json()) as Event;
-    const index = events.findIndex((event) => event.id === id);
+    const eventIndex = events.findIndex((event) => event.id === id);
 
-    if (index !== -1) {
-      return HttpResponse.json({ ...events[index], ...updatedEvent });
+    if (eventIndex !== -1) {
+      return HttpResponse.json({ ...events[eventIndex], ...updatedEvent });
     }
 
     return new HttpResponse(null, { status: 404 });
@@ -28,9 +29,9 @@ export const handlers = [
 
   http.delete('/api/events/:id', ({ params }) => {
     const { id } = params;
-    const index = events.findIndex((event) => event.id === id);
+    const eventIndex = events.findIndex((event) => event.id === id);
 
-    if (index !== -1) {
+    if (eventIndex !== -1) {
       return new HttpResponse(null, { status: 204 });
     }
 
