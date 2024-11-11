@@ -199,4 +199,49 @@ describe('createRepeatEvent', () => {
       '2024-11-25',
     ]);
   });
+  it('종료 날짜가 없으면 반복 일정이 2025-06-30까지 생성된다.', () => {
+    const event: Event = {
+      id: '1',
+      title: '중요 회의',
+      date: '2023-05-10',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '',
+      location: '',
+      category: '',
+      repeat: { type: 'daily', interval: 1 },
+      notificationTime: 15,
+    };
+
+    const result = createRepeatEvent(event);
+    const lastEvent = result[result.length - 1];
+
+    expect(lastEvent).toEqual('2025-06-30');
+  });
+
+  it('사용자가 지정한 특정 횟수만큼 일정이 반복되어야 한다', () => {
+    const event: Event = {
+      id: '2',
+      title: '주간 회의',
+      date: '2024-01-01',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '',
+      location: '',
+      category: '',
+      repeat: { type: 'weekly', interval: 1 },
+      notificationTime: 30,
+    };
+
+    const maxOccurrences = 5;
+    const result = createRepeatEvent(event, maxOccurrences);
+
+    expect(result).toEqual([
+      '2024-01-01',
+      '2024-01-08',
+      '2024-01-15',
+      '2024-01-22',
+      '2024-01-29',
+    ]);
+  });
 });
