@@ -170,3 +170,76 @@ describe('반복 종료 조건 설정', () => {
     expect(endConditionCountInput).toBeInTheDocument();
   });
 });
+// 5. 반복 일정 단일 수정
+describe('반복 일정 단일 수정', () => {
+  it('반복 일정을 수정하면 단일 일정으로 변경되고 아이콘이 사라져야 한다', async () => {
+    const mockEvents: Event[] = [
+      {
+        id: '1',
+        title: '팀 회의',
+        date: '2024-10-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '주간 팀 미팅',
+        location: '회의실 A',
+        category: '업무',
+        repeat: { type: 'weekly', interval: 1, count: 2 },
+        notificationTime: 10,
+      },
+      {
+        id: '2',
+        title: '팀 회의',
+        date: '2024-10-22',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '주간 팀 미팅',
+        location: '회의실 A',
+        category: '업무',
+        repeat: { type: 'weekly', interval: 1, count: 2 },
+        notificationTime: 10,
+      },
+    ];
+    setupMockHandlerCreation(mockEvents);
+
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({ events: mockEvents });
+      }),
+      http.put('/api/events/:id', async ({ params, request }) => {
+        const { id } = params;
+        const updatedEvent = (await request.json()) as Event;
+        const index = mockEvents.findIndex((event) => event.id === id);
+
+        mockEvents[index] = { ...mockEvents[index], ...updatedEvent };
+        return HttpResponse.json(mockEvents[index]);
+      })
+    );
+
+    const { user } = setup(<App />);
+    // ! 일정 로딩 완료 후 테스트
+    await screen.findByText('일정 로딩 완료!');
+    const eventList = screen.getByTestId('event-list');
+    // 반복일정인지 확인
+    const repeatIcon = within(eventList).getByTestId('repeat-icon-1');
+    const repeatIcon2 = within(eventList).getByTestId('repeat-icon-2');
+    expect(repeatIcon).toBeInTheDocument();
+    expect(repeatIcon2).toBeInTheDocument();
+
+    const editButton = (await screen.findAllByLabelText('Edit event'))[0];
+    await user.click(editButton);
+
+    await user.clear(screen.getByLabelText('제목'));
+    await user.type(screen.getByLabelText('제목'), '수정된 회의');
+    await user.clear(screen.getByLabelText('설명'));
+    await user.type(screen.getByLabelText('설명'), '회의 내용 변경');
+
+    await user.click(screen.getByTestId('event-submit-button'));
+    screen.debug(eventList);
+    expect(within(eventList).getByText('수정된 회의')).toBeInTheDocument();
+    expect(within(eventList).getByText('회의 내용 변경')).toBeInTheDocument();
+
+    // 수정된 일정 id=1은 반복해제, id=2는 반복 그대로
+    expect(repeatIcon).not.toBeInTheDocument();
+    expect(repeatIcon2).toBeInTheDocument();
+  });
+});

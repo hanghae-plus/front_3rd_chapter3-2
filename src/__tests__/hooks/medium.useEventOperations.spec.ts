@@ -95,6 +95,44 @@ it("새로 정의된 'title', 'endTime' 기준으로 적절하게 일정이 업�
   expect(result.current.events[0]).toEqual(updatedEvent);
 });
 
+it('반복일정을 수정하면 단일 일정으로 변경된다.', async () => {
+  setupMockHandlerUpdating();
+
+  const { result } = renderHook(() => useEventOperations(true));
+
+  await act(() => Promise.resolve(null));
+
+  const updatedEvent: Event = {
+    id: '3',
+    title: '회의A',
+    date: '2024-10-15',
+    startTime: '11:00',
+    endTime: '12:00',
+    description: '기존 팀 미팅 2',
+    location: '회의실 C',
+    category: '업무 회의',
+    repeat: { type: 'weekly', interval: 1, count: 2 },
+    notificationTime: 5,
+  };
+
+  await act(async () => {
+    await result.current.saveEvent(updatedEvent);
+  });
+
+  expect(result.current.events[2]).toEqual({
+    id: '3',
+    title: '회의A',
+    date: '2024-10-15',
+    startTime: '11:00',
+    endTime: '12:00',
+    description: '기존 팀 미팅 2',
+    location: '회의실 C',
+    category: '업무 회의',
+    repeat: { type: 'none', interval: 1, count: 2 },
+    notificationTime: 5,
+  });
+});
+
 it('존재하는 이벤트 삭제 시 에러없이 아이템이 삭제된다.', async () => {
   setupMockHandlerDeletion();
 
