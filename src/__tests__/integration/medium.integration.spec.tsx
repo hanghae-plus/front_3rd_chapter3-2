@@ -2,6 +2,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { render, screen, within, act } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
+import { OverlayProvider } from 'overlay-kit';
 import { ReactElement } from 'react';
 
 import {
@@ -17,7 +18,14 @@ import { Event } from '../../types';
 const setup = (element: ReactElement) => {
   const user = userEvent.setup();
 
-  return { ...render(<ChakraProvider>{element}</ChakraProvider>), user }; // ? Med: 왜 ChakraProvider로 감싸는지 물어보자
+  return {
+    ...render(
+      <ChakraProvider>
+        <OverlayProvider>{element}</OverlayProvider>
+      </ChakraProvider>
+    ),
+    user,
+  }; // ? Med: 왜 ChakraProvider로 감싸는지 물어보자
 };
 
 // ! Hard 여기 제공 안함

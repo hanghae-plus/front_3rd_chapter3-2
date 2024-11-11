@@ -13,7 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { overlay } from 'overlay-kit';
-import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction } from 'react';
 
 import { Event, EventForm, RepeatInfo, RepeatType } from '../types';
 import { OverlappingEventDialog } from './OverlappingEventDialog';
@@ -70,8 +70,6 @@ export const EventHandleForm = ({
     setIsRepeating,
   } = eventFormState;
 
-  const [overlappingEvents, setOverlappingEvents] = useState<Event[]>([]);
-
   const addOrUpdateEvent = async () => {
     if (!eventForm.title || !eventForm.date || !eventForm.startTime || !eventForm.endTime) {
       toast({
@@ -99,9 +97,8 @@ export const EventHandleForm = ({
       eventData.id = editingEvent.id;
     }
 
-    const overlapping = findOverlappingEvents(eventData, events);
-    if (overlapping.length > 0) {
-      setOverlappingEvents(overlapping);
+    const overlappingEvents = findOverlappingEvents(eventData, events);
+    if (overlappingEvents.length > 0) {
       overlay.open(({ isOpen, close }) => {
         return (
           <OverlappingEventDialog

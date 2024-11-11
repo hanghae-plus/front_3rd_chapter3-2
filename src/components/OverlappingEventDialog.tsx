@@ -35,7 +35,7 @@ export const OverlappingEventDialog = ({
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={() => close}>
+    <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={close}>
       <AlertDialogOverlay>
         <AlertDialogContent>
           <AlertDialogHeader fontSize="lg" fontWeight="bold">
@@ -53,7 +53,7 @@ export const OverlappingEventDialog = ({
           </AlertDialogBody>
 
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={() => close}>
+            <Button ref={cancelRef} onClick={close}>
               취소
             </Button>
             <Button
