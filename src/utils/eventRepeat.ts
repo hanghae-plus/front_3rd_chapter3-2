@@ -1,7 +1,44 @@
 import { Event, EventForm, RepeatInfo } from '../types.ts';
 import { formatDate, getDaysInMonth } from './dateUtils.ts';
 
-export function generateEventDates(startDate: string, repeat: RepeatInfo): string[] {
+function adjustNextDailyDate(date: Date, interval: number): Date {
+  const newDate = new Date(date);
+  newDate.setDate(newDate.getDate() + interval);
+  return newDate;
+}
+
+function adjustNextWeeklyDate(date: Date, interval: number): Date {
+  const newDate = new Date(date);
+  newDate.setDate(newDate.getDate() + interval * 7);
+  return newDate;
+}
+
+function adjustNextMonthlyDate(date: Date, targetDay: number, interval: number): Date {
+  const newDate = new Date(date);
+  newDate.setDate(1);
+  newDate.setMonth(newDate.getMonth() + interval);
+
+  const lastDay = getDaysInMonth(newDate.getFullYear(), newDate.getMonth() + 1);
+  newDate.setDate(Math.min(targetDay, lastDay));
+
+  return newDate;
+}
+
+function adjustNextYearlyDate(date: Date, interval: number): Date {
+  const newDate = new Date(date);
+  const currentMonth = newDate.getMonth();
+  const currentDay = newDate.getDate();
+
+  newDate.setFullYear(newDate.getFullYear() + interval);
+  newDate.setMonth(currentMonth);
+
+  const daysInMonth = getDaysInMonth(newDate.getFullYear(), currentMonth + 1);
+  newDate.setDate(Math.min(currentDay, daysInMonth));
+
+  return newDate;
+}
+
+function generateEventDates(startDate: string, repeat: RepeatInfo): string[] {
   const { type, interval, endDate } = repeat;
   let currentDate = new Date(startDate);
   const end = new Date(endDate ?? startDate);
@@ -12,38 +49,23 @@ export function generateEventDates(startDate: string, repeat: RepeatInfo): strin
     eventDates.push(formatDate(currentDate));
 
     switch (type) {
-      case 'daily':
-        currentDate.setDate(currentDate.getDate() + interval);
+      case 'daily': {
+        currentDate = adjustNextDailyDate(currentDate, interval);
         break;
+      }
 
-      case 'weekly':
-        currentDate.setDate(currentDate.getDate() + interval * 7);
+      case 'weekly': {
+        currentDate = adjustNextWeeklyDate(currentDate, interval);
         break;
+      }
 
       case 'monthly': {
-        currentDate.setDate(1);
-        currentDate.setMonth(currentDate.getMonth() + interval);
-
-        const lastDay = getDaysInMonth(currentDate.getFullYear(), currentDate.getMonth() + 1);
-
-        currentDate.setDate(Math.min(targetDay, lastDay));
+        currentDate = adjustNextMonthlyDate(currentDate, targetDay, interval);
         break;
       }
 
       case 'yearly': {
-        const currentMonth = currentDate.getMonth();
-        const currentDay = currentDate.getDate();
-
-        currentDate.setFullYear(currentDate.getFullYear() + interval);
-        currentDate.setMonth(currentMonth);
-        const daysInMonth = getDaysInMonth(currentDate.getFullYear(), currentMonth + 1);
-
-        if (currentDay > daysInMonth) {
-          currentDate.setDate(daysInMonth);
-        } else {
-          currentDate.setDate(currentDay);
-        }
-
+        currentDate = adjustNextYearlyDate(currentDate, interval);
         break;
       }
 
