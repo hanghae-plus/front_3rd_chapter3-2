@@ -49,6 +49,18 @@ const saveScheduleRepeat = async (
   await user.click(screen.getByTestId('event-submit-button'));
 };
 
+const assertEventOnDate = async (date: string, expectedMonth: string) => {
+  vi.setSystemTime(new Date(`${date}T09:00:00`));
+  cleanup();
+  setup(<App />);
+
+  const monthView = within(screen.getByTestId('month-view'));
+  const eventList = within(screen.getByTestId('event-list'));
+
+  expect(monthView.getByText(expectedMonth)).toBeInTheDocument();
+  await expect(eventList.findByText(date)).resolves.toBeInTheDocument();
+};
+
 describe('반복 일정 생성', () => {
   it('매일 반복 일정이 정상적으로 생성되어야 한다', async () => {
     setUpMockHandlerRepeatCreation();
@@ -65,13 +77,7 @@ describe('반복 일정 생성', () => {
       repeat: { type: 'daily', interval: 2, endDate: '2024-01-05' },
     });
 
-    // 2일 후 확인
-    vi.setSystemTime(new Date('2024-01-03T09:00:00'));
-    cleanup();
-    setup(<App />);
-
-    const eventList = within(screen.getByTestId('event-list'));
-    await expect(eventList.findByText('2024-01-03')).resolves.toBeInTheDocument();
+    await assertEventOnDate('2024-01-03', '2024년 1월');
   });
 
   it('매주 반복 일정이 정상적으로 생성되어야 한다', async () => {
@@ -89,13 +95,7 @@ describe('반복 일정 생성', () => {
       repeat: { type: 'weekly', interval: 2, endDate: '2024-02-01' },
     });
 
-    // 2주 후 확인
-    vi.setSystemTime(new Date('2024-01-15T09:00:00'));
-    cleanup();
-    setup(<App />);
-
-    const eventList = within(screen.getByTestId('event-list'));
-    await expect(eventList.findByText('2024-01-15')).resolves.toBeInTheDocument();
+    await assertEventOnDate('2024-01-15', '2024년 1월');
   });
 
   it('월말에서 다음달 초로 넘어가는 일일 반복이 정상 동작해야 한다', async () => {
@@ -113,13 +113,7 @@ describe('반복 일정 생성', () => {
       repeat: { type: 'daily', interval: 1, endDate: '2024-02-02' },
     });
 
-    // 다음달 1일 확인
-    vi.setSystemTime(new Date('2024-02-01T09:00:00'));
-    cleanup();
-    setup(<App />);
-
-    const eventList = within(screen.getByTestId('event-list'));
-    await expect(eventList.findByText('2024-02-01')).resolves.toBeInTheDocument();
+    await assertEventOnDate('2024-02-01', '2024년 2월');
   });
 
   it('연도가 바뀌는 월간 반복이 정상 동작해야 한다', async () => {
@@ -137,13 +131,7 @@ describe('반복 일정 생성', () => {
       repeat: { type: 'monthly', interval: 1, endDate: '2024-02-29' },
     });
 
-    // 다음해 1월 확인
-    vi.setSystemTime(new Date('2024-01-31T09:00:00'));
-    cleanup();
-    setup(<App />);
-
-    const eventList = within(screen.getByTestId('event-list'));
-    await expect(eventList.findByText('2024-01-31')).resolves.toBeInTheDocument();
+    await assertEventOnDate('2024-01-31', '2024년 1월');
   });
 
   it('윤년 29일에 매년 반복일정 설정 시 평년에서 28일로 설정되어야 한다.', async () => {
@@ -161,15 +149,7 @@ describe('반복 일정 생성', () => {
       repeat: { type: 'yearly', interval: 1, endDate: '2025-03-30' },
     });
 
-    vi.setSystemTime(new Date('2025-02-28T09:00:00'));
-    cleanup();
-    setup(<App />);
-
-    const monthView = within(screen.getByTestId('month-view'));
-    const eventList = within(screen.getByTestId('event-list'));
-
-    expect(monthView.getByText('2025년 2월')).toBeInTheDocument();
-    await expect(eventList.findByText('2025-02-28')).resolves.toBeInTheDocument();
+    await assertEventOnDate('2025-02-28', '2025년 2월');
   });
 
   it('매달 31일 반복일정 설정 시 31일이 없는 달에는 마지막 날로 설정되어야 한다.', async () => {
@@ -187,23 +167,8 @@ describe('반복 일정 생성', () => {
       repeat: { type: 'monthly', interval: 1, endDate: '2024-04-30' },
     });
 
-    vi.setSystemTime(new Date('2024-02-29T09:00:00'));
-    cleanup();
-    setup(<App />);
-
-    expect(within(screen.getByTestId('month-view')).getByText('2024년 2월')).toBeInTheDocument();
-    await expect(
-      within(screen.getByTestId('event-list')).findByText('2024-02-29')
-    ).resolves.toBeInTheDocument();
-
-    vi.setSystemTime(new Date('2024-04-30T09:00:00'));
-    cleanup();
-    setup(<App />);
-
-    expect(within(screen.getByTestId('month-view')).getByText('2024년 4월')).toBeInTheDocument();
-    await expect(
-      within(screen.getByTestId('event-list')).findByText('2024-04-30')
-    ).resolves.toBeInTheDocument();
+    await assertEventOnDate('2024-02-29', '2024년 2월');
+    await assertEventOnDate('2024-04-30', '2024년 4월');
   });
 });
 
