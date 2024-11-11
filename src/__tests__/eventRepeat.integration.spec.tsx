@@ -86,11 +86,13 @@ it('반복 간격을 0으로 작성 후 일정 추가 시 반복 간격을 1 이
   await userEvent.selectOptions(screen.getByLabelText(/카테고리/), '업무');
 
   await userEvent.click(screen.getByRole('checkbox', { name: /반복 일정/ }));
+
+  await userEvent.clear(screen.getByLabelText(/반복 간격/));
   await userEvent.type(screen.getByLabelText(/반복 간격/), '0');
 
   await userEvent.click(screen.getByRole('button', { name: /일정 추가/ }));
 
-  expect(screen.getByText('반복 간격을 1 이상의 숫자로 입력해주세요.')).toBeInTheDocument();
+  expect(await screen.findByText('반복 간격을 1 이상의 숫자로 입력해주세요.')).toBeInTheDocument();
 });
 
 it('반복 유형 선택 시 매일/매주/매월/매년 옵션이 모두 표시된다.', async () => {
