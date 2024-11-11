@@ -1,14 +1,13 @@
 import { RepeatType } from '../types';
+import { Event } from '../types';
 
-export function createRepeatEvent(
-  startDateStr: string,
-  interval: number,
-  repeatType: RepeatType,
-  endDateStr: string
-): string[] {
+export function createRepeatEvent(event: Event): string[] {
+  const { date: startDateStr, repeat: { interval, type: repeatType, endDate: endDateStr } } = event;
   const eventDates: string[] = [];
   let currentEventDate = new Date(startDateStr);
   const endEventDate = new Date(endDateStr);
+  // 타입 에러 안나게.. 이유는 나중에 잡아보도록 하자 ..
+  // const endEventDate = new Date(endDateStr ?? '');
 
   const adjustDateByInterval = (date: Date, type: RepeatType, interval: number) => {
     switch (type) {
