@@ -13,6 +13,16 @@ export default mergeConfig(
         },
       },
     },
+    resolve: {
+      alias: {
+        '@app': '/src/app',
+        '@entities': '/src/entities',
+        '@features': '/src/features',
+        '@widgets': '/src/widgets',
+        '@pages': '/src/pages',
+        '@shared': '/src/shared',
+      },
+    },
   }),
   defineTestConfig({
     test: {
