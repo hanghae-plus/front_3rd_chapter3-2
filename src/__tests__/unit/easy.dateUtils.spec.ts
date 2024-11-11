@@ -339,7 +339,7 @@ describe('calculateNextDate', () => {
 });
 describe('generateRepeatingEvents', () => {
   it('반복 횟수 없이 종료 날짜가 지정된 경우, 종료 날짜까지 반복된 이벤트 배열을 생성해야 한다', () => {
-    const dates = generateRepeatingEvents({
+    const repeatedEvents = generateRepeatingEvents({
       id: '1',
       title: '이벤트 1',
       date: '2024-04-27',
@@ -351,7 +351,7 @@ describe('generateRepeatingEvents', () => {
       repeat: { type: 'weekly', interval: 1, endDate: '2024-05-11' },
       notificationTime: 0,
     });
-    expect(dates).toEqual([
+    expect(repeatedEvents).toEqual([
       {
         category: '',
         date: '2024-04-27',
@@ -404,7 +404,7 @@ describe('generateRepeatingEvents', () => {
   });
 
   it('종료 날짜 없이 반복 횟수가 지정된 경우, 반복 횟수만큼 반복된 이벤트 배열을 생성해야 한다', () => {
-    const dates = generateRepeatingEvents({
+    const repeatedEvents = generateRepeatingEvents({
       id: '1',
       title: '이벤트 1',
       date: '2024-04-27',
@@ -416,7 +416,7 @@ describe('generateRepeatingEvents', () => {
       repeat: { type: 'weekly', interval: 1, count: 5 },
       notificationTime: 0,
     });
-    expect(dates).toEqual([
+    expect(repeatedEvents).toEqual([
       {
         category: '',
         date: '2024-04-27',
@@ -506,7 +506,7 @@ describe('generateRepeatingEvents', () => {
   });
 
   it('반복 횟수와 종료 날짜가 모두 지정된 경우, 먼저 반복 횟수를 우선시하여 이벤트 배열을 생성해야 한다', () => {
-    const dates = generateRepeatingEvents({
+    const repeatedEvents = generateRepeatingEvents({
       id: '1',
       title: '이벤트 1',
       date: '2024-04-27',
@@ -515,10 +515,12 @@ describe('generateRepeatingEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'weekly', interval: 1, endDate: '2024-05-11', count: 2 },
+      repeat: { type: 'weekly', interval: 1, endDate: '2024-04-30', count: 2 },
       notificationTime: 0,
     });
-    expect(dates).toEqual([
+    expect(repeatedEvents).toHaveLength(2);
+
+    expect(repeatedEvents).toEqual([
       {
         id: undefined,
         category: '',
@@ -529,7 +531,7 @@ describe('generateRepeatingEvents', () => {
         notificationTime: 0,
         repeat: {
           count: 2,
-          endDate: '2024-05-11',
+          endDate: '2024-04-30',
           interval: 1,
           type: 'weekly',
         },
@@ -546,7 +548,7 @@ describe('generateRepeatingEvents', () => {
         notificationTime: 0,
         repeat: {
           count: 2,
-          endDate: '2024-05-11',
+          endDate: '2024-04-30',
           interval: 1,
           type: 'weekly',
         },
