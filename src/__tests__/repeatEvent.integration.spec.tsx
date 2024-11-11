@@ -310,3 +310,56 @@ describe('반복 간격 설정', () => {
     await assertEventOnDate('2028-01-15', '2028년 1월'); // 4년 후
   });
 });
+
+describe('반복 일정 표시', () => {
+  it('반복 일정은 아이콘과 함께 표시되어야 한다', async () => {
+    const events: Event[] = [
+      {
+        id: '1',
+        title: '반복 회의',
+        date: '2024-10-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '팀 미팅',
+        location: '회의실 A',
+        category: '업무',
+        repeat: { type: 'weekly', interval: 1, endDate: '2024-02-15' },
+        notificationTime: 10,
+      },
+      {
+        id: '2',
+        title: '일반 회의',
+        date: '2024-10-15',
+        startTime: '11:00',
+        endTime: '12:00',
+        description: '일반 미팅',
+        location: '회의실 B',
+        category: '업무',
+        repeat: { type: 'none', interval: 0 },
+        notificationTime: 10,
+      },
+    ];
+
+    setupMockHandlerGetEvents(events);
+    setup(<App />);
+
+    const monthView = within(screen.getByTestId('month-view'));
+    const eventList = within(screen.getByTestId('event-list'));
+
+    const repeatEvent = await monthView.findByText('반복 회의');
+    const repeatIcon = repeatEvent.querySelector('.chakra-icon');
+    expect(repeatIcon).toBeInTheDocument();
+
+    const normalEvent = monthView.getByText('일반 회의');
+    const normalRepeatIcon = normalEvent.querySelector('.chakra-icon');
+    expect(normalRepeatIcon).not.toBeInTheDocument();
+
+    const repeatEventList = eventList.getByText('반복 회의');
+    const repeatEventListIcon = repeatEventList.querySelector('.chakra-icon');
+    expect(repeatEventListIcon).toBeInTheDocument();
+
+    const normalEventList = eventList.getByText('일반 회의');
+    const normalEventListIcon = normalEventList.querySelector('.chakra-icon');
+    expect(normalEventListIcon).not.toBeInTheDocument();
+  });
+});
