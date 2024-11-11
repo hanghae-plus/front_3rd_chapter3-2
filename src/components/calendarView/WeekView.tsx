@@ -35,7 +35,9 @@ export const WeekView = ({ currentDate, filteredEvents, notifiedEvents }: Props)
                 {filteredEvents
                   .filter((event) => new Date(event.date).toDateString() === date.toDateString())
                   .map((event) => {
-                    return <EventCell event={event} notifiedEvents={notifiedEvents} />;
+                    return (
+                      <EventCell key={event.id} event={event} notifiedEvents={notifiedEvents} />
+                    );
                   })}
               </Td>
             ))}

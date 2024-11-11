@@ -52,7 +52,13 @@ export const MonthView = ({ currentDate, holidays, filteredEvents, notifiedEvent
                           </Text>
                         )}
                         {getEventsForDay(filteredEvents, day).map((event) => {
-                          return <EventCell event={event} notifiedEvents={notifiedEvents} />;
+                          return (
+                            <EventCell
+                              key={event.id}
+                              event={event}
+                              notifiedEvents={notifiedEvents}
+                            />
+                          );
                         })}
                       </>
                     )}
