@@ -66,8 +66,9 @@ const CalendarPage = () => {
     editEvent,
   } = useEventForm();
 
-  const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
-    setEditingEvent(null)
+  const { events, saveEvent, deleteEvent, saveOrUpdateEventList } = useEventOperations(
+    Boolean(editingEvent),
+    () => setEditingEvent(null)
   );
 
   const { view, currentDate } = useCalendarView();
@@ -98,6 +99,9 @@ const CalendarPage = () => {
       return;
     }
 
+    console.log(repeatType, isRepeating);
+
+    const finalRepeatEndDate = repeatEndDate || '2025-06-30'; // 기본 종료일 설정
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
       title,
@@ -110,32 +114,28 @@ const CalendarPage = () => {
       repeat: {
         type: isRepeating ? repeatType : 'none',
         interval: repeatInterval,
-        endDate: repeatEndDate || undefined,
+        endDate: finalRepeatEndDate,
       },
       notificationTime,
     };
-    console.log('Editing Event:', editingEvent, isRepeating, eventData);
 
     const overlapping = findOverlappingEvents(eventData, events);
     if (overlapping.length > 0) {
       openOverlapDialog(overlapping);
     } else {
       if (editingEvent && editingEvent.repeat.type !== 'none' && !isRepeating) {
-        console.log('else1', eventData);
         await saveEvent({ ...eventData, repeat: { type: 'none', interval: 1 } });
-      }
-      if (isRepeating && repeatType !== 'none') {
-        const dates = generateRecurringEvents(date, repeatInterval, repeatType, repeatEndDate);
+      } else if (isRepeating && repeatType !== 'none') {
+        const dates = generateRecurringEvents(date, repeatInterval, repeatType, finalRepeatEndDate);
         const recurringEvents = dates.map((eventDate) => ({
           ...eventData,
           date: eventDate,
         }));
 
-        for (const event of recurringEvents) {
-          await saveEvent(event);
-        }
+        // for (const event of recurringEvents) {
+        await saveOrUpdateEventList(recurringEvents, editingEvent !== null); // 여러 이벤트를 한 번에 저장
+        // }
       } else {
-        console.log('hello');
         await saveEvent(eventData);
       }
 
@@ -143,13 +143,13 @@ const CalendarPage = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (!isRepeating) {
-  //     setRepeatType('none');
-  //     setRepeatInterval(1);
-  //     setRepeatEndDate('');
-  //   }
-  // }, [isRepeating]);
+  useEffect(() => {
+    if (!isRepeating) {
+      setRepeatType('none');
+      setRepeatInterval(1);
+      setRepeatEndDate('2025-06-30');
+    }
+  }, [isRepeating]);
 
   return (
     <Box w="full" h="100vh" m="auto" p={5}>
@@ -218,7 +218,6 @@ const CalendarPage = () => {
 
           <FormControl>
             <FormLabel>반복 설정</FormLabel>
-            <div>{isRepeating}</div>
             <Checkbox isChecked={isRepeating} onChange={(e) => setIsRepeating(e.target.checked)}>
               반복 일정
             </Checkbox>
@@ -246,6 +245,7 @@ const CalendarPage = () => {
                   value={repeatType}
                   onChange={(e) => setRepeatType(e.target.value as RepeatType)}
                 >
+                  <option value="">반복 유형</option>
                   <option value="daily">매일</option>
                   <option value="weekly">매주</option>
                   <option value="monthly">매월</option>

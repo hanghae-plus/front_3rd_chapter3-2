@@ -59,3 +59,79 @@ export const setupMockHandlerDeletion = (initEvents = [] as Event[]) => {
     })
   );
 };
+
+export const setupMockHandlerBatchCreation = (initEvents = [] as Event[]) => {
+  let initialEvents: Event[] = [...initEvents];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: initialEvents });
+    }),
+
+    http.post('/api/events-list', async ({ request }) => {
+      const newEvents = (await request.json()) as Event[];
+      const repeatId = `repeat-${Date.now()}`;
+
+      const createdEvents = newEvents.map((event, index) => ({
+        ...event,
+        id: (initialEvents.length + index + 1).toString(),
+        repeat: {
+          ...event.repeat,
+          id: event.repeat.type !== 'none' ? repeatId : undefined,
+        },
+      }));
+
+      initialEvents.push(...createdEvents);
+      return HttpResponse.json(createdEvents, { status: 201 });
+    })
+  );
+};
+
+export const setupMockHandlerBatchUpdating = (initEvents = [] as Event[]) => {
+  let initialEvents: Event[] = [...initEvents];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: initialEvents });
+    }),
+
+    http.put('/api/events-list', async ({ request }) => {
+      const updatedEvents = (await request.json()) as Event[];
+      let isUpdated = false;
+
+      updatedEvents.forEach((updatedEvent) => {
+        const eventIndex = initialEvents.findIndex((event) => event.id === updatedEvent.id);
+
+        if (eventIndex !== -1) {
+          initialEvents[eventIndex] = { ...initialEvents[eventIndex], ...updatedEvent };
+          isUpdated = true;
+        }
+      });
+
+      return isUpdated
+        ? HttpResponse.json(initialEvents, { status: 200 })
+        : HttpResponse.json({ error: 'Event not found' }, { status: 404 });
+    })
+  );
+};
+
+export const setupMockHandlerBatchDeletion = (initEvents = [] as Event[]) => {
+  let initialEvents: Event[] = [...initEvents];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: initialEvents });
+    }),
+
+    http.delete('/api/events-list', async ({ request }) => {
+      const { eventIds } = await request.json();
+      const initialLength = initialEvents.length;
+
+      initialEvents = initialEvents.filter((event) => !eventIds.includes(event.id));
+
+      return initialEvents.length !== initialLength
+        ? new HttpResponse(null, { status: 204 })
+        : new HttpResponse(null, { status: 404 });
+    })
+  );
+};

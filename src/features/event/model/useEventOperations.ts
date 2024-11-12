@@ -14,7 +14,6 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
         throw new Error('Failed to fetch events');
       }
       const { events } = await response.json();
-
       setEvents(events);
     } catch (error) {
       console.error('Error fetching events:', error);
@@ -29,20 +28,14 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
-      let response;
-      if (editing) {
-        response = await fetch(`/api/events/${(eventData as Event).id}`, {
-          method: 'PUT',
+      const response = await fetch(
+        editing ? `/api/events/${(eventData as Event).id}` : '/api/events',
+        {
+          method: editing ? 'PUT' : 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(eventData),
-        });
-      } else {
-        response = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
-      }
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to save event');
@@ -93,6 +86,66 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     }
   };
 
+  const saveOrUpdateEventList = async (eventsData: EventForm[] | Event[], editing: boolean) => {
+    try {
+      const response = await fetch('/api/events-list', {
+        method: editing ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ events: eventsData }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to ${editing ? 'update' : 'save'} events list`);
+      }
+
+      await fetchEvents();
+      toast({
+        title: `여러 일정이 ${editing ? '수정' : '추가'}되었습니다.`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error(`Error ${editing ? 'updating' : 'saving'} events list:`, error);
+      toast({
+        title: `일정 리스트 ${editing ? '수정' : '저장'} 실패`,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const deleteEventList = async (eventIds: string[]) => {
+    try {
+      const response = await fetch('/api/events-list', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventIds }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete events list');
+      }
+
+      await fetchEvents();
+      toast({
+        title: '여러 일정이 삭제되었습니다.',
+        status: 'info',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error deleting events list:', error);
+      toast({
+        title: '일정 리스트 삭제 실패',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   async function init() {
     await fetchEvents();
     toast({
@@ -107,5 +160,12 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { events, fetchEvents, saveEvent, deleteEvent };
+  return {
+    events,
+    fetchEvents,
+    saveEvent,
+    deleteEvent,
+    saveOrUpdateEventList,
+    deleteEventList,
+  };
 };

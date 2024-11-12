@@ -35,7 +35,6 @@ const CalendarView = ({ events }: CalendarViewProps) => {
           aria-label="Next"
           icon={<ChevronRightIcon />}
           onClick={() => {
-            console.log('hello');
             navigate('next');
           }}
         />
