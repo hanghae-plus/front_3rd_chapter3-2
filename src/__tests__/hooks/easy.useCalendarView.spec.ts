@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 
-import { assertDate } from '../utils.ts';
 import { useCalendarView } from '../../features/calendar/model/useCalendarView.ts';
+import { assertDate } from '../utils.ts';
 
 describe('초기 상태', () => {
   it('view는 "month"이어야 한다', () => {

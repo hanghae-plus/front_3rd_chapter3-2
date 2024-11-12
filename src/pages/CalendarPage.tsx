@@ -13,6 +13,7 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
+import { useEffect } from 'react';
 
 import { categories } from '../entities/event/config/constants.ts';
 import { findOverlappingEvents } from '../entities/event/lib/eventOverlap.ts';
@@ -27,10 +28,9 @@ import { useEventOperations } from '../features/event/model/useEventOperations.t
 import useOverlapDialog from '../features/event/model/useOverlapDialog.ts';
 import { useSearch } from '../features/event/model/useSearch.ts';
 import EventSearch from '../features/event/ui/EventSearch.tsx';
+import { generateRecurringEvents } from '../utils/eventUtils.ts';
 import NotificationDialog from '../widgets/notification/ui/NotificationDialog.tsx';
 import NotificationMessage from '../widgets/notification/ui/NotificationMessage.tsx';
-import { generateRecurringEvents } from '../utils/eventUtils.ts';
-import { useEffect } from 'react';
 
 const CalendarPage = () => {
   const {
@@ -148,7 +148,7 @@ const CalendarPage = () => {
       setRepeatType('none');
       setRepeatInterval(1);
     }
-  }, [isRepeating]);
+  }, [isRepeating, setRepeatType, setRepeatInterval]);
 
   return (
     <Box w="full" h="100vh" m="auto" p={5}>

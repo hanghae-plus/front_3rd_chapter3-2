@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 
-import { Event } from '../../types.ts';
 import { useSearch } from '../../features/event/model/useSearch.ts';
+import { Event } from '../../types.ts';
 
 const mockEvents: Event[] = [
   {
