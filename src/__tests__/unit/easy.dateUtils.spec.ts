@@ -437,29 +437,37 @@ describe('addYears', () => {
 });
 
 describe('createRepeatDateRange', () => {
-  describe('일정 유형이 "매일"일 경우', () => {
-    it('interval이 3으로 주어질 경우, 시작일 기준으로 3일 간격으로 반복되는 날짜를 생성한다', () => {
-      const result = createRepeatDateRange({
-        type: 'daily',
-        start: '2024-01-01',
-        end: '2024-01-10',
-        interval: 3,
-      });
-
-      expect(result).toEqual(['2024-01-01', '2024-01-04', '2024-01-07', '2024-01-10']);
+  it('interval이 주어지지 않을 경우, 기본값으로 1이 사용된다.', () => {
+    const result = createRepeatDateRange({
+      type: 'daily',
+      start: '2024-01-01',
+      end: '2024-01-03',
     });
 
-    it('종료 날짜가 없을 경우, 시작일 기준으로 2050-12-31일까지 반복되는 날짜를 생성한다', () => {
-      const result = createRepeatDateRange({
-        start: '2050-01-01',
-        type: 'daily',
-        interval: 1,
-      });
-
-      expect(result).toHaveLength(365);
-      expect(result[result.length - 1]).toBe('2050-12-31');
-    });
+    expect(result).toEqual(['2024-01-01', '2024-01-02', '2024-01-03']);
   });
 
-  // TODO: 매주, 매월, 매년
+  it('interval이 3으로 주어질 경우, 시작일 기준으로 3일 간격으로 반복되는 날짜를 생성한다', () => {
+    const result = createRepeatDateRange({
+      type: 'daily',
+      start: '2024-01-01',
+      end: '2024-01-10',
+      interval: 3,
+    });
+
+    expect(result).toEqual(['2024-01-01', '2024-01-04', '2024-01-07', '2024-01-10']);
+  });
+
+  it('종료 날짜가 없을 경우, 시작일 기준으로 2050-12-31일까지 반복되는 날짜를 생성한다', () => {
+    const result = createRepeatDateRange({
+      start: '2050-01-01',
+      type: 'daily',
+      interval: 1,
+    });
+
+    expect(result).toHaveLength(365);
+    expect(result[result.length - 1]).toBe('2050-12-31');
+  });
+
+  describe('반복 일정 유형이 "매주"일 경우', () => {});
 });

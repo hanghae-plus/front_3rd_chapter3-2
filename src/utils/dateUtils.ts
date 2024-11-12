@@ -208,12 +208,12 @@ export function addYears(date: Date, years: number, originalDate = date.getDate(
 export function createRepeatDateRange({
   start,
   type,
-  interval,
+  interval = 1,
   end = '2050-12-31',
 }: {
   start: string;
   type: RepeatType;
-  interval: number;
+  interval?: number;
   end?: string;
 }): string[] {
   const startDate = new Date(start);
