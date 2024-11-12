@@ -44,7 +44,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
         });
       }
 
-      if (eventData.repeat.type !== 'none') {
+      if (!editing && eventData.repeat.type !== 'none') {
         response = await fetch('/api/events-list', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
