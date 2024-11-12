@@ -26,6 +26,11 @@ import {
   HStack,
   IconButton,
   Input,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
   Select,
   Table,
   Tbody,
@@ -393,12 +398,18 @@ function App() {
               <HStack width="100%">
                 <FormControl>
                   <FormLabel>반복 간격</FormLabel>
-                  <Input
-                    type="number"
+                  <NumberInput
                     value={repeatInterval}
-                    onChange={(e) => setRepeatInterval(Number(e.target.value))}
                     min={1}
-                  />
+                    onChange={(valueString) => setRepeatInterval(Number(valueString))}
+                    isDisabled={!isRepeating}
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
                 </FormControl>
                 <FormControl>
                   <FormLabel>반복 종료일</FormLabel>
