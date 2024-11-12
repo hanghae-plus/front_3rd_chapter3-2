@@ -21,7 +21,7 @@ const getInitialFormState = (initialEvent: Event | null): EventFormState => ({
   category: initialEvent?.category || '',
   isRepeating: initialEvent?.repeat.type !== 'none',
   repeatType: initialEvent?.repeat.type || 'none',
-  repeatCondition: initialEvent?.repeatCondition || '',
+  repeatCondition: initialEvent?.repeatCondition || 'date',
   repeatInterval: initialEvent?.repeat.interval || 1,
   repeatEndDate: initialEvent?.repeat.endDate || '',
   notificationTime: initialEvent?.notificationTime || 10,
