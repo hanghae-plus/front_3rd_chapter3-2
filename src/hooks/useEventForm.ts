@@ -14,7 +14,7 @@ const initialEventValue: EventForm = {
   location: '',
   category: '',
   repeat: {
-    type: 'none',
+    type: 'daily',
     interval: 1,
     endDate: '',
   },
@@ -55,6 +55,18 @@ export const useEventForm = (initialEvent?: EventForm) => {
     setTimeError(getTimeErrorMessage(eventForm.startTime, newEndTime));
   };
 
+  const handleChangeIsRepeating = (checked: boolean) => {
+    if (checked) {
+      handleChangeFormRepeat(
+        'type',
+        eventForm.repeat.type === 'none' ? 'daily' : eventForm.repeat.type
+      );
+    } else {
+      handleChangeFormRepeat('type', 'none');
+    }
+    setIsRepeating(checked);
+  };
+
   const resetForm = () => {
     setEventForm(initialEventValue);
     setIsRepeating(false);
@@ -67,6 +79,7 @@ export const useEventForm = (initialEvent?: EventForm) => {
     handleChangeFormRepeat,
     isRepeating,
     setIsRepeating,
+    handleChangeIsRepeating,
     startTimeError,
     endTimeError,
     handleStartTimeChange,

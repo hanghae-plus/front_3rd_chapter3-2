@@ -25,7 +25,7 @@ interface EventFormStateProps {
   handleChangeFormContent: <K extends keyof EventForm>(key: K, value: EventForm[K]) => void;
   handleChangeFormRepeat: <K extends keyof RepeatInfo>(key: K, value: RepeatInfo[K]) => void;
   isRepeating: boolean;
-  setIsRepeating: Dispatch<SetStateAction<boolean>>;
+  handleChangeIsRepeating: (checked: boolean) => void;
   startTimeError: string | null;
   endTimeError: string | null;
   handleStartTimeChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -67,7 +67,7 @@ export const EventHandleForm = ({
     handleStartTimeChange,
     isRepeating,
     resetForm,
-    setIsRepeating,
+    handleChangeIsRepeating,
   } = eventFormState;
 
   const addOrUpdateEvent = async () => {
@@ -198,7 +198,10 @@ export const EventHandleForm = ({
 
       <FormControl>
         <FormLabel>반복 설정</FormLabel>
-        <Checkbox isChecked={isRepeating} onChange={(e) => setIsRepeating(e.target.checked)}>
+        <Checkbox
+          isChecked={isRepeating}
+          onChange={(e) => handleChangeIsRepeating(e.target.checked)}
+        >
           반복 일정
         </Checkbox>
       </FormControl>
