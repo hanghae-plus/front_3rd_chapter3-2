@@ -14,6 +14,7 @@ import {
   getWeeksAtMonth,
   isDateInRange,
   isLeapYear,
+  createRepeatDateRange,
 } from '../../utils/dateUtils';
 import { assertDate } from '../utils';
 
@@ -429,4 +430,35 @@ describe('addYears', () => {
 
   // TODO: 경계값 테스트
   // TODO: 유효하지 않은 년에 대한 처리
+});
+
+describe('createRepeatDateRange', () => {
+  describe('일정 유형이 매일일 경우', () => {
+    it('3일 간격으로 반복되는 날짜를 생성한다', () => {
+      const result = createRepeatDateRange({
+        start: '2024-01-01',
+        type: 'daily',
+        interval: 3,
+        end: '2024-01-10',
+      });
+
+      expect(result).toHaveLength(4);
+      assertDate(result[0], new Date('2024-01-01'));
+      assertDate(result[1], new Date('2024-01-04'));
+      assertDate(result[2], new Date('2024-01-07'));
+      assertDate(result[3], new Date('2024-01-10'));
+    });
+
+    it('종료 날짜가 없을 경우 2050-12-31일까지 반복되는 날짜를 생성한다', () => {
+      const result = createRepeatDateRange({
+        start: '2050-01-01',
+        type: 'daily',
+        interval: 1,
+      });
+
+      expect(result).toHaveLength(365);
+    });
+  });
+
+  // TODO: 매주, 매월, 매년
 });
