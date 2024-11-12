@@ -168,7 +168,7 @@ it('반복 일정 추가 시 캘린더에 Repeat Event 아이콘이 표시된다
   const eventList = await screen.findByTestId('event-list');
 
   expect(within(eventList).getAllByText('팀 회의 제목')).toHaveLength(3);
-  expect(screen.getAllByLabelText('Repeat event')).toHaveLength(3);
+  expect(within(eventList).getAllByLabelText('Repeat event')).toHaveLength(3);
 });
 
 it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된다.', async () => {
@@ -239,7 +239,7 @@ it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된
   await userEvent.click(screen.getByRole('button', { name: /일정 수정/ }));
 
   expect(within(eventList).getAllByText('팀 회의 제목')).toHaveLength(3);
-  expect(await screen.findAllByLabelText('Repeat event')).toHaveLength(2);
+  expect(within(eventList).getAllByLabelText('Repeat event')).toHaveLength(2);
 });
 
 it('반복 일정을 삭제하면 해당 일정만 삭제된다.', async () => {
@@ -342,5 +342,5 @@ it('단일 일정을 반복 일정으로 변경하면 해당 일정이 반복 �
   await userEvent.click(screen.getByRole('button', { name: /일정 수정/ }));
 
   expect(within(eventList).getAllByText('팀 회의 타이틀')).toHaveLength(3);
-  expect(await screen.findAllByLabelText('Repeat event')).toHaveLength(3);
+  expect(within(eventList).getAllByLabelText('Repeat event')).toHaveLength(3);
 });

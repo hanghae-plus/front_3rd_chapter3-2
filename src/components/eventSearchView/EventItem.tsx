@@ -1,4 +1,4 @@
-import { BellIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { BellIcon, DeleteIcon, EditIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import { Box, HStack, IconButton, Text, VStack } from '@chakra-ui/react';
 
 import { NOTIFICATION_OPTIONS } from '../../constants/constants';
@@ -25,6 +25,13 @@ export const EventItem = ({ event }: Props) => {
         <VStack align="start">
           <HStack>
             {notifiedEvents.includes(event.id) && <BellIcon color="red.500" />}
+            {event.repeat.type !== 'none' && (
+              <RepeatClockIcon
+                aria-label="Repeat event"
+                color={notifiedEvents.includes(event.id) ? 'red.500' : ''}
+              />
+            )}
+
             <Text
               fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
               color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
