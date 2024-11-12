@@ -215,7 +215,7 @@ export function createRepeatDateRange({
   type: RepeatType;
   interval: number;
   end?: string;
-}): Date[] {
+}): string[] {
   const startDate = new Date(start);
   const endDate = new Date(end);
   const dates: Date[] = [];
@@ -240,5 +240,5 @@ export function createRepeatDateRange({
     }
   }
 
-  return dates;
+  return dates.map((date) => formatDate(date));
 }

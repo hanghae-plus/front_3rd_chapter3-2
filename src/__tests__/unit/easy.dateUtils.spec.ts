@@ -344,6 +344,7 @@ describe('isLeapYear', () => {
   });
 });
 
+// 주어진 날짜에 원하는 만큼 일 수를 더한다
 describe('addDays', () => {
   it('다음날 날짜를 구할 수 있다', () => {
     const today = new Date('2024-12-31');
@@ -360,6 +361,7 @@ describe('addDays', () => {
   // TODO: 경계값 테스트?
 });
 
+// 주어진 날짜에 원하는 만큼 주 수를 더한다
 describe('addWeeks', () => {
   it('다음주 날짜를 구할 수 있다', () => {
     const today = new Date('2024-12-31');
@@ -374,6 +376,7 @@ describe('addWeeks', () => {
   });
 });
 
+// 주어진 날짜에 원하는 만큼 월 수를 더한다
 describe('addMonths', () => {
   it('다음달 날짜를 구할 수 있다', () => {
     const today = new Date('2024-01-01');
@@ -409,6 +412,7 @@ describe('addMonths', () => {
   // TODO: 유효하지 않은 월에 대한 처리
 });
 
+// 주어진 날짜에 원하는 만큼 년 수를 더한다
 describe('addYears', () => {
   it('다음 년도의 날짜를 구할 수 있다', () => {
     const today = new Date('2024-01-28');
@@ -433,23 +437,19 @@ describe('addYears', () => {
 });
 
 describe('createRepeatDateRange', () => {
-  describe('일정 유형이 매일일 경우', () => {
-    it('3일 간격으로 반복되는 날짜를 생성한다', () => {
+  describe('일정 유형이 "매일"일 경우', () => {
+    it('interval이 3으로 주어질 경우, 시작일 기준으로 3일 간격으로 반복되는 날짜를 생성한다', () => {
       const result = createRepeatDateRange({
-        start: '2024-01-01',
         type: 'daily',
-        interval: 3,
+        start: '2024-01-01',
         end: '2024-01-10',
+        interval: 3,
       });
 
-      expect(result).toHaveLength(4);
-      assertDate(result[0], new Date('2024-01-01'));
-      assertDate(result[1], new Date('2024-01-04'));
-      assertDate(result[2], new Date('2024-01-07'));
-      assertDate(result[3], new Date('2024-01-10'));
+      expect(result).toEqual(['2024-01-01', '2024-01-04', '2024-01-07', '2024-01-10']);
     });
 
-    it('종료 날짜가 없을 경우 2050-12-31일까지 반복되는 날짜를 생성한다', () => {
+    it('종료 날짜가 없을 경우, 시작일 기준으로 2050-12-31일까지 반복되는 날짜를 생성한다', () => {
       const result = createRepeatDateRange({
         start: '2050-01-01',
         type: 'daily',
@@ -457,6 +457,7 @@ describe('createRepeatDateRange', () => {
       });
 
       expect(result).toHaveLength(365);
+      expect(result[result.length - 1]).toBe('2050-12-31');
     });
   });
 
