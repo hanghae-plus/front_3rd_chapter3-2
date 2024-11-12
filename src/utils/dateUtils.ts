@@ -1,3 +1,5 @@
+import { isValid } from 'date-fns';
+
 import { Event, RepeatType } from '../types.ts';
 
 /**
@@ -198,13 +200,6 @@ export function addYears(date: Date, years: number, originalDate = date.getDate(
   return new Date(nextYear, 1, 28);
 }
 
-// 반복 일정 데이터 생성
-// - 반복 유형(매일, 매주, 매월, 매년)
-// - 반복 간격
-// - 종료일이 있을 경우
-//  - 종료일까지 데이터 생성
-// - 종료일이 없을 경우
-//  - 2050년까지 데이터 생성
 export function createRepeatDateRange({
   start,
   type,
@@ -216,8 +211,20 @@ export function createRepeatDateRange({
   interval?: number;
   end?: string;
 }): string[] {
-  const startDate = new Date(start);
-  const endDate = new Date(end);
+  if (!isValid(new Date(start))) {
+    throw new Error('유효하지 않은 시작일 입니다');
+  }
+
+  if (!isValid(new Date(end))) {
+    throw new Error('유효하지 않은 종료일 입니다');
+  }
+
+  if (Number.isNaN(interval) || interval < 1 || !Number.isFinite(interval)) {
+    throw new Error('유효하지 않은 interval 입니다');
+  }
+
+  const startDate = stripTime(new Date(start));
+  const endDate = stripTime(new Date(end));
   const dates: Date[] = [];
 
   let nextDate = startDate;

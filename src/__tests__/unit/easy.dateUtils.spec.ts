@@ -469,6 +469,84 @@ describe('createRepeatDateRange', () => {
     expect(result[result.length - 1]).toBe('2050-12-31');
   });
 
+  it('유효하지 않은 시작일이 주어질 경우 에러를 던진다', () => {
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '',
+      })
+    ).toThrowError(/유효하지 않은 시작일 입니다/);
+
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-19-01',
+      })
+    ).toThrowError(/유효하지 않은 시작일 입니다/);
+  });
+
+  it('유효하지 않은 종료일이 주어질 경우 에러를 던진다', () => {
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-01-01',
+        end: '',
+      })
+    ).toThrowError(/유효하지 않은 종료일 입니다/);
+
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-01-01',
+        end: '2024-19-01',
+      })
+    ).toThrowError(/유효하지 않은 종료일 입니다/);
+  });
+
+  it('종료일이 시작일보다 작을 경우 빈 배열을 반환한다', () => {
+    const result = createRepeatDateRange({
+      type: 'daily',
+      start: '2024-01-03',
+      end: '2024-01-01',
+    });
+
+    expect(result).toEqual([]);
+  });
+
+  it('유효하지 않은 interval이 주어질 경우 에러를 던진다', () => {
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-01-01',
+        interval: 0,
+      })
+    ).toThrowError(/유효하지 않은 interval 입니다/);
+
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-01-01',
+        interval: -1,
+      })
+    ).toThrowError(/유효하지 않은 interval 입니다/);
+
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-01-01',
+        interval: Infinity,
+      })
+    ).toThrowError(/유효하지 않은 interval 입니다/);
+
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-01-01',
+        interval: NaN,
+      })
+    ).toThrowError(/유효하지 않은 interval 입니다/);
+  });
+
   describe('반복 일정 유형이 "weekly"일 경우', () => {
     it('"2024-01-01"부터 "2024-01-30"까지 1주일 간격으로 반복되는 날짜가 담긴 배열을 반환한다', () => {
       const dates = createRepeatDateRange({
