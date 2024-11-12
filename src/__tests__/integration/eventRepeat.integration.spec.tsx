@@ -85,6 +85,25 @@ describe('반복 설정 토글 옵션', () => {
   });
 });
 
+it('반복 종료일이 날짜보다 이전인 경우 반복 종료일을 날짜 이후로 설정해주세요 문구가 뜬다', async () => {
+  renderEventManageForm();
+
+  await userEvent.type(screen.getByLabelText(/제목/), '팀 회의 제목');
+  await userEvent.type(screen.getByLabelText(/날짜/), '2024-11-03');
+  await userEvent.type(screen.getByLabelText(/시작 시간/), '09:00');
+  await userEvent.type(screen.getByLabelText(/종료 시간/), '10:00');
+  await userEvent.type(screen.getByLabelText(/설명/), '팀 회의 설명');
+  await userEvent.type(screen.getByLabelText(/위치/), '회의실');
+  await userEvent.selectOptions(screen.getByLabelText(/카테고리/), '업무');
+
+  await userEvent.click(screen.getByRole('checkbox', { name: /반복 일정/ }));
+  await userEvent.type(screen.getByLabelText(/반복 종료일/), '2024-11-01');
+
+  await userEvent.click(screen.getByRole('button', { name: /일정 추가/ }));
+
+  expect(await screen.findByText('반복 종료일을 날짜 이후로 설정해주세요.')).toBeInTheDocument();
+});
+
 it('반복 간격을 0으로 작성 후 일정 추가 시 반복 간격을 1 이상의 숫자로 입력해주세요 문구가 뜬다', async () => {
   renderEventManageForm();
 
