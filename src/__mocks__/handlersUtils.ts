@@ -5,17 +5,28 @@ import { Event } from '../types';
 
 // ! Hard 여기 제공 안함
 export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
-  const mockEvents: Event[] = [...initEvents];
+  let mockEvents: Event[] = [...initEvents];
 
   server.use(
     http.get('/api/events', () => {
       return HttpResponse.json({ events: mockEvents });
     }),
-    http.post('/api/events', async ({ request }) => {
-      const newEvent = (await request.json()) as Event;
-      newEvent.id = String(mockEvents.length + 1); // 간단한 ID 생성
-      mockEvents.push(newEvent);
-      return HttpResponse.json(newEvent, { status: 201 });
+    http.post('/api/events-list', async ({ request }) => {
+      type RequestBody = { events: Event[] };
+      const requestBody = (await request.json()) as RequestBody;
+      const newEvents = requestBody.events.map((event, index) => {
+        const isRepeatEvent = event.repeat.type !== 'none';
+        return {
+          ...event,
+          id: String(index + 1),
+          repeat: {
+            ...event.repeat,
+            id: isRepeatEvent ? String(index + 1) : undefined,
+          },
+        };
+      });
+      mockEvents = [...mockEvents, ...newEvents];
+      return HttpResponse.json(newEvents, { status: 201 });
     })
   );
 };

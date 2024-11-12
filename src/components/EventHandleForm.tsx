@@ -13,7 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { overlay } from 'overlay-kit';
-import { ChangeEvent, Dispatch, SetStateAction } from 'react';
+import { ChangeEvent } from 'react';
 
 import { Event, EventForm, RepeatInfo, RepeatType } from '../types';
 import { OverlappingEventDialog } from './OverlappingEventDialog';
