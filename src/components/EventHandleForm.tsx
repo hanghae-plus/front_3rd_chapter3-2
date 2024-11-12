@@ -245,7 +245,7 @@ export const EventHandleForm = ({
               <FormLabel>반복 종료일</FormLabel>
               <Input
                 type="date"
-                value={eventForm.repeat.endDate}
+                value={eventForm.repeat.endDate || ''}
                 onChange={(e) => handleChangeFormRepeat('endDate', e.target.value)}
               />
             </FormControl>
