@@ -538,3 +538,89 @@ describe('반복 일정 단일 수정', () => {
     expect(repeatEventItemIcon).toBeInTheDocument();
   });
 });
+
+describe('반복 일정 단일 삭제', () => {
+  it('반복 일정을 삭제하면 해당 일정만 삭제되고 다른 반복 일정은 유지되어야 한다', async () => {
+    const mockEvents: Event[] = [
+      {
+        id: '1',
+        title: '매일 회의',
+        date: '2024-10-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '설명',
+        location: '위치',
+        category: '업무',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2024-12-30',
+        },
+        notificationTime: 10,
+      },
+      {
+        id: '3',
+        title: '매일 회의',
+        date: '2024-11-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '설명',
+        location: '위치',
+        category: '업무',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2024-12-30',
+        },
+        notificationTime: 10,
+      },
+      {
+        id: '2',
+        title: '매일 회의',
+        date: '2024-12-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '설명',
+        location: '위치',
+        category: '업무',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2024-12-30',
+        },
+        notificationTime: 10,
+      },
+    ];
+
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({ events: mockEvents });
+      }),
+      http.delete('/api/events/:id', ({ params }) => {
+        const { id } = params;
+        const index = mockEvents.findIndex((event) => event.id === id);
+
+        mockEvents.splice(index, 1);
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    const { user } = setup(<App />);
+    const eventList = within(screen.getByTestId('event-list'));
+    await expect(eventList.findByText('매일 회의')).resolves.toBeInTheDocument();
+
+    const deleteButton = await screen.findByLabelText('Delete event');
+    await user.click(deleteButton);
+
+    expect(await eventList.findByText('검색 결과가 없습니다.')).toBeInTheDocument();
+
+    // 다른 반복 일정들은 그대로 유지되는지 확인
+    vi.setSystemTime(new Date('2024-12-01'));
+    cleanup();
+    setup(<App />);
+
+    const repeatEventList = within(screen.getByTestId('event-list'));
+
+    expect(await repeatEventList.findByText('매일 회의')).toBeInTheDocument();
+  });
+});
