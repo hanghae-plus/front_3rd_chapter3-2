@@ -1,5 +1,7 @@
 import { Event } from '../types.ts';
 
+export type WeekType = 'none' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
  */
@@ -161,5 +163,17 @@ export function getRemainingDatesByDay(startDate: Date, endDate: Date, interval:
     current.setDate(current.getDate() + interval);
   }
   return dates;
+}
+
+/**
+ * 주어진 날짜의 요일을 short 형태의 string으로 반환합니다. (예: mon, tue, wed, ...)
+ */
+export function getWeekday(date: Date): string {
+  try {
+    const weekdayFormat = new Intl.DateTimeFormat('en-US', { weekday: 'short' });
+    return weekdayFormat.format(date).toLowerCase();
+  } catch (error) {
+    return 'none';
+  }
 }
 
