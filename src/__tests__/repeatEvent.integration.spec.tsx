@@ -1,6 +1,7 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
 
 import {
@@ -8,6 +9,7 @@ import {
   setUpMockHandlerRepeatCreation,
 } from '../__mocks__/handlersUtils.ts';
 import App from '../App.tsx';
+import { server } from '../setupTests.ts';
 import { Event } from '../types';
 
 const setup = (element: ReactElement) => {
@@ -439,5 +441,100 @@ describe('반복 일정 종료', () => {
 
     const eventList = within(screen.getByTestId('event-list'));
     await expect(eventList.findByText('매주 회의')).rejects.toThrow();
+  });
+});
+
+describe('반복 일정 단일 수정', () => {
+  it('반복 일정을 수정하면 단일 일정으로 변경되고 아이콘이 사라져야 한다', async () => {
+    const mockEvents: Event[] = [
+      {
+        id: '1',
+        title: '매일 회의',
+        date: '2024-10-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '설명',
+        location: '위치',
+        category: '업무',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2024-12-30',
+        },
+        notificationTime: 10,
+      },
+      {
+        id: '3',
+        title: '매일 회의',
+        date: '2024-11-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '설명',
+        location: '위치',
+        category: '업무',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2024-12-30',
+        },
+        notificationTime: 10,
+      },
+      {
+        id: '2',
+        title: '매일 회의',
+        date: '2024-12-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '설명',
+        location: '위치',
+        category: '업무',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2024-12-30',
+        },
+        notificationTime: 10,
+      },
+    ];
+
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({ events: mockEvents });
+      }),
+      http.put('/api/events/:id', async ({ params, request }) => {
+        const { id } = params;
+        const updatedEvent = (await request.json()) as Event;
+        const index = mockEvents.findIndex((event) => event.id === id);
+
+        mockEvents[index] = { ...mockEvents[index], ...updatedEvent };
+        return HttpResponse.json(mockEvents[index]);
+      })
+    );
+
+    const { user } = setup(<App />);
+
+    await user.click(await screen.findByLabelText('Edit event'));
+    await user.click(screen.getByLabelText('반복 설정'));
+
+    await expect(screen.findByLabelText('반복 유형')).rejects.toThrow();
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    const eventList = within(screen.getByTestId('event-list'));
+
+    const eventItem = await eventList.findByText('매일 회의');
+    const eventItemRepeatIcon = eventItem.querySelector('.chakra-icon');
+    expect(eventItemRepeatIcon).not.toBeInTheDocument();
+
+    // 다른 반복 일정들은 그대로 유지되는지 확인
+    vi.setSystemTime(new Date('2024-11-01'));
+    cleanup();
+    setup(<App />);
+
+    const repeatEventList = within(screen.getByTestId('event-list'));
+
+    const repeatEventItem = await repeatEventList.findByText('매일 회의');
+    const repeatEventItemIcon = repeatEventItem.querySelector('.chakra-icon');
+    expect(repeatEventItemIcon).toBeInTheDocument();
   });
 });
