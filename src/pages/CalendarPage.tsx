@@ -86,7 +86,8 @@ const CalendarPage = () => {
       startTime,
       endTime,
       startTimeError,
-      endTimeError
+      endTimeError,
+      repeatEndDate
     );
 
     if (validationError) {
