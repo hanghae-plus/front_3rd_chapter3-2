@@ -31,6 +31,7 @@ export function RepeatEventForm() {
             <Select
               value={repeatType}
               onChange={(e) => setRepeatType(e.target.value as RepeatType)}
+              data-testid="repeat-type-select"
             >
               <option value="daily">매일</option>
               <option value="weekly">매주</option>
