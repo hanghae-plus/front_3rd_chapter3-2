@@ -44,7 +44,7 @@ const saveScheduleRepeat = async (
   const intervalInput = screen.getByLabelText('반복 간격');
   await user.clear(intervalInput);
   await user.paste(String(interval));
-  await user.type(screen.getByLabelText('반복 종료일'), endDate ?? date);
+  endDate && (await user.type(screen.getByLabelText('반복 종료일'), endDate));
 
   await user.click(screen.getByTestId('event-submit-button'));
 };
@@ -296,7 +296,7 @@ describe('반복 간격 설정', () => {
 
     await saveScheduleRepeat(user, {
       title: '2년마다 회의',
-      date: '2024-01-15',
+      date: '2020-01-15',
       startTime: '10:00',
       endTime: '11:00',
       description: '설명',
@@ -305,9 +305,8 @@ describe('반복 간격 설정', () => {
       repeat: { type: 'yearly', interval: 2, endDate: '2028-01-15' },
     });
 
-    await assertEventOnDate('2024-01-15', '2024년 1월'); // 초기 생성
-    await assertEventOnDate('2026-01-15', '2026년 1월'); // 2년 후
-    await assertEventOnDate('2028-01-15', '2028년 1월'); // 4년 후
+    await assertEventOnDate('2022-01-15', '2022년 1월'); // 초기 생성
+    await assertEventOnDate('2024-01-15', '2024년 1월'); // 2년 후
   });
 });
 
@@ -398,7 +397,7 @@ describe('반복 일정 종료', () => {
 
     await saveScheduleRepeat(user, {
       title: '매월 회의',
-      date: '2024-01-01',
+      date: '2024-01-30',
       startTime: '10:00',
       endTime: '11:00',
       description: '설명',
@@ -423,7 +422,7 @@ describe('반복 일정 종료', () => {
 
     await saveScheduleRepeat(user, {
       title: '매주 회의',
-      date: '2024-01-01',
+      date: '2024-01-30',
       startTime: '10:00',
       endTime: '11:00',
       description: '설명',
@@ -432,7 +431,7 @@ describe('반복 일정 종료', () => {
       repeat: { type: 'weekly', interval: 1 },
     });
 
-    await assertEventOnDate('2025-06-30', '2025년 6월');
+    await assertEventOnDate('2025-06-24', '2025년 6월');
 
     vi.setSystemTime(new Date('2025-07-01T09:00:00'));
     cleanup();

@@ -38,10 +38,22 @@ function adjustNextYearlyDate(date: Date, interval: number): Date {
   return newDate;
 }
 
+function getEndDate(currentEndDate?: string): Date {
+  const endDate = new Date(currentEndDate || '2025-06-30');
+  const maxEndDate = new Date('2025-06-30');
+
+  if (endDate.getTime() > maxEndDate.getTime()) {
+    return maxEndDate;
+  }
+
+  return endDate;
+}
+
 function generateEventDates(startDate: string, repeat: RepeatInfo): string[] {
   const { type, interval, endDate } = repeat;
   let currentDate = new Date(startDate);
-  const end = new Date(endDate ?? startDate);
+  const end = getEndDate(endDate);
+
   const eventDates: string[] = [];
   const targetDay = currentDate.getDate();
 
