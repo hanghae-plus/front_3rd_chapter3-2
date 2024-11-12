@@ -79,5 +79,25 @@ it('일정을 삭제할 때 해당 반복일정도 삭제한다.', async () => {
   expect(result.current.repeatEventHook.repeatEvent).toHaveLength(0);
 });
 
+it('반복일정 중 선택한 일정만 삭제한다.', async () => {
+  const { result } = renderHook(() => useCombineHooks(false));
+
+  await act(() => Promise.resolve(null));
+
+  const { repeatEvent } = result.current.repeatEventHook;
+  expect(repeatEvent[0].eventId).toBe('2ab06561-10f8-4e7f-8128-4b2dd343c6b9');
+
+  const repeatId = repeatEvent[0].event[0].repeatId;
+  expect(repeatId).not.toBeNull();
+
+  await act(() =>
+    result.current.repeatEventHook.deleteRepeatInstance(
+      '2ab06561-10f8-4e7f-8128-4b2dd343c6b9',
+      'd2c61538-6da1-46c5-8709-231422dfe866'
+    )
+  );
+
+  expect(repeatEvent).toHaveLength(0);
+});
+
 it('반복일정 중 하나를 수정하면 그 일정은 단일 일정으로 변경된다.', () => {});
-it('반복일정 중 선택한 일정만 삭제한다.', () => {});

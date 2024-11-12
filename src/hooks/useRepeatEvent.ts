@@ -12,11 +12,8 @@ export const useRepeatEvent = () => {
     setRepeatEvent(getRepeatingEvent(eventWithRepeat));
   };
 
-  // 일정의 반복일정 전체를 삭제
-  const deleteRepeatEvent = () => {};
-
   //일정의 반복일정 개별삭제
-  const deleteRepeatEventInstance = () => {};
+  const deleteRepeatInstance = (eventId: string, repeatId: string) => {};
 
-  return { repeatEvent, changeRepeatEvent, deleteRepeatEvent, deleteRepeatEventInstance };
+  return { repeatEvent, changeRepeatEvent, deleteRepeatInstance };
 };
