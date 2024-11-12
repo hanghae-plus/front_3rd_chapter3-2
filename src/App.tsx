@@ -2,8 +2,8 @@ import { Box, Flex, Heading, VStack } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
 
 import { CalendarNavigation } from './features/calendar-view/ui/CalendarNavigation.tsx';
-import { MonthView } from './features/calendar-view/ui/MonthView.tsx';
-import { WeekView } from './features/calendar-view/ui/WeekView.tsx';
+import { MonthView } from './features/calendar-view/ui/monthview/MonthView.tsx';
+import { WeekView } from './features/calendar-view/ui/weekview/WeekView.tsx';
 import { EventForm } from './features/event-form/ui/EventForm.tsx';
 import { EventList } from './features/event-list/ui/EventList.tsx';
 import { useEventOverlap } from './features/event-overlap/hooks/useEventOverlap.ts';
@@ -38,6 +38,7 @@ function App() {
       setEditingEvent(null);
     },
     saveEvent,
+    editingEvent,
   });
 
   const cancelRef = useRef<HTMLButtonElement>(null);

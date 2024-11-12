@@ -16,5 +16,6 @@ export interface Event {
   location: string;
   category: string;
   repeat: EventRepeat;
+  repeatCondition?: string;
   notificationTime: number;
 }

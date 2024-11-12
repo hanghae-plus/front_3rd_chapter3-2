@@ -1,8 +1,8 @@
 import { BellIcon } from '@chakra-ui/icons';
 import { Box, Text } from '@chakra-ui/react';
 
-import { Event } from '../../../entities/event/model/types';
-import { HStack } from '../../../shared/ui/Stack';
+import { Event } from '../../../../entities/event/model/types';
+import { HStack } from '../../../../shared/ui/Stack';
 
 interface EventCellProps {
   event: Event;
