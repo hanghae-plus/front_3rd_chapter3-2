@@ -467,7 +467,7 @@ describe('createRepeatDateRange', () => {
     expect(result).toEqual(['2024-01-01', '2024-01-04', '2024-01-07', '2024-01-10']);
   });
 
-  it('종료 날짜가 없을 경우, 시작일 기준으로 2050-12-31일까지 반복되는 날짜가 담긴 배열을 반환한다', () => {
+  it('종료 날짜가 주어지지 않을 경우, 기본 값으로 "2050-12-31"이 사용된다', () => {
     const result = createRepeatDateRange({
       start: '2050-01-01',
       type: 'daily',
@@ -578,7 +578,7 @@ describe('createRepeatDateRange', () => {
       expect(dates).toEqual(['2024-01-01', '2024-01-15', '2024-01-29']);
     });
 
-    it('시작일과 종료일이 7일 미만 차이날 경우 시작일이 담긴 배열을 반환한다.', () => {
+    it('시작일과 종료일이 일주일 미만 차이날 경우 시작일이 담긴 배열을 반환한다', () => {
       const dates = createRepeatDateRange({
         type: 'weekly',
         start: '2024-01-01',
