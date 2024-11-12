@@ -55,7 +55,7 @@ export function createRepeatEvents(eventData: EventForm | Event): EventForm[] | 
 
   const dates = createRepeatDateRange({
     start: startDate,
-    end: repeat.endDate,
+    end: repeat.endDate ?? '2050-12-31',
     interval: repeat.interval,
     type: repeat.type,
   });

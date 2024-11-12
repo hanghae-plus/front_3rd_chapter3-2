@@ -1,5 +1,5 @@
-import { Event } from '../../types';
-import { getFilteredEvents } from '../../utils/eventUtils';
+import { Event, EventForm } from '../../types';
+import { createRepeatEvents, getFilteredEvents } from '../../utils/eventUtils';
 
 describe('getFilteredEvents', () => {
   const events: Event[] = [
@@ -113,4 +113,75 @@ describe('getFilteredEvents', () => {
     const result = getFilteredEvents([], '', new Date('2024-07-01'), 'month');
     expect(result).toHaveLength(0);
   });
+});
+
+describe('createRepeatEvents', () => {
+  // 매일
+  it('시작일 기준으로 매일 반복되는 반복 일정을 반환한다', () => {
+    const originEvent: EventForm = {
+      title: '주간 팀 회의',
+      date: '2024-11-12',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '주간 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: {
+        type: 'daily',
+        interval: 1,
+        endDate: '2024-11-15',
+      },
+      notificationTime: 10,
+    };
+
+    const events = createRepeatEvents(originEvent);
+
+    expect(events).toEqual([
+      {
+        ...originEvent,
+        date: '2024-11-12',
+      },
+      {
+        ...originEvent,
+        date: '2024-11-13',
+      },
+      {
+        ...originEvent,
+        date: '2024-11-14',
+      },
+      {
+        ...originEvent,
+        date: '2024-11-15',
+      },
+    ]);
+  });
+
+  it('종료일이 주어지지 않을 경우 "2050-12-31"일을 종료일로 설정한다', () => {
+    const originEvent: EventForm = {
+      title: '주간 팀 회의',
+      date: '2050-12-01',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '주간 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: {
+        type: 'daily',
+        interval: 1,
+      },
+      notificationTime: 10,
+    };
+
+    const events = createRepeatEvents(originEvent);
+    expect(events).toHaveLength(31);
+    expect(events[events.length - 1]).toEqual(
+      expect.objectContaining({
+        date: '2050-12-31',
+      })
+    );
+  });
+
+  // 매주
+  // 매월
+  // 매년
 });
