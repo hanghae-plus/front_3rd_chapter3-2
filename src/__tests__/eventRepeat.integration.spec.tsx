@@ -20,6 +20,15 @@ beforeEach(() => {
   user = userEvent.setup();
 });
 
+const mockToast = vi.fn();
+vi.mock('@chakra-ui/react', async () => {
+  const original = await vi.importActual('@chakra-ui/react');
+  return {
+    ...original,
+    useToast: () => mockToast,
+  };
+});
+
 describe('이벤트 > 반복과 관련된 통합테스트', () => {
   it('반복 일정이 설정된 경우 반복 일정이 endDate까지 생성된다.', async () => {
     vi.useFakeTimers();
@@ -217,13 +226,26 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
       </ChakraProvider>
     );
 
-    const monthView = await screen.findByTestId('month-view');
+    await user.type(screen.getByLabelText('제목'), '매월 반복 이벤트');
+    await user.type(screen.getByLabelText('날짜'), '2024-11-01');
+    await user.type(screen.getByLabelText('시작 시간'), '10:00');
+    await user.type(screen.getByLabelText('종료 시간'), '11:00');
 
-    await waitFor(() => {
-      expect(
-        within(monthView).queryAllByText('반복 종료일이 시작일보다 이전인 이벤트')
-      ).toHaveLength(1);
-    });
+    const checkbox = screen.getByLabelText('반복 일정') as HTMLInputElement;
+    await userEvent.click(checkbox);
+
+    await user.selectOptions(screen.getByLabelText('반복 유형'), 'monthly');
+    await user.type(screen.getByLabelText('반복 간격'), '1');
+    await user.type(screen.getByLabelText('반복 종료일'), '2024-10-01');
+
+    await user.click(screen.getByRole('button', { name: /일정 추가/ }));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: '반복 종료일이 일정 시작일보다 늦어야 합니다.',
+        status: 'error',
+      })
+    );
   });
 
   it('반복 일정을 수정하면 단일 일정으로 변경되며 반복 일정 아이콘도 사라진다.', async () => {
