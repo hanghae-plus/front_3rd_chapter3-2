@@ -30,6 +30,57 @@ vi.mock('@chakra-ui/react', async () => {
 });
 
 describe('이벤트 > 반복과 관련된 통합테스트', () => {
+  it('반복 유형을 daily, 반복 간격을 2로 설정할 경우 이벤트는 2일 간격으로 등록된다.', async () => {
+    vi.setSystemTime('2024-11-01');
+
+    const result = generateRecurringEvents('2024-11-01', 2, 'daily' as RepeatType, '2024-11-05');
+
+    const eventData: Event = {
+      id: '1',
+      title: '2일 반복 이벤트',
+      date: '2025-11-01',
+      startTime: '21:25',
+      endTime: '23:31',
+      description: '',
+      location: '',
+      category: '',
+      repeat: {
+        type: 'daily',
+        interval: 2,
+        endDate: '2024-11-05',
+      },
+      notificationTime: 10,
+    };
+
+    const recurringEvents = result.map((eventDate, index) => ({
+      ...eventData,
+      id: index.toString(),
+      date: eventDate,
+    }));
+
+    setupMockHandlerBatchCreation(recurringEvents);
+
+    render(
+      <ChakraProvider>
+        <App />
+      </ChakraProvider>
+    );
+
+    const firstDay = await screen.getByTestId('1');
+    const secondDay = await screen.getByTestId('2');
+    const thirdDay = await screen.getByTestId('3');
+    const fourthDay = await screen.getByTestId('4');
+    const fifthDay = await screen.getByTestId('5');
+
+    await waitFor(() => {
+      expect(within(firstDay).getByText('2일 반복 이벤트')).toBeInTheDocument();
+      expect(within(secondDay).queryByText('2일 반복 이벤트')).toBeNull();
+      expect(within(thirdDay).queryByText('2일 반복 이벤트')).toBeInTheDocument();
+      expect(within(fourthDay).queryByText('2일 반복 이벤트')).toBeNull();
+      expect(within(fifthDay).queryByText('2일 반복 이벤트')).toBeInTheDocument();
+    });
+  });
+
   it('반복 일정이 설정된 경우 반복 일정이 endDate까지 생성된다.', async () => {
     vi.useFakeTimers();
     vi.setSystemTime('2024-11-01');
