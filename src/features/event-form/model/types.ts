@@ -18,6 +18,7 @@ export interface EventFormState {
   repeatInterval: number;
   repeatEndDate: string;
   notificationTime: number;
+  repeatCondition?: string;
 }
 
 export interface FormErrors {

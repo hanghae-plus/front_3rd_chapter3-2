@@ -1,11 +1,11 @@
 import { Heading, Table, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
 
 import { EventCell } from './EventCell';
-import { getWeekDates } from '../../../entities/calendar/lib/calendarUtils';
-import { Event } from '../../../entities/event/model/types';
-import { weekDays } from '../../../shared/config/constant';
-import { formatWeek } from '../../../shared/lib/date';
-import { VStack } from '../../../shared/ui/Stack';
+import { getWeekDates } from '../../../../entities/calendar/lib/calendarUtils';
+import { Event } from '../../../../entities/event/model/types';
+import { weekDays } from '../../../../shared/config/constant';
+import { formatWeek } from '../../../../shared/lib/date';
+import { VStack } from '../../../../shared/ui/Stack';
 
 interface WeekViewProps {
   currentDate: Date;

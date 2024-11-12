@@ -9,9 +9,15 @@ interface UseEventOverlapProps {
   events: Event[];
   onSaveSuccess: () => void;
   saveEvent: (eventData: EventForm | Event) => Promise<void>;
+  editingEvent: Event | null;
 }
 
-export const useEventOverlap = ({ events, onSaveSuccess, saveEvent }: UseEventOverlapProps) => {
+export const useEventOverlap = ({
+  events,
+  onSaveSuccess,
+  saveEvent,
+  editingEvent,
+}: UseEventOverlapProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [overlappingEvents, setOverlappingEvents] = useState<Event[]>([]);
   const [pendingSaveEvent, setPendingSaveEvent] = useState<Event | null>(null);
@@ -37,6 +43,9 @@ export const useEventOverlap = ({ events, onSaveSuccess, saveEvent }: UseEventOv
         setIsOpen(true);
       } else {
         try {
+          if (editingEvent) {
+            await saveEvent({ ...editingEvent, ...eventData });
+          }
           await saveEvent(eventData);
           onSaveSuccess();
           toast({
