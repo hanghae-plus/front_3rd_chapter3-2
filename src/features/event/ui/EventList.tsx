@@ -60,7 +60,7 @@ const EventList = ({ notifiedEvents, event, editEvent, deleteEvent }: EventListP
           <IconButton
             aria-label="Delete event"
             icon={<DeleteIcon />}
-            onClick={() => deleteEvent(event.id)}
+            onClick={() => deleteEvent(event)}
           />
         </HStack>
       </HStack>

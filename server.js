@@ -73,7 +73,9 @@ app.delete('/api/events/:id', async (req, res) => {
 
 app.post('/api/events-list', async (req, res) => {
   const events = await getEvents();
-  const repeatId = randomUUID();
+  // const repeatId = randomUUID();
+  const repeatId = `repeat-${Date.now()}`;
+
   const newEvents = req.body.events.map((event) => {
     const isRepeatEvent = event.repeat.type !== 'none';
     return {
@@ -125,16 +127,19 @@ app.put('/api/events-list', async (req, res) => {
 
 app.delete('/api/events-list', async (req, res) => {
   const events = await getEvents();
-  const newEvents = events.events.filter((event) => !req.body.eventIds.includes(event.id)); // ? ids를 전달하면 해당 아이디를 기준으로 events에서 제거
+  const id = req.body.eventId;
+  // const id = req.params.id;
 
   fs.writeFileSync(
     `${__dirname}/src/__mocks__/response/realEvents.json`,
     JSON.stringify({
-      events: newEvents,
+      events: events.events.filter((event) => event.repeat.id !== id),
     })
   );
 
   res.status(204).send();
+
+  // res.status(204).send();
 });
 
 app.listen(port, () => {

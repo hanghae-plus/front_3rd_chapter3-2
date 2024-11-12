@@ -99,8 +99,6 @@ const CalendarPage = () => {
       return;
     }
 
-    console.log(repeatType, isRepeating);
-
     const finalRepeatEndDate = repeatEndDate || '2025-06-30'; // 기본 종료일 설정
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
@@ -132,9 +130,7 @@ const CalendarPage = () => {
           date: eventDate,
         }));
 
-        // for (const event of recurringEvents) {
         await saveOrUpdateEventList(recurringEvents, editingEvent !== null); // 여러 이벤트를 한 번에 저장
-        // }
       } else {
         await saveEvent(eventData);
       }
@@ -143,11 +139,14 @@ const CalendarPage = () => {
     }
   };
 
+  const handleDelete = async (event: Event) => {
+    await deleteEvent(event.id);
+  };
+
   useEffect(() => {
     if (!isRepeating) {
       setRepeatType('none');
       setRepeatInterval(1);
-      setRepeatEndDate('2025-06-30');
     }
   }, [isRepeating]);
 
@@ -289,7 +288,7 @@ const CalendarPage = () => {
           events={events}
           filteredEvents={filteredEvents}
           editEvent={editEvent}
-          deleteEvent={deleteEvent}
+          deleteEvent={(event) => handleDelete(event)}
         />
       </Flex>
 

@@ -116,12 +116,12 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     }
   };
 
-  const deleteEventList = async (eventIds: string[]) => {
+  const deleteEventList = async (eventId: string) => {
     try {
       const response = await fetch('/api/events-list', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventIds }),
+        body: JSON.stringify({ eventId }),
       });
 
       if (!response.ok) {

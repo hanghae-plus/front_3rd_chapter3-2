@@ -124,10 +124,10 @@ export const setupMockHandlerBatchDeletion = (initEvents = [] as Event[]) => {
     }),
 
     http.delete('/api/events-list', async ({ request }) => {
-      const { eventIds } = await request.json();
+      const { eventId } = await request.json();
       const initialLength = initialEvents.length;
 
-      initialEvents = initialEvents.filter((event) => !eventIds.includes(event.id));
+      initialEvents = initialEvents.filter((event) => eventId !== event.repeat.id);
 
       return initialEvents.length !== initialLength
         ? new HttpResponse(null, { status: 204 })

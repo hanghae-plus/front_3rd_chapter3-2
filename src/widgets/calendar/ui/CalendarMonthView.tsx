@@ -58,6 +58,7 @@ const CalendarMonthView = ({ events, currentDate }: CalendarMonthViewProps) => {
 
                 return (
                   <Td
+                    data-testid={day}
                     key={dayIndex}
                     height="100px"
                     verticalAlign="top"
