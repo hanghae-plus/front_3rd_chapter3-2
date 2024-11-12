@@ -1,5 +1,6 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { Heading, HStack, IconButton, Select, VStack } from '@chakra-ui/react';
+import { Heading, HStack, IconButton, Select, useToast, VStack } from '@chakra-ui/react';
+import { useEffect } from 'react';
 
 import { MonthView } from './MonthView';
 import { WeekView } from './WeekView';
@@ -10,11 +11,29 @@ import { useNotifications } from '../../hooks/useNotifications';
 import { useSearch } from '../../hooks/useSearch';
 
 export const Calendar = () => {
+  const toast = useToast();
+
   const { editingEvent, setEditingEvent } = useEventForm();
-  const { events } = useEventOperations(Boolean(editingEvent), () => setEditingEvent(null));
+  const { events, fetchEvents } = useEventOperations(Boolean(editingEvent), () =>
+    setEditingEvent(null)
+  );
   const { view, setView, currentDate, holidays, navigate } = useCalendarView();
   const { notifiedEvents } = useNotifications(events);
   const { filteredEvents } = useSearch(events, currentDate, view);
+
+  const init = async () => {
+    await fetchEvents();
+    toast({
+      title: '일정 로딩 완료!',
+      status: 'info',
+      duration: 1000,
+    });
+  };
+
+  useEffect(() => {
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <VStack flex={1} spacing={5} align="stretch">
