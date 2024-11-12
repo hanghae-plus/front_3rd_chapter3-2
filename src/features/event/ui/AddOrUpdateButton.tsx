@@ -53,6 +53,26 @@ export const AddOrUpdateButton = ({ events, saveEvent }: AddOrUpdateButtonProps)
       return;
     }
 
+    if (isRepeating && repeatInterval <= 0) {
+      toast({
+        title: '반복 간격은 0보다 커야 합니다.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (isRepeating && date > repeatEndDate) {
+      toast({
+        title: '반복 종료일은 시작일보다 빨라야 합니다.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
       title,

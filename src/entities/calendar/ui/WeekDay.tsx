@@ -20,7 +20,7 @@ export const WeekDay = ({ event, isNotified }: WeekDayProps) => {
       color={isNotified ? 'red.500' : 'inherit'}
     >
       <HStack spacing={1}>
-        {isRepeat && <RepeatIcon />}
+        {isRepeat && <RepeatIcon data-testid="repeat" />}
         {isNotified && <BellIcon />}
         <Text fontSize="sm" noOfLines={1}>
           {event.title}
