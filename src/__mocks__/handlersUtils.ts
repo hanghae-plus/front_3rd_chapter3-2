@@ -74,7 +74,7 @@ export const setupMockHandlerDeletion = () => {
       description: '삭제할 이벤트입니다',
       location: '어딘가',
       category: '기타',
-      repeat: { type: 'none', interval: 0 },
+      repeat: { type: 'monthly', interval: 1 },
       notificationTime: 10,
     },
   ];
