@@ -437,7 +437,16 @@ describe('addYears', () => {
 });
 
 describe('createRepeatDateRange', () => {
-  it('interval이 주어지지 않을 경우, 기본값으로 1이 사용된다.', () => {
+  it('반복 일정 유형(type)이 주어지지 않을 경우, "daily"가 기본값으로 사용된다', () => {
+    const result = createRepeatDateRange({
+      start: '2024-01-01',
+      end: '2024-01-03',
+    });
+
+    expect(result).toEqual(['2024-01-01', '2024-01-02', '2024-01-03']);
+  });
+
+  it('interval이 주어지지 않을 경우, 기본값으로 1이 사용된다', () => {
     const result = createRepeatDateRange({
       type: 'daily',
       start: '2024-01-01',
