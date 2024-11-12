@@ -40,7 +40,10 @@ describe('반복 유형 선택', () => {
 
     for (const type of repeatTypes) {
       await userEvent.selectOptions(repeatTypeSelect, type);
-      expect(screen.getByRole('option', { name: type }) as HTMLOptionElement).toBeSelected();
+      expect(screen.getByRole('option', { name: type }) as HTMLOptionElement).toHaveProperty(
+        'selected',
+        true
+      );
     }
   });
 });

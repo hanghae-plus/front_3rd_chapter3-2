@@ -1,6 +1,7 @@
 import { Box, Flex, Heading, VStack } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
 
+import { Event } from './entities/event/model/types.ts';
 import { CalendarNavigation } from './features/calendar-view/ui/CalendarNavigation.tsx';
 import { MonthView } from './features/calendar-view/ui/monthview/MonthView.tsx';
 import { WeekView } from './features/calendar-view/ui/weekview/WeekView.tsx';
@@ -13,7 +14,6 @@ import { NotificationList } from './features/notification/ui/NotificationList.ts
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
 import { useSearch } from './hooks/useSearch.ts';
-import { Event } from './types.ts';
 
 function App() {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -45,7 +45,11 @@ function App() {
   return (
     <Box w="full" h="100vh" m="auto" p={5}>
       <Flex gap={6} h="full">
-        <EventForm initialEvent={editingEvent} onSubmit={handleEventSave} />
+        <EventForm
+          initialEvent={editingEvent}
+          onSubmit={handleEventSave}
+          setEditingEvent={setEditingEvent}
+        />
 
         <VStack flex={1} spacing={5} align="stretch">
           <Heading>일정 보기</Heading>

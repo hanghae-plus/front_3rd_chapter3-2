@@ -32,7 +32,7 @@ export const EventItem = memo(({ event, isNotified }: EventItemProps) => {
         {event.repeat?.type !== 'none' && <InfoIcon color="gray.500" w={3} h={3} />}
         {event.repeat?.type !== 'none' && (
           <Text fontSize="xs" color="gray.500">
-            {getRepeatTypeLabel(event.repeat.type)}
+            {getRepeatTypeLabel(event.repeat?.type)}
           </Text>
         )}
         <Text fontSize="sm" noOfLines={1}>

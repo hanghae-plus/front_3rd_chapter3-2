@@ -1,4 +1,14 @@
-import { BellIcon, DeleteIcon, EditIcon, IconButton, Text } from '@chakra-ui/icons';
+import {
+  BellIcon,
+  DeleteIcon,
+  EditIcon,
+  RepeatIcon,
+  InfoIcon,
+  TimeIcon,
+  CalendarIcon,
+  SettingsIcon,
+} from '@chakra-ui/icons';
+import { IconButton, Text, Badge, Tooltip, useColorModeValue } from '@chakra-ui/react';
 
 import { notificationOptions } from '../../../shared/config/constant';
 import { Flex as Box } from '../../../shared/ui/Flex';
@@ -9,55 +19,159 @@ interface EventCardProps {
   event: Event;
   isNotified: boolean;
   onEdit: (event: Event) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: string, isRecurringEvent: boolean) => void;
 }
 
 export const EventCard = ({ event, isNotified, onEdit, onDelete }: EventCardProps) => {
+  const badgeBg = useColorModeValue('blue.100', 'blue.800');
+  const badgeColor = useColorModeValue('blue.800', 'blue.100');
+  const iconColor = useColorModeValue('gray.600', 'gray.400');
+  const borderColor = useColorModeValue('gray.200', 'gray.600');
+
+  // 반복 일정 정보 포맷팅
+  const getRepeatText = () => {
+    if (!event.isRepeating) return null;
+
+    const intervalText = `${event.repeat?.interval}${
+      event.repeat?.type === 'daily'
+        ? '일'
+        : event.repeat?.type === 'weekly'
+          ? '주'
+          : event.repeat?.type === 'monthly'
+            ? '개월'
+            : '년'
+    }마다`;
+
+    const endText =
+      event.repeatEndCondition === 'date'
+        ? `(${event.repeat?.endDate}까지)`
+        : event.repeatEndCondition === 'count'
+          ? `(${event.repeatEndCondition}회)`
+          : '(종료 없음)';
+
+    return `${intervalText} ${endText}`;
+  };
+
+  // 날짜가 윤년이나 말일인 경우 툴팁 텍스트
+  const getSpecialDateText = () => {
+    const eventDate = new Date(event.date);
+    const day = eventDate.getDate();
+    const month = eventDate.getMonth();
+
+    if (day === 31) {
+      return '매월 말일에 반복';
+    } else if (day === 29 && month === 1) {
+      return '윤년이 아닌 경우 2월 28일에 반복';
+    }
+    return null;
+  };
+
+  const handleDelete = () => {
+    onDelete(event.id, event.isRepeating);
+  };
+
   return (
-    <Box borderWidth={1} borderRadius="lg" p={3} width="100%">
-      <HStack justifyContent="space-between">
-        <VStack align="start">
-          <HStack>
-            {isNotified && <BellIcon color="red.500" />}
-            <Text
-              fontWeight={isNotified ? 'bold' : 'normal'}
-              color={isNotified ? 'red.500' : 'inherit'}
-            >
-              {event?.title}
+    <Box
+      borderWidth={1}
+      borderColor={borderColor}
+      borderRadius="lg"
+      p={4}
+      width="100%"
+      transition="all 0.2s"
+      _hover={{ boxShadow: 'md' }}
+    >
+      <VStack spacing={3} align="stretch">
+        {/* 헤더 영역 */}
+        <HStack justifyContent="space-between" alignItems="flex-start">
+          <HStack spacing={2} flex={1}>
+            <Text fontSize="lg" fontWeight="bold">
+              {event.title}
+            </Text>
+            {event.isRepeating && (
+              <Tooltip label={getRepeatText()}>
+                <RepeatIcon boxSize={18} color={iconColor} />
+              </Tooltip>
+            )}
+            {isNotified && (
+              <Tooltip label="알림 예정">
+                <BellIcon boxSize={18} color="red" />
+              </Tooltip>
+            )}
+          </HStack>
+          <HStack spacing={2}>
+            <IconButton
+              aria-label="Edit event"
+              icon={<EditIcon boxSize={18} />}
+              size="sm"
+              variant="ghost"
+              onClick={() => onEdit(event)}
+            />
+            <IconButton
+              aria-label="Delete event"
+              icon={<DeleteIcon boxSize={18} />}
+              size="sm"
+              variant="ghost"
+              colorScheme="red"
+              onClick={handleDelete}
+            />
+          </HStack>
+        </HStack>
+
+        {/* 본문 영역 */}
+        <VStack spacing={2} align="stretch">
+          <HStack spacing={2}>
+            <CalendarIcon boxSize={18} color={iconColor} />
+            <Text>{event.date}</Text>
+          </HStack>
+
+          <HStack spacing={2}>
+            <TimeIcon boxSize={18} color={iconColor} />
+            <Text>
+              {event.startTime} - {event.endTime}
             </Text>
           </HStack>
-          <Text>{event?.date}</Text>
-          <Text>
-            {event?.startTime} - {event.endTime}
-          </Text>
-          {event.description && <Text>{event.description}</Text>}
-          {event.location && <Text>{event.location}</Text>}
-          {event.category && <Text>카테고리: {event.category}</Text>}
-          {event.repeat?.type !== 'none' && (
-            <Text>
-              반복: {event.repeat?.interval}
-              {event.repeat?.type === 'daily' && '일'}
-              {event.repeat?.type === 'weekly' && '주'}
-              {event.repeat?.type === 'monthly' && '월'}
-              {event.repeat?.type === 'yearly' && '년'}
-              마다
-              {event.repeat?.endDate && ` (종료: ${event.repeat?.endDate})`}
-            </Text>
+
+          <HStack spacing={2}>
+            {event.description && <Text color="gray.600">{event.description}</Text>}
+          </HStack>
+
+          {event.location && (
+            <HStack spacing={2}>
+              <InfoIcon boxSize={18} color={iconColor} />
+              <Text>{event.location}</Text>
+            </HStack>
           )}
-          <Text>
-            알림:{' '}
-            {notificationOptions.find((option) => option.value === event.notificationTime)?.label}
-          </Text>
+
+          {event.category && (
+            <HStack spacing={2}>
+              <SettingsIcon boxSize={18} color={iconColor} />
+              <Text>{event.category}</Text>
+            </HStack>
+          )}
+
+          {/* 반복 일정 정보 */}
+          {event.isRepeating && (
+            <Box>
+              <Badge bg={badgeBg} color={badgeColor} px={2} py={1} borderRadius="full">
+                {getRepeatText()}
+              </Badge>
+              {getSpecialDateText() && (
+                <Text fontSize="sm" color="orange.500" mt={1}>
+                  {getSpecialDateText()}
+                </Text>
+              )}
+            </Box>
+          )}
+
+          {/* 알림 설정 */}
+          <HStack spacing={2}>
+            <BellIcon boxSize={18} color={iconColor} />
+            <Text>
+              {notificationOptions.find((option) => option.value === event.notificationTime)?.label}
+            </Text>
+          </HStack>
         </VStack>
-        <HStack>
-          <IconButton aria-label="Edit event" icon={<EditIcon />} onClick={() => onEdit(event)} />
-          <IconButton
-            aria-label="Delete event"
-            icon={<DeleteIcon />}
-            onClick={() => onDelete(event.id)}
-          />
-        </HStack>
-      </HStack>
+      </VStack>
     </Box>
   );
 };

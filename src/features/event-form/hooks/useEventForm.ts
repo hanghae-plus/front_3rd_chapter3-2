@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 
 import { Event } from '../../../entities/event/model/types';
 import { validateTime } from '../lib/validation';
@@ -6,6 +6,7 @@ import { EventFormState, FormErrors } from '../model/types';
 
 interface UseEventFormReturn {
   formState: EventFormState;
+  setFormState: Dispatch<SetStateAction<EventFormState>>;
   errors: FormErrors;
   handleInputChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   handleCheckboxChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -19,11 +20,11 @@ const getInitialFormState = (initialEvent: Event | null): EventFormState => ({
   description: initialEvent?.description || '',
   location: initialEvent?.location || '',
   category: initialEvent?.category || '',
-  isRepeating: initialEvent?.repeat.type !== 'none',
-  repeatType: initialEvent?.repeat.type || 'none',
-  repeatCondition: initialEvent?.repeatCondition || 'date',
-  repeatInterval: initialEvent?.repeat.interval || 1,
-  repeatEndDate: initialEvent?.repeat.endDate || '',
+  isRepeating: initialEvent?.repeat?.type !== 'none',
+  repeatType: initialEvent?.repeat?.type || 'daily',
+  repeatInterval: initialEvent?.repeat?.interval || 1,
+  repeatEndDate: initialEvent?.repeat?.endDate || '',
+  repeatEndCondition: initialEvent?.repeatEndCondition || 'date',
   notificationTime: initialEvent?.notificationTime || 10,
 });
 
@@ -63,6 +64,7 @@ export const useEventForm = (initialEvent: Event | null): UseEventFormReturn => 
 
   return {
     formState,
+    setFormState,
     errors,
     handleInputChange,
     handleCheckboxChange,

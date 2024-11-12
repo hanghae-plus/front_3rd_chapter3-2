@@ -3,13 +3,21 @@ import { useCallback, useState } from 'react';
 
 import { findOverlappingEvents } from '../../../entities/event/lib/eventUtils';
 import { Event } from '../../../entities/event/model/types';
-import { EventForm } from '../../../types';
+import { EventFormState } from '../../event-form/model/types';
 
 interface UseEventOverlapProps {
   events: Event[];
   onSaveSuccess: () => void;
-  saveEvent: (eventData: EventForm | Event) => Promise<void>;
+  saveEvent: (eventData: EventFormState | Event) => Promise<void>;
   editingEvent: Event | null;
+}
+
+// 커스텀 에러 타입 정의
+class EventValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'EventValidationError';
+  }
 }
 
 export const useEventOverlap = ({
@@ -24,48 +32,79 @@ export const useEventOverlap = ({
 
   const toast = useToast();
 
+  // Toast 헬퍼 함수들
+  const showSuccessToast = useCallback(() => {
+    toast({
+      title: '일정이 저장되었습니다.',
+      status: 'success',
+      duration: 2000,
+      isClosable: true,
+    });
+  }, [toast]);
+
+  const showErrorToast = useCallback(
+    (error: Error) => {
+      toast({
+        title: '일정 저장에 실패했습니다.',
+        description:
+          error instanceof EventValidationError ? error.message : '알 수 없는 오류가 발생했습니다.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    },
+    [toast]
+  );
+
+  // 이벤트 유효성 검증
+  const validateEvent = useCallback((eventData: Event): void => {
+    if (!eventData.title || !eventData.date || !eventData.startTime || !eventData.endTime) {
+      throw new EventValidationError('필수 정보를 모두 입력해주세요.');
+    }
+  }, []);
+
+  // 이벤트 저장 로직
+  const saveEventWithValidation = useCallback(
+    async (eventData: Event): Promise<void> => {
+      try {
+        if (editingEvent) {
+          await saveEvent({ ...editingEvent, ...eventData });
+        } else {
+          await saveEvent(eventData);
+        }
+        onSaveSuccess();
+        showSuccessToast();
+      } catch (error) {
+        showErrorToast(
+          error instanceof Error ? error : new Error('알 수 없는 오류가 발생했습니다.')
+        );
+        throw error;
+      }
+    },
+    [editingEvent, saveEvent, onSaveSuccess, showSuccessToast, showErrorToast]
+  );
+
   const handleEventSave = useCallback(
     async (eventData: Event) => {
-      if (!eventData.title || !eventData.date || !eventData.startTime || !eventData.endTime) {
-        toast({
-          title: '필수 정보를 모두 입력해주세요.',
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
-        return;
-      }
+      try {
+        validateEvent(eventData);
 
-      const overlapping = findOverlappingEvents(events, eventData);
-      if (overlapping.length > 0) {
-        setOverlappingEvents(overlapping);
-        setPendingSaveEvent(eventData);
-        setIsOpen(true);
-      } else {
-        try {
-          if (editingEvent) {
-            await saveEvent({ ...editingEvent, ...eventData });
-          }
-          await saveEvent(eventData);
-          onSaveSuccess();
-          toast({
-            title: '일정이 저장되었습니다.',
-            status: 'success',
-            duration: 2000,
-            isClosable: true,
-          });
-        } catch (error) {
-          toast({
-            title: '일정 저장에 실패했습니다.',
-            description: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.',
-            status: 'error',
-            duration: 3000,
-            isClosable: true,
-          });
+        const overlapping = findOverlappingEvents(events, eventData);
+        if (overlapping.length > 0) {
+          setOverlappingEvents(overlapping);
+          setPendingSaveEvent(eventData);
+          setIsOpen(true);
+          return;
+        }
+
+        await saveEventWithValidation(eventData);
+      } catch (error) {
+        if (error instanceof Error) {
+          showErrorToast(error);
         }
       }
     },
-    [events, saveEvent, onSaveSuccess, toast]
+    [events, validateEvent, saveEventWithValidation, showErrorToast]
   );
 
   const handleDialogClose = useCallback(() => {
@@ -78,25 +117,13 @@ export const useEventOverlap = ({
     if (!pendingSaveEvent) return;
 
     try {
-      await saveEvent(pendingSaveEvent);
-      onSaveSuccess();
+      await saveEventWithValidation(pendingSaveEvent);
       handleDialogClose();
-      toast({
-        title: '일정이 저장되었습니다.',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      });
     } catch (error) {
-      toast({
-        title: '일정 저장에 실패했습니다.',
-        description: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+      // Error toast is already handled in saveEventWithValidation
+      console.error('Failed to save event:', error);
     }
-  }, [pendingSaveEvent, saveEvent, onSaveSuccess, handleDialogClose, toast]);
+  }, [pendingSaveEvent, saveEventWithValidation, handleDialogClose]);
 
   return {
     isOpen,

@@ -1,4 +1,6 @@
-export type RepeatType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
+export type RepeatType = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'none';
+
+export type RepeatEndCondition = 'date' | 'count' | 'never';
 
 export interface EventRepeat {
   type: RepeatType;
@@ -16,6 +18,7 @@ export interface Event {
   location: string;
   category: string;
   repeat: EventRepeat;
-  repeatCondition?: string;
+  isRepeating: boolean;
+  repeatEndCondition?: RepeatEndCondition;
   notificationTime: number;
 }
