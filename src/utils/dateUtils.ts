@@ -123,3 +123,19 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+
+/**
+ * 주어진 날짜가 윤년에 해당하는지 boolean 값으로 반환합니다.
+ */
+export function isLeapYear(targetDate: Date): boolean {
+  // 연도 추출
+  const year = targetDate.getFullYear();
+
+  const FOUR = 4;
+  const HUNDRED = 100;
+  // 윤년 확인
+  if (year % (FOUR * HUNDRED) === 0) return true;
+  if (year % HUNDRED === 0) return false;
+  return year % FOUR === 0;
+}
+
