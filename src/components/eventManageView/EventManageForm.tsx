@@ -110,8 +110,8 @@ export const EventManageForm = () => {
       category,
       repeat: {
         type: isRepeating ? repeatType : 'none',
-        interval: repeatInterval,
-        endDate: repeatEndDate || undefined,
+        interval: isRepeating ? repeatInterval : 0,
+        endDate: isRepeating ? repeatEndDate : undefined,
       },
       notificationTime,
     };
