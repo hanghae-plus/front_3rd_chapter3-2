@@ -1,10 +1,9 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Checkbox, Heading, Text, useColorModeValue } from '@chakra-ui/react';
+import { Button, Checkbox, Heading, Text, useColorModeValue } from '@chakra-ui/react';
 import { memo } from 'react';
 
 import { Event } from '../../../entities/event/model/types';
 import { categories, notificationOptions } from '../../../shared/config/constant';
-import { Button } from '../../../shared/ui/Button';
 import { FormControl, FormLabel } from '../../../shared/ui/FormControl';
 import Input from '../../../shared/ui/Input';
 import { Select } from '../../../shared/ui/Select';
@@ -23,7 +22,6 @@ export const EventForm = memo(
       initialEvent as unknown as Event
     );
 
-    // Color mode values
     const bgColor = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.600');
     const headingColor = useColorModeValue('blue.600', 'blue.300');
@@ -254,7 +252,7 @@ export const EventForm = memo(
             onSubmit(formState as unknown as Event);
           }}
           colorScheme="blue"
-          size="xl"
+          size="lg"
           mt={4}
           _hover={{
             transform: 'translateY(-2px)',

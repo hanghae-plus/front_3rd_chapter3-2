@@ -9,6 +9,15 @@ export const server = setupServer(...handlers);
 
 vi.stubEnv('TZ', 'UTC');
 
+vi.mock('@chakra-ui/react', () => ({
+  ...vi.importActual('@chakra-ui/react'),
+  useColorModeValue: () => '#000000',
+}));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
 beforeAll(() => {
   server.listen();
   vi.useFakeTimers({ shouldAdvanceTime: true });
