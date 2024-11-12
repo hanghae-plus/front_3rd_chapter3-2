@@ -433,6 +433,31 @@ describe('getRemainingDatesByDay', () => {
     const result = getRemainingDatesByDay(startDate, endDate, interval);
     expect(result).toHaveLength(0);
   });
+  it('🔴 시작일자가 존재하지 않을 경우 현재일자를 기준으로 계산하여 날짜 배열을 반환한다.', () => {
+    const startDate = undefined;
+    const endDate = new Date('2025-02-13');
+    const interval = 30;
+    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    expect(result).toHaveLength(5);
+    expect(result[0]).toEqual(new Date('2024-10-01'));
+    expect(result[1]).toEqual(new Date('2024-10-31'));
+    expect(result[2]).toEqual(new Date('2024-11-30'));
+    expect(result[3]).toEqual(new Date('2024-12-30'));
+    expect(result[4]).toEqual(new Date('2025-01-29'));
+  });
+  it('🔴 종료일자가 존재하지 않을 경우 최대 종료일자 기준으로 계산하여 날짜 배열을 반환한다.', () => {
+    const startDate = undefined;
+    const endDate = undefined;
+    const interval = 30;
+    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    expect(result).toHaveLength(10);
+    expect(result[0]).toEqual(new Date('2024-10-01'));
+    expect(result[1]).toEqual(new Date('2024-10-31'));
+    expect(result[2]).toEqual(new Date('2024-11-30'));
+    expect(result[3]).toEqual(new Date('2024-12-30'));
+    expect(result[8]).toEqual(new Date('2025-05-29'));
+    expect(result[9]).toEqual(new Date('2025-06-28'));
+  });
 });
 
 describe('getWeekday', () => {

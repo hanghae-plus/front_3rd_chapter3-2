@@ -1,5 +1,7 @@
 import { Event } from '../types.ts';
 
+const MAX_END_DATE = '2025-06-30';
+
 export type WeekType = 'none' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
 
 /**
