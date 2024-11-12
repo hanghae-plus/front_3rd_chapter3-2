@@ -405,6 +405,34 @@ describe('getRemainingDatesByDay', () => {
     expect(result[2]).toEqual(new Date('2025-01-11'));
     expect(result[3]).toEqual(new Date('2025-02-10'));
   });
+  it('🔴 올바르지 않은 시작일자의 월의 날짜의 경우 빈 배열을 반환한다.', () => {
+    const startDate = new Date('2024-13-12');
+    const endDate = new Date('2025-02-13');
+    const interval = 30;
+    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 올바르지 않은 시작일자의 일의 날짜의 경우 빈 배열을 반환한다.', () => {
+    const startDate = new Date('2024-12-56');
+    const endDate = new Date('2025-02-13');
+    const interval = 30;
+    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 올바르지 않은 종료일자의 월의 날짜의 경우 빈 배열을 반환한다.', () => {
+    const startDate = new Date('2024-11-12');
+    const endDate = new Date('2025-22-13');
+    const interval = 30;
+    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 올바르지 않은 종료일자의 일의 날짜의 경우 빈 배열을 반환한다.', () => {
+    const startDate = new Date('2024-11-12');
+    const endDate = new Date('2025-02-99');
+    const interval = 30;
+    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    expect(result).toHaveLength(0);
+  });
 });
 
 describe('getWeekday', () => {
