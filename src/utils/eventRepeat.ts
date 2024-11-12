@@ -1,3 +1,4 @@
+import { DEFAULT_REPEAT_END_DATE } from '../constants/constants';
 import { Event } from '../types';
 import { formatDate, isLeapYear } from './dateUtils';
 
@@ -69,7 +70,7 @@ export const getRepeatEvents = (event: Event): Event[] => {
   const { repeat } = event;
 
   const newEvents = [];
-  const endDate = new Date(repeat.endDate || '2050-12-31');
+  const endDate = new Date(repeat.endDate || DEFAULT_REPEAT_END_DATE);
 
   let currentDate: Date | null = new Date(event.date);
 

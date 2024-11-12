@@ -7,3 +7,5 @@ export const NOTIFICATION_OPTIONS = [
   { value: 120, label: '2시간 전' },
   { value: 1440, label: '1일 전' },
 ];
+
+export const DEFAULT_REPEAT_END_DATE = '2050-12-31';
