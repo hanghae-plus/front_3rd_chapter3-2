@@ -38,8 +38,9 @@ export const useEventOperations = (
       if (editing) {
         response = await axios.put(`/api/events/${(eventData as Event).id}`, eventData);
       } else {
-        response = await axios.post('/api/events-list', { events: [eventData] });
+        response = await axios.post('api/events', eventData);
       }
+      // response = await axios.post('/api/events-list', { events: [eventData] });
 
       if (response.status !== 200 && response.status !== 201) {
         throw new Error('Failed to save event');

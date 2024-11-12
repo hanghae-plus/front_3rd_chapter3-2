@@ -8,6 +8,12 @@ export const handlers = [
     return HttpResponse.json({ events });
   }),
 
+  http.post('/api/events', async ({ request }) => {
+    const newEvent = (await request.json()) as Event;
+    newEvent.id = String(events.length + 1);
+    return HttpResponse.json(newEvent, { status: 201 });
+  }),
+
   http.post('/api/events-list', async ({ request }) => {
     type RequestBody = { events: Event[] };
     const requestBody = (await request.json()) as RequestBody;
