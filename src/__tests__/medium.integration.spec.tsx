@@ -1,8 +1,9 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act } from '@testing-library/react';
+import { render, screen, within, act, waitFor } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
+import { Provider } from 'jotai';
 import { http, HttpResponse } from 'msw';
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 
 import {
   setupMockHandlerCreation,
@@ -13,11 +14,13 @@ import App from '../App';
 import { server } from '../setupTests';
 import { Event } from '../types';
 
+const wrapper = ({ children }: { children: React.ReactNode }) => <Provider>{children}</Provider>;
+
 // ! Hard 여기 제공 안함
 const setup = (element: ReactElement) => {
   const user = userEvent.setup();
 
-  return { ...render(<ChakraProvider>{element}</ChakraProvider>), user }; // ? Med: 왜 ChakraProvider로 감싸는지 물어보자
+  return { ...render(<ChakraProvider>{element}</ChakraProvider>, { wrapper }), user }; // ? Med: 왜 ChakraProvider로 감싸는지 물어보자
 };
 
 // ! Hard 여기 제공 안함
@@ -107,7 +110,9 @@ describe('일정 뷰', () => {
     await user.selectOptions(screen.getByLabelText('view'), 'week');
 
     // ! 일정 로딩 완료 후 테스트
-    await screen.findByText('일정 로딩 완료!');
+    await waitFor(() => {
+      screen.findByText('일정 로딩 완료!');
+    });
 
     const eventList = within(screen.getByTestId('event-list'));
     expect(eventList.getByText('검색 결과가 없습니다.')).toBeInTheDocument();
@@ -314,7 +319,9 @@ it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트
   setup(<App />);
 
   // ! 일정 로딩 완료 후 테스트
-  await screen.findByText('일정 로딩 완료!');
+  await waitFor(() => {
+    screen.findByText('일정 로딩 완료!');
+  });
 
   expect(screen.queryByText('10분 후 기존 회의 일정이 시작됩니다.')).not.toBeInTheDocument();
 
@@ -322,5 +329,7 @@ it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트
     vi.advanceTimersByTime(1000);
   });
 
-  expect(screen.getByText('10분 후 기존 회의 일정이 시작됩니다.')).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.getByText('10분 후 기존 회의 일정이 시작됩니다.')).toBeInTheDocument();
+  });
 });
