@@ -173,6 +173,98 @@ describe('일정 뷰', () => {
     const januaryFirstCell = within(monthView).getByText('1').closest('td')!;
     expect(within(januaryFirstCell).getByText('신정')).toBeInTheDocument();
   });
+
+  it('반복 일정이 있을 경우, 월별 뷰에 반복 일정이 표시된다', async () => {
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({
+          events: [
+            {
+              id: 1,
+              title: '팀 회의',
+              date: '2024-10-15',
+              startTime: '09:00',
+              endTime: '10:00',
+              description: '주간 팀 미팅',
+              location: '회의실 A',
+              category: '업무',
+              repeat: { id: 1, type: 'daily', interval: 1, endDate: '2024-10-16' },
+              notificationTime: 10,
+            },
+            {
+              id: 2,
+              title: '프로젝트 계획',
+              date: '2024-10-16',
+              startTime: '14:00',
+              endTime: '15:00',
+              description: '새 프로젝트 계획 수립',
+              location: '회의실 B',
+              category: '업무',
+              repeat: { id: 1, type: 'daily', interval: 1, endDate: '2024-10-16' },
+              notificationTime: 10,
+            },
+          ],
+        });
+      })
+    );
+
+    setup(<App />);
+
+    await screen.findByText('일정 로딩 완료!');
+
+    const monthView = within(screen.getByTestId('month-view'));
+    expect(monthView.getByText(/팀 회의/)).toBeInTheDocument();
+    expect(monthView.getByText(/프로젝트 계획/)).toBeInTheDocument();
+    expect(monthView.getAllByTestId('repeat-icon')).toHaveLength(2);
+  });
+
+  it('반복 일정이 있을 경우, 주간 뷰에 반복 일정이 표시된다', async () => {
+    vi.setSystemTime(new Date('2024-10-15'));
+
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({
+          events: [
+            {
+              id: 1,
+              title: '팀 회의',
+              date: '2024-10-15',
+              startTime: '09:00',
+              endTime: '10:00',
+              description: '주간 팀 미팅',
+              location: '회의실 A',
+              category: '업무',
+              repeat: { id: 1, type: 'daily', interval: 1, endDate: '2024-10-16' },
+              notificationTime: 10,
+            },
+            {
+              id: 2,
+              title: '프로젝트 계획',
+              date: '2024-10-16',
+              startTime: '14:00',
+              endTime: '15:00',
+              description: '새 프로젝트 계획 수립',
+              location: '회의실 B',
+              category: '업무',
+              repeat: { id: 1, type: 'daily', interval: 1, endDate: '2024-10-16' },
+              notificationTime: 10,
+            },
+          ],
+        });
+      })
+    );
+
+    const { user } = setup(<App />);
+
+    await user.selectOptions(screen.getByLabelText('view'), 'week');
+
+    await screen.findByText('일정 로딩 완료!');
+
+    const weekView = within(screen.getByTestId('week-view'));
+    expect(weekView.getByText(/팀 회의/)).toBeInTheDocument();
+    expect(weekView.getByText(/프로젝트 계획/)).toBeInTheDocument();
+    expect(weekView.getAllByTestId('repeat-icon')).toHaveLength(2);
+  });
 });
 
 describe('검색 기능', () => {
