@@ -146,11 +146,15 @@ export function isLeapYear(targetDate: Date): boolean {
 /**
  * 현재 날짜부터 종료 날짜까지 설정된 간격으로 남은 날짜들을 반환합니다.
  */
-export function getRemainingDatesByDay(startDate: Date, endDate: Date, interval: number = 1) {
+export function getRemainingDatesByDay(
+  currentDate: Date = new Date(),
+  endDate: Date = new Date(MAX_END_DATE),
+  interval: number = 1
+) {
   const dates: Date[] = [];
 
   // 종료일이 시작일보다 이전인 경우 빈 배열 반환합니다.
-  if (endDate < startDate) {
+  if (endDate < currentDate) {
     return dates;
   }
 
@@ -159,7 +163,9 @@ export function getRemainingDatesByDay(startDate: Date, endDate: Date, interval:
     return dates;
   }
 
-  let current = new Date(startDate);
+  // 현재일자는 포함하지 않는다.
+  let current = new Date(currentDate);
+  current.setDate(current.getDate() + interval);
   while (current <= endDate) {
     dates.push(new Date(current));
     current.setDate(current.getDate() + interval);
