@@ -8,6 +8,7 @@ import {
   getEventsForDay,
   getRemainingDatesByDay,
   getWeekDates,
+  getWeekday,
   getWeeksAtMonth,
   isDateInRange,
   isLeapYear,
@@ -403,5 +404,44 @@ describe('getRemainingDatesByDay', () => {
     expect(result[1]).toEqual(new Date('2024-12-12'));
     expect(result[2]).toEqual(new Date('2025-01-11'));
     expect(result[3]).toEqual(new Date('2025-02-10'));
+  });
+});
+
+describe('getWeekday', () => {
+  it('🟢 월요일은 "mon"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-11');
+    expect(getWeekday(testDate)).toBe('mon');
+  });
+  it('🟢 화요일은 "tue"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-12');
+    expect(getWeekday(testDate)).toBe('tue');
+  });
+  it('🟢 수요일은 "wed"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-13');
+    expect(getWeekday(testDate)).toBe('wed');
+  });
+  it('🟢 목요일은 "thu"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-14');
+    expect(getWeekday(testDate)).toBe('thu');
+  });
+  it('🟢 금요일은 "fri"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-15');
+    expect(getWeekday(testDate)).toBe('fri');
+  });
+  it('🟢 토요일은 "sat"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-16');
+    expect(getWeekday(testDate)).toBe('sat');
+  });
+  it('🟢 일요일은 "sun"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-17');
+    expect(getWeekday(testDate)).toBe('sun');
+  });
+  it('🔴 올바르지 않은 월의 날짜는 "none"을 반환합니다.', () => {
+    const testDate = new Date('2024-13-17');
+    expect(getWeekday(testDate)).toBe('none');
+  });
+  it('🔴 올바르지 않은 일의 날짜는 "none"을 반환합니다.', () => {
+    const testDate = new Date('2024-12-35');
+    expect(getWeekday(testDate)).toBe('none');
   });
 });
