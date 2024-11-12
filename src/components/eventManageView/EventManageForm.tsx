@@ -89,6 +89,16 @@ export const EventManageForm = () => {
       return;
     }
 
+    if (repeatEndDate && repeatEndDate < date) {
+      toast({
+        title: '반복 종료일을 날짜 이후로 설정해주세요.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
       title,
