@@ -18,7 +18,18 @@ describe('generateRepeatedEvents', () => {
       notificationTime: 10,
     };
 
-    const repeatedEvents = generateRepeatedEvents(eventToRepeat);
+    const repeatedEvents = generateRepeatedEvents({
+      id: '1',
+      title: '반복할 이벤트',
+      date: '2024-02-30',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '',
+      location: '',
+      category: '',
+      repeat: { type: 'daily', interval: 2, endDate: '2024-11-20' },
+      notificationTime: 10,
+    });
 
     expect(repeatedEvents).toEqual([
       {
