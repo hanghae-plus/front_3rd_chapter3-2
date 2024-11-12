@@ -1,12 +1,14 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { expect, vi } from 'vitest';
 
 import {
   setupMockHandlerBatchCreation,
   setupMockHandlerBatchUpdating,
+  setupMockHandlerCreation,
   setupMockHandlerDeletion,
+  setupMockHandlerUpdating,
 } from '../__mocks__/handlersUtils.ts';
 import App from '../App.tsx';
 import { Event, RepeatType } from '../types.ts';
@@ -19,7 +21,7 @@ beforeEach(() => {
 });
 
 describe('이벤트 > 반복과 관련된 통합테스트', () => {
-  it('매월 반복 일정이 설정된 경우 반복 일정', async () => {
+  it('매월 반복 일정이 설정된 경우 반복 일정이 endDate까지 생성된다.', async () => {
     vi.useFakeTimers();
     vi.setSystemTime('2024-11-01');
 
@@ -119,20 +121,17 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
     vi.useRealTimers();
   });
 
-  it('반복 일정을 수정하면 단일 일정으로 변경된다.', async () => {
-    // vi.useFakeTimers();
+  it('반복 일정을 수정하면 단일 일정으로 변경되며 반복 일정 아이콘도 사라진다.', async () => {
     vi.setSystemTime(new Date('2024-11-01'));
 
-    // 반복 일정 생성
     const recurringDates = generateRecurringEvents(
       '2024-11-01',
       1,
-      'monthly' as RepeatType,
-      '2025-02-01'
+      'weekly' as RepeatType,
+      '2025-11-14'
     );
 
     const eventData = {
-      // id: '1',
       title: '매월 반복 이벤트',
       date: '2024-11-01',
       startTime: '10:00',
@@ -141,9 +140,9 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
       location: '테스트 위치',
       category: '카테고리',
       repeat: {
-        type: 'monthly',
+        type: 'weekly',
         interval: 1,
-        endDate: '2025-02-01',
+        endDate: '2025-11-14',
       },
       notificationTime: 10,
     };
@@ -155,20 +154,19 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
     }));
 
     setupMockHandlerBatchCreation(recurringEvents);
-    // setupMockHandlerBatchUpdating(recurringEvents);
-    // 앱 렌더링
+    setupMockHandlerBatchUpdating(recurringEvents);
+    setupMockHandlerCreation(recurringEvents);
+    setupMockHandlerUpdating(recurringEvents);
+
     render(
       <ChakraProvider>
         <App />
       </ChakraProvider>
     );
 
-    const eventList = screen.getByTestId('event-list');
+    const editButton = await screen.findAllByRole('button', { name: /Edit event/i });
+    await user.click(editButton[0]);
 
-    const editButton = screen.getAllByLabelText('Edit event')[0];
-    await user.click(editButton);
-
-    // 폼 필드 수정 (반복 해제 및 제목 변경)
     await user.clear(screen.getByLabelText('제목'));
     await user.type(screen.getByLabelText('제목'), '단일 일정 이벤트');
     await user.clear(screen.getByLabelText('날짜'));
@@ -176,27 +174,17 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
     await user.clear(screen.getByLabelText('시작 시간'));
     await user.type(screen.getByLabelText('시작 시간'), '10:00');
     await user.clear(screen.getByLabelText('종료 시간'));
-
     await user.type(screen.getByLabelText('종료 시간'), '11:00');
 
-    // const repeatCheckbox = screen.getByLabelText('반복 일정');
-    // await user.click(repeatCheckbox);
     const saveButton = screen.getByRole('button', { name: /일정 수정/ });
 
-    // await user.click(screen.getByRole('button', { name: /일정 수정/ }));
-    expect(saveButton).toBeEnabled();
-    // 수정된 단일 일정 확인
+    const thirdDay = await screen.findByTestId('3');
+
+    await user.click(saveButton);
+
     await waitFor(() => {
-      const monthView = screen.getByTestId('month-view');
-      screen.debug();
-      // expect(
-      //   within(monthView).findByText(
-      //     (content, element) => element?.textContent === '단일 일정 이벤트'
-      //   )
-      // ).resolves.toBeInTheDocument();
-      // expect(within(monthView).queryByLabelText('at-sign-icon')).toBeNull();
-      const repeatIcons = within(monthView).queryAllByLabelText('at-sign-icon');
-      // expect(repeatIcons).toHaveLength(0);
+      expect(within(thirdDay).queryByRole('img')).toBeNull();
+      expect(within(thirdDay).getByText('단일 일정 이벤트')).toBeInTheDocument();
     });
 
     vi.useRealTimers();
@@ -241,7 +229,7 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
 
     const monthView = await screen.findByTestId('month-view');
     const firstDay = await screen.findByTestId('1');
-    const secondDay = await screen.findByTestId('3');
+    const secondDay = await screen.findByTestId('2');
 
     await waitFor(() => {
       expect(within(monthView).getByText('2024년 11월')).toBeInTheDocument();
