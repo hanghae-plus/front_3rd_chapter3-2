@@ -108,3 +108,30 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+
+export function isLeapYear(year: number): boolean {
+  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+}
+
+export function getLastDayOfMonth(year: number, month: number): number {
+  return new Date(year, month + 1, 0).getDate();
+}
+
+export function adjustDateToMonthEnd(date: Date): Date {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  const lastDay = getLastDayOfMonth(year, month);
+
+  // 현재 날짜가 해당 월의 마지막 날보다 크면 마지막 날로 조정
+  if (day > lastDay) {
+    return new Date(year, month, lastDay);
+  }
+
+  // 2월 29일 특수 처리
+  if (month === 1 && day === 29 && !isLeapYear(year)) {
+    return new Date(year, month, 28);
+  }
+
+  return new Date(year, month, day);
+}

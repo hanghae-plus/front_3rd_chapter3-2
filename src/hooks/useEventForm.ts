@@ -1,6 +1,7 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 import { Event, RepeatType } from '../types';
+import { isLeapYear } from '../utils/dateUtils';
 import { getTimeErrorMessage } from '../utils/timeValidation';
 
 type TimeErrorRecord = Record<'startTimeError' | 'endTimeError', string | null>;
@@ -25,6 +26,46 @@ export const useEventForm = (initialEvent?: Event) => {
     startTimeError: null,
     endTimeError: null,
   });
+
+  const [dateWarning, setDateWarning] = useState('');
+
+  const getNextDate = (targetDate: string): string => {
+    const currentDate = new Date(date);
+    const targetDateObj = new Date(targetDate);
+
+    if (repeatType === 'yearly' && currentDate.getMonth() === 1 && currentDate.getDate() === 29) {
+      const targetYear = targetDateObj.getFullYear();
+      if (!isLeapYear(targetYear)) {
+        return `${targetYear}-02-28`;
+      }
+    }
+    return targetDate;
+  };
+
+  useEffect(() => {
+    if (date && repeatType === 'monthly') {
+      const selectedDate = new Date(date);
+      const day = selectedDate.getDate();
+      const month = selectedDate.getMonth();
+
+      if (month === 1 && day === 29) {
+        setDateWarning('윤년의 2월 29일은 다음 달에는 28일로 설정됩니다.');
+      } else if (day === 31) {
+        setDateWarning('31일은 각 월의 마지막 날에 설정됩니다.');
+      } else {
+        setDateWarning('');
+      }
+    } else if (date && repeatType === 'yearly') {
+      const selectedDate = new Date(date);
+      if (selectedDate.getMonth() === 1 && selectedDate.getDate() === 29) {
+        setDateWarning('윤년의 2월 29일은 비윤년에서 28일로 설정됩니다.');
+      } else {
+        setDateWarning('');
+      }
+    } else {
+      setDateWarning('');
+    }
+  }, [date, repeatType]);
 
   const handleStartTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newStartTime = e.target.value;
@@ -102,5 +143,7 @@ export const useEventForm = (initialEvent?: Event) => {
     handleEndTimeChange,
     resetForm,
     editEvent,
+    dateWarning,
+    getNextDate,
   };
 };
