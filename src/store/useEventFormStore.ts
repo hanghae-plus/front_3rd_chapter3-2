@@ -40,7 +40,7 @@ const initialEventForm: StoreEventForm = {
   isRepeating: false,
   repeat: {
     type: 'none',
-    interval: 1,
+    interval: 0,
     endDate: '',
   },
   notificationTime: 10,
