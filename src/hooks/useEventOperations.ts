@@ -1,26 +1,33 @@
 /* eslint-disable no-unused-vars */
 import { useToast } from '@chakra-ui/react';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';
 
 import { Event, EventForm } from '../types';
+import { getRepeatingEvent } from '../utils/repeatEventUtils';
 
 export const useEventOperations = (
   editing: boolean,
-  changeRepeatEvent: (events: Event[]) => void,
+  updateRepeatEvent: (events: Event[]) => void,
   onSave?: () => void
 ) => {
   const [events, setEvents] = useState<Event[]>([]);
   const toast = useToast();
 
+  // db에서 가져올 때 메인이벤트와 반복이벤트를 나누어 상태에 저장
   const fetchEvents = async () => {
     try {
-      const response = await axios.get('/api/events');
+      const response: AxiosResponse<{ events: Event[] }> = await axios.get('/api/events');
       if (response.status !== 200) {
         throw new Error('Failed to fetch events');
       }
-      setEvents(response.data.events);
-      // changeRepeatEvent(events);
+
+      const { data } = response;
+      const mainEvents = data.events.filter((event) => event.repeat.id === undefined);
+      const repeatEvent = data.events.filter((event) => event.repeat.id !== undefined);
+
+      setEvents(mainEvents);
+      updateRepeatEvent(repeatEvent);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({
@@ -40,7 +47,6 @@ export const useEventOperations = (
       } else {
         response = await axios.post('api/events', eventData);
       }
-      // response = await axios.post('/api/events-list', { events: [eventData] });
 
       if (response.status !== 200 && response.status !== 201) {
         throw new Error('Failed to save event');
@@ -63,6 +69,33 @@ export const useEventOperations = (
         isClosable: true,
       });
     }
+
+    // repeat type 이 존재할 때 repeatEvent도 저장
+    if (eventData.repeat.type !== 'none') {
+      const repeatEvents = getRepeatingEvent(eventData);
+
+      saveRepeatEvent(repeatEvents);
+    }
+  };
+
+  // 이거 post는 새로저장함. 안에 repeatEvnet가 있을경우에 생각해야함.
+  const saveRepeatEvent = async (eventData: Event[] | EventForm[]) => {
+    // try {
+    //   let response;
+    //   const requestBody = eventData
+    //   if (editing) {
+    //   } else {
+    //     response = await axios.post('events-list', { events: '' });
+    //   }
+    // } catch (error) {
+    //   console.error('Error saving event:', error);
+    //   toast({
+    //     title: '반복일정 저장 실패',
+    //     status: 'error',
+    //     duration: 3000,
+    //     isClosable: true,
+    //   });
+    // }
   };
 
   const deleteEvent = async (id: string) => {
@@ -105,5 +138,5 @@ export const useEventOperations = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { events, fetchEvents, saveEvent, deleteEvent };
+  return { events, fetchEvents, saveEvent, saveRepeatEvent, deleteEvent };
 };

@@ -1,19 +1,17 @@
 import { useState } from 'react';
 
-import { Event, RepeatEvent } from '../types';
-import { getRepeatingEvent } from '../utils/repeatEventUtils';
+import { Event } from '../types';
 
 export const useRepeatEvent = () => {
-  const [repeatEvent, setRepeatEvent] = useState<RepeatEvent[]>([]);
+  const [repeatEvent, setRepeatEvent] = useState<Event[]>([]);
 
-  // 반복일정을 전체 변경
-  const changeRepeatEvent = (events: Event[]) => {
-    const eventWithRepeat = events.filter((event) => event.repeat.type !== 'none');
-    setRepeatEvent(getRepeatingEvent(eventWithRepeat));
+  // 반복일정 상태저장
+  const updateRepeatEvent = (events: Event[]) => {
+    setRepeatEvent(events);
   };
 
   //일정의 반복일정 개별삭제
   const deleteRepeatInstance = (eventId: string, repeatId: string) => {};
 
-  return { repeatEvent, changeRepeatEvent, deleteRepeatInstance };
+  return { repeatEvent, updateRepeatEvent, deleteRepeatInstance };
 };

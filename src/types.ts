@@ -22,8 +22,3 @@ export interface EventForm {
 export interface Event extends EventForm {
   id: string;
 }
-
-export interface RepeatEvent extends RepeatInfo {
-  eventId: string;
-  event: Array<Omit<Event, 'id' | 'repeat'> & { repeatId: string }>;
-}
