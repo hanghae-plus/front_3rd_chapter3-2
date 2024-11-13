@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import { server } from '../setupTests';
-import { Event } from '../types';
+import { Event, EventForm } from '../types';
 
 // ! Hard 여기 제공 안함
 export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
@@ -89,6 +89,26 @@ export const setupMockHandlerDeletion = () => {
 
       mockEvents.splice(index, 1);
       return new HttpResponse(null, { status: 204 });
+    })
+  );
+};
+
+export const setupMockHandlerRepeatCreation = () => {
+  const mockEvents: Event[] = [];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+
+    http.post('/api/events-list', async ({ request }) => {
+      const { events } = (await request.json()) as { events: EventForm[] };
+
+      events.forEach((event) => {
+        mockEvents.push({ ...event, id: String(mockEvents.length + 1) });
+      });
+
+      return HttpResponse.json(mockEvents, { status: 201 });
     })
   );
 };
