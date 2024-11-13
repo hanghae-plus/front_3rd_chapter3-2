@@ -112,8 +112,23 @@ describe('반복 유형 선택', () => {
 });
 
 describe('반복 간격 설정', () => {
-  // 예: 2일마다, 3주마다, 2개월마다 등
-  it('각 반복 유형에 대해 간격을 설정할 수 있다.', () => {});
+  it('각 반복 유형에 대해 간격을 설정할 수 있다.', async () => {
+    const { user } = setup(<App />);
+
+    const checkbox = screen.getByRole('checkbox', { name: 'repeat setting' });
+    expect(checkbox).toBeChecked();
+
+    // 매월 반복 설정 시 2월 29일이 처리되는 방식 확인
+    const repeatType = screen.getByLabelText('반복 유형');
+    await user.selectOptions(repeatType, ['daily']);
+
+    // 매월 반복 간격을 1로 설정
+    const repeatInterval = screen.getByLabelText('반복 간격');
+    await user.clear(repeatInterval);
+    await user.type(repeatInterval, '2');
+
+    expect(repeatInterval).toHaveValue(2);
+  });
 });
 
 describe('반복 일정 표시', () => {
