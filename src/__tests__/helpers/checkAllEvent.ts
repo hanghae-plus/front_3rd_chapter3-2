@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 
-import { TEST_ID } from '../constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const checkAllEvent = async () => {
   const scheduleList = await waitFor(() => screen.findByTestId(TEST_ID.EVENT_LIST));

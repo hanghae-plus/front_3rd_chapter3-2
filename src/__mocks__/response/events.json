@@ -10,7 +10,8 @@
       "location": "회의실 B",
       "category": "업무",
       "repeat": { "type": "none", "interval": 0 },
-      "notificationTime": 10
+      "notificationTime": 10,
+      "exceptionList": []
     },
     {
       "id": "2",
@@ -22,7 +23,8 @@
       "location": "회의실 C",
       "category": "업무",
       "repeat": { "type": "none", "interval": 0 },
-      "notificationTime": 10
+      "notificationTime": 10,
+      "exceptionList": []
     },
     {
       "id": "3",
@@ -34,7 +36,8 @@
       "location": "식당 A",
       "category": "개인",
       "repeat": { "type": "none", "interval": 0 },
-      "notificationTime": 10
+      "notificationTime": 10,
+      "exceptionList": []
     },
     {
       "id": "4",
@@ -46,7 +49,8 @@
       "location": "회의실 D",
       "category": "업무",
       "repeat": { "type": "none", "interval": 0 },
-      "notificationTime": 10
+      "notificationTime": 10,
+      "exceptionList": []
     }
   ]
 }

@@ -3,10 +3,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 
-import { createTestQueryClient } from '../../__mocks__/createTestQueryClient.tsx';
 import { createEvent } from '../../__mocks__/Factory.ts';
 import { useNotifications } from '../../hooks/useNotifications.ts';
 import { Event } from '../../types.ts';
+import { createQueryClient } from '@/createQueryClient.ts';
 
 let toastCalls: any[] = [];
 
@@ -34,7 +34,7 @@ const createWrapper =
 describe('-', () => {
   let notificationResult: { current: ReturnType<typeof useNotifications> };
   const toast = useToast();
-  const queryClient = createTestQueryClient(toast);
+  const queryClient = createQueryClient(toast);
 
   beforeEach(async () => {
     // GIVEN: 각 테스트마다 초기 상태가 반영된 핸들러 설정

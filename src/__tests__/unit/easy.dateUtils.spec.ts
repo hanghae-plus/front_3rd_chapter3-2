@@ -203,32 +203,27 @@ describe('getEventsForDay', () => {
     // GIVEN: 1일에 해당하는 이벤트 설정
     const date1MockData = [
       createEvent({ id: '1', date: '2024-01-01' }),
-      createEvent({ id: '2', date: '2024-02-01' }),
-      createEvent({ id: '3', date: '2024-03-01' }),
-    ] as Event[];
-    const otherDateMockData = [
-      createEvent({ id: '4', date: '2024-01-02' }),
-      createEvent({ id: '5', date: '2024-02-03' }),
-      createEvent({ id: '6', date: '2024-03-04' }),
+      createEvent({ id: '2', date: '2024-01-02' }),
+      createEvent({ id: '3', date: '2024-01-03' }),
     ] as Event[];
 
     // WHEN: getEventsForDay 호출
-    const eventsForDay = getEventsForDay([...date1MockData, ...otherDateMockData] as Event[], 1);
+    const eventsForDay = getEventsForDay(date1MockData as Event[], '2024-01-01');
 
     // THEN: 1일에 해당하는 결과만 반환한다.
-    expect(eventsForDay).toEqual([...date1MockData]);
+    expect(eventsForDay).toEqual([createEvent({ id: '1', date: '2024-01-01' })]);
   });
 
   it('해당 날짜에 이벤트가 없을 경우 빈 배열을 반환한다', () => {
     // GIVEN: mock 이벤트 설정
     const dateMockData = [
       createEvent({ id: '1', date: '2024-01-01' }),
-      createEvent({ id: '2', date: '2024-02-02' }),
-      createEvent({ id: '3', date: '2024-03-03' }),
+      createEvent({ id: '2', date: '2024-01-02' }),
+      createEvent({ id: '3', date: '2024-01-03' }),
     ] as Event[];
 
     // WHEN: getEventsForDay 호출
-    const eventsForDay = getEventsForDay([...dateMockData] as Event[], 4);
+    const eventsForDay = getEventsForDay([...dateMockData] as Event[], '2024-01-04');
 
     // THEN: 4일에 해당하는 결과만 반환한다.
     expect(eventsForDay).toEqual([]);
@@ -242,7 +237,7 @@ describe('getEventsForDay', () => {
       createEvent({ id: '3', date: '2024-03-03' }),
     ] as Event[];
     // WHEN: getEventsForDay 호출
-    const eventsForDay = getEventsForDay([...dateMockData] as Event[], 0);
+    const eventsForDay = getEventsForDay(dateMockData, '2024-01-0');
 
     // THEN: 0일 경우 빈배열을 반환한다.
     expect(eventsForDay).toEqual([]);
@@ -252,11 +247,11 @@ describe('getEventsForDay', () => {
     // GIVEN: mock 이벤트 설정
     const dateMockData = [
       createEvent({ id: '1', date: '2024-01-01' }),
-      createEvent({ id: '2', date: '2024-02-02' }),
-      createEvent({ id: '3', date: '2024-03-03' }),
+      createEvent({ id: '2', date: '2024-01-02' }),
+      createEvent({ id: '3', date: '2024-01-03' }),
     ] as Event[];
     // WHEN: getEventsForDay 호출
-    const eventsForDay = getEventsForDay([...dateMockData] as Event[], 32);
+    const eventsForDay = getEventsForDay(dateMockData, '2024-01-32');
 
     // THEN: 32일 경우 빈배열을 반환한다.
     expect(eventsForDay).toEqual([]);

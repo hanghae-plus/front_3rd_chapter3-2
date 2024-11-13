@@ -10,9 +10,9 @@ export function notFound() {
   return new HttpResponse(null, { status: 404 });
 }
 
-let mockEvents = [...events];
+let mockEvents = [...events] as Event[];
 beforeEach(() => {
-  mockEvents = [...events]; // 원본 데이터로 초기화
+  mockEvents = [...events] as Event[]; // 원본 데이터로 초기화
 });
 
 export const handlers = [
@@ -24,8 +24,8 @@ export const handlers = [
   // POST: 새로운 이벤트 추가
   http.post('/api/events', async ({ request }) => {
     const newEvent = (await request.json()) as EventForm;
-    const updatedEvent = { id: randomUUID(), ...newEvent };
-    mockEvents = [...mockEvents, updatedEvent];
+    const updatedEvent = { id: randomUUID(), ...newEvent } as Event;
+    mockEvents.push(updatedEvent);
     return HttpResponse.json(updatedEvent, { status: 201 });
   }),
 
