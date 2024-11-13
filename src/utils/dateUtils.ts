@@ -1,5 +1,10 @@
 import { Event } from '../types.ts';
 
+/** YYYY-MM-DD 형식으로 날짜 설정 */
+export function formatToISODate(date: Date) {
+  return date.toISOString().split('T')[0];
+}
+
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
  */
