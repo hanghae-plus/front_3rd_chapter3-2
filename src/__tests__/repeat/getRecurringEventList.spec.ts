@@ -81,15 +81,42 @@ describe('getRecurringEventList 테스트', () => {
   describe('"주" 기준 반복 일정 설정', () => {
     describe('기준 주에 대해 올바르게 처리한다.', () => {
       it('시작일은 2024년 11월 01일 반복 간격은 1주, 종료일은 2024년 11월 30일로 설정', () => {
-        expect(true).toBe(true);
+        const result = getRecurringEventList({
+          startDate: '2024-11-01',
+          endDate: '2024-11-30',
+          interval: 1,
+          type: 'weekly',
+        });
+
+        expect(result).toEqual([
+          '2024-11-01',
+          '2024-11-08',
+          '2024-11-15',
+          '2024-11-22',
+          '2024-11-29',
+        ]);
       });
 
       it('시작일은 2024년 11월 01일 반복 간격은 2주, 종료일은 2024년 11월 30일로 설정', () => {
-        expect(true).toBe(true);
+        const result = getRecurringEventList({
+          startDate: '2024-11-01',
+          endDate: '2024-11-30',
+          interval: 2,
+          type: 'weekly',
+        });
+
+        expect(result).toEqual(['2024-11-01', '2024-11-15', '2024-11-29']);
       });
 
       it('시작일은 2024년 11월 01일 반복 간격은 3주, 종료일은 2024년 11월 30일로 설정', () => {
-        expect(true).toBe(true);
+        const result = getRecurringEventList({
+          startDate: '2024-11-01',
+          endDate: '2024-11-30',
+          interval: 3,
+          type: 'weekly',
+        });
+
+        expect(result).toEqual(['2024-11-01', '2024-11-22']);
       });
     });
   });
