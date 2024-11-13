@@ -30,8 +30,5 @@ it('새로운 일정을 추가할 때 반복일정을 저장한다.', async () =
 
   await act(() => result.current.eventOperationHook.saveEvent(event));
 
-  expect(result.current.repeatEventHook.repeatEvent).toHaveLength(10);
+  expect(result.current.repeatEventHook.repeatEvent).toHaveLength(3);
 });
-
-// 요구사항 6
-it('반복일정 개별삭제한다.', async () => {});

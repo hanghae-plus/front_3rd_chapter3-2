@@ -11,7 +11,16 @@ export const useRepeatEvent = () => {
   };
 
   //일정의 반복일정 개별삭제
-  const deleteRepeatInstance = (eventId: string, repeatId: string) => {};
+  // eslint-disable-next-line no-unused-vars
+  const deleteRepeatInstance = (repeatId: string, deleteEvent: (id: string) => void) => {
+    setRepeatEvent((prev) => expectTargetRepeat(prev, repeatId));
+    deleteEvent(repeatId);
+  };
+
+  const expectTargetRepeat = (prev: Event[], repeatId: string) => {
+    const repeatEvents = prev.filter((event) => event.id !== repeatId);
+    return repeatEvents;
+  };
 
   return { repeatEvent, updateRepeatEvent, deleteRepeatInstance };
 };
