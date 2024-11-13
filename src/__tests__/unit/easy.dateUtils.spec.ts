@@ -542,7 +542,7 @@ describe('getRemainingDatesByWeek', () => {
     const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
     expect(result).toHaveLength(0);
   });
-  it('🟢 간격을 입력하지 않은 경우 기본값은 1로 들어갑니다.', () => {
+  it('🔴 간격을 입력하지 않은 경우 기본값은 1로 들어갑니다.', () => {
     const currentDate = new Date('2024-11-12');
     const endDate = new Date('2024-11-21');
     const interval = undefined;
