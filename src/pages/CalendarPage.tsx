@@ -258,7 +258,13 @@ const CalendarPage = () => {
                   <Input
                     type="number"
                     value={repeatInterval}
-                    onChange={(e) => setRepeatInterval(Number(e.target.value))}
+                    onChange={(e) => {
+                      if (Number(e.target.value) === 0) {
+                        setRepeatInterval(1);
+                      } else {
+                        setRepeatInterval(Number(e.target.value));
+                      }
+                    }}
                     min={1}
                   />
                 </FormControl>
