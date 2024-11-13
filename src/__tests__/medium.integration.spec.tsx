@@ -25,8 +25,6 @@ const setup = (element: ReactElement) => {
 const saveSchedule = async (user: UserEvent, form: Omit<Event, 'id' | 'notificationTime'>) => {
   const { title, date, startTime, endTime, location, description, category, repeat } = form;
 
-  console.log(repeat);
-
   await user.click(screen.getAllByText('일정 추가')[0]);
 
   await user.type(screen.getByLabelText('제목'), title);
@@ -359,4 +357,41 @@ it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트
   });
 
   expect(screen.getByText('10분 후 기존 회의 일정이 시작됩니다.')).toBeInTheDocument();
+});
+
+describe('🔁 반복 일정 CURD', () => {
+  it('매일 반복 일정을 생성할 수 있다', (context) => {
+    context.skip();
+  });
+  it('매주 반복 일정을 생성할 수 있다', (context) => {
+    context.skip();
+  });
+  it('매월 반복 일정을 생성할 수 있다', (context) => {
+    context.skip();
+  });
+  it('매월 31일에 반복 일정을 생성할 수 있다', (context) => {
+    context.skip();
+  });
+  it('윤년 2월 29일에 월간 반복 일정을 생성할 수 있다', (context) => {
+    context.skip();
+  });
+  it('매년 윤년 2월 29일에 반복 일정을 생성할 수 있다', (context) => {
+    context.skip();
+  });
+
+  it('반복 종료일이 없으면 기본 종료일인 2025-06-30까지 생성된다', (context) => {
+    context.skip();
+  });
+
+  it('반복 종료일이 있으면 해당 종료일까지 반복된다', (context) => {
+    context.skip();
+  });
+
+  it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된다', (context) => {
+    context.skip();
+  });
+
+  it('반복 일정을 삭제하면 해당 일정만 삭제된다', (context) => {
+    context.skip();
+  });
 });
