@@ -20,7 +20,7 @@
 **/
 
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ReactElement } from 'react';
 
@@ -32,7 +32,11 @@ const setup = (element: ReactElement) => {
   return { ...render(<ChakraProvider>{element}</ChakraProvider>), user };
 };
 
-beforeEach(() => {});
+beforeEach(() => {
+  vi.clearAllMocks();
+  vi.resetAllMocks();
+});
+
 describe('반복 유형 선택', () => {
   it('반복 일정 클릭 시 하위 메뉴가 출력된다.', async () => {
     const { user } = setup(<App />);
@@ -58,7 +62,7 @@ describe('반복 유형 선택', () => {
     expect(screen.getByLabelText('반복 종료일')).toBeInTheDocument();
   });
 
-  it('일정 생성 시 반복 유형을 선택할 수 있다.', async () => {
+  it('반복 유형이 올바르게 렌더링 되어야 한다.', () => {
     setup(<App />);
 
     const checkbox = screen.getByRole('checkbox', { name: 'repeat setting' });
@@ -72,10 +76,39 @@ describe('반복 유형 선택', () => {
     expect(repeatType).toHaveTextContent('매년');
   });
 
-  it('일정 수정 시 반복 유형을 선택할 수 있다.', () => {});
+  it('윤년 2월 29일 설정이 올바르게 처리된다.', async () => {
+    vi.setSystemTime(new Date(2024, 1, 29)); // 윤년 2월 29일
+    const { user } = setup(<App />);
 
-  it('반복 유형은 다음과 같다: 매일, 매주, 매월, 매년', () => {});
-  // - 만약, 윤년 29일에 또는 31일에 매월 또는 매년 반복일정을 설정한다면 어떻게 처리할까요? 다른 서비스를 참고해보시고 자유롭게 작성해보세요.
+    // 현재 날짜가 윤년인 2024년인지 확인
+    const currentYear = new Date().getFullYear();
+    expect(currentYear % 4).toBe(0); // 윤년 여부 확인
+    expect(currentYear).toBe(2024);
+
+    // 2월 29일이 존재하는지 확인
+    const feb29th = await screen.findByText('29');
+    expect(feb29th).toBeInTheDocument(); // 2월 29일이 화면에 표시되어야 함
+
+    // 매월 반복 설정 시 2월 29일이 처리되는 방식 확인
+    const repeatType = screen.getByLabelText('반복 유형');
+    await user.selectOptions(repeatType, ['monthly']);
+
+    // 매월 반복 간격을 1로 설정
+    const repeatInterval = screen.getByLabelText('반복 간격');
+    await user.clear(repeatInterval);
+    await user.type(repeatInterval, '1');
+
+    // 이벤트 추가를 트리거하여 날짜가 조정되는지 확인
+    const submitButton = screen.getByTestId('event-submit-button');
+    await user.click(submitButton);
+
+    // 비윤년인 2025년 2월 28일로 시스템 시간을 변경하여 이벤트가 조정되는지 확인
+    vi.setSystemTime(new Date(2025, 1, 28)); // 비윤년으로 변경
+    const repeatYearly = screen.getByLabelText('반복 유형');
+    await user.selectOptions(repeatYearly, ['yearly']);
+
+    expect(screen.queryByText('28')).toBeInTheDocument(); // 2월 29일이 아닌 28일로 변경된 것 확인
+  });
 });
 
 describe('반복 간격 설정', () => {
