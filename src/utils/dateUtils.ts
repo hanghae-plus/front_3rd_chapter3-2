@@ -176,10 +176,10 @@ export function getRemainingDatesByDay(
 /**
  * 주어진 날짜의 요일을 short 형태의 string으로 반환합니다. (예: mon, tue, wed, ...)
  */
-export function getWeekday(date: Date): string {
+export function getWeekday(date: Date): WeekType {
   try {
     const weekdayFormat = new Intl.DateTimeFormat('en-US', { weekday: 'short' });
-    return weekdayFormat.format(date).toLowerCase();
+    return weekdayFormat.format(date).toLowerCase() as WeekType;
   } catch (error) {
     return 'none';
   }
