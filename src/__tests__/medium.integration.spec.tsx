@@ -1,5 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
@@ -11,7 +11,7 @@ import {
 } from '../__mocks__/handlersUtils';
 import App from '../App';
 import { server } from '../setupTests';
-import { Event } from '../types';
+import { Event, RepeatInfo } from '../types';
 
 // ! Hard 여기 제공 안함
 const setup = (element: ReactElement) => {
@@ -23,9 +23,9 @@ const setup = (element: ReactElement) => {
 // ! Hard 여기 제공 안함
 const saveSchedule = async (
   user: UserEvent,
-  form: Omit<Event, 'id' | 'notificationTime' | 'repeat'>
+  form: Omit<Event, 'id' | 'notificationTime' | 'repeat'> & { repeat?: RepeatInfo }
 ) => {
-  const { title, date, startTime, endTime, location, description, category } = form;
+  const { title, date, startTime, endTime, location, description, category, repeat } = form;
 
   await user.click(screen.getAllByText('일정 추가')[0]);
 
@@ -36,6 +36,17 @@ const saveSchedule = async (
   await user.type(screen.getByLabelText('설명'), description);
   await user.type(screen.getByLabelText('위치'), location);
   await user.selectOptions(screen.getByLabelText('카테고리'), category);
+
+  if (repeat) {
+    const { type, interval, endDate } = repeat;
+    await user.click(screen.getByLabelText('반복 일정'));
+    await user.selectOptions(screen.getByLabelText('반복 유형'), type);
+    await user.clear(screen.getByLabelText('반복 간격'));
+    await user.type(screen.getByLabelText('반복 간격'), String(interval));
+    if (endDate) {
+      await user.type(screen.getByLabelText('반복 종료일'), endDate!);
+    }
+  }
 
   await user.click(screen.getByTestId('event-submit-button'));
 };
