@@ -16,6 +16,28 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
       newEvent.id = String(mockEvents.length + 1); // 간단한 ID 생성
       mockEvents.push(newEvent);
       return HttpResponse.json(newEvent, { status: 201 });
+    }),
+
+    http.post('/api/events-list', async ({ request }) => {
+      let { events: newEvents } = (await request.json()) as { events: Event[] };
+
+      newEvents.forEach((event) => {
+        const repeatId = '1';
+        const isRepeatEvent = event.repeat.type !== 'none';
+
+        const newEvent = {
+          ...event,
+          id: String(mockEvents.length + 1),
+          repeat: {
+            ...event.repeat,
+            id: isRepeatEvent ? repeatId : undefined,
+          },
+        };
+
+        mockEvents.push(newEvent);
+      });
+
+      return HttpResponse.json({ events: mockEvents });
     })
   );
 };
@@ -43,7 +65,7 @@ export const setupMockHandlerUpdating = () => {
       description: '기존 팀 미팅 2',
       location: '회의실 C',
       category: '업무 회의',
-      repeat: { type: 'none', interval: 0 },
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-15' },
       notificationTime: 5,
     },
   ];
@@ -75,6 +97,30 @@ export const setupMockHandlerDeletion = () => {
       location: '어딘가',
       category: '기타',
       repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '반복 이벤트',
+      date: '2024-10-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '반복 이벤트입니다',
+      location: '어딘가',
+      category: '기타',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-17' },
+      notificationTime: 10,
+    },
+    {
+      id: '3',
+      title: '삭제할 반복 이벤트',
+      date: '2024-10-17',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '삭제할 반복 이벤트입니다',
+      location: '어딘가',
+      category: '기타',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-17' },
       notificationTime: 10,
     },
   ];

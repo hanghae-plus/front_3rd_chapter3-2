@@ -37,12 +37,12 @@ export const handlers = [
     return new HttpResponse(null, { status: 404 });
   }),
 
-  http.post('/api/event-list', async ({ request }) => {
+  http.post('/api/events-list', async ({ request }) => {
     const newEvents = (await request.json()) as Event[];
     return HttpResponse.json(newEvents, { status: 200 });
   }),
 
-  http.put('/api/event-list', async ({ request }) => {
+  http.put('/api/events-list', async ({ request }) => {
     const needUpdateEvents = (await request.json()) as Event[];
 
     const isEventsAllAvaliable = needUpdateEvents.every(({ id }) => {
@@ -64,7 +64,7 @@ export const handlers = [
     return HttpResponse.json(updatedEvents, { status: 200 });
   }),
 
-  http.delete('/api/event-list', async ({ request }) => {
+  http.delete('/api/events-list', async ({ request }) => {
     const needDeleteEventIds = (await request.json()) as Event['id'][];
 
     const isEventsAllAvaliable = needDeleteEventIds.every((id) => {
