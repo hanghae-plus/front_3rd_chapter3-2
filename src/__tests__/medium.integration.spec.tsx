@@ -11,6 +11,7 @@ import {
 } from '../__mocks__/handlersUtils';
 import App from '../App';
 import { server } from '../setupTests';
+import { useEventOverlapStore } from '../store/useEventOverlapStore';
 import { Event } from '../types';
 
 // ! Hard 여기 제공 안함
@@ -249,6 +250,13 @@ describe('검색 기능', () => {
 });
 
 describe('일정 충돌', () => {
+  beforeEach(() => {
+    useEventOverlapStore.setState({
+      isOverlapDialogOpen: false,
+      overlappingEvents: [],
+    });
+  });
+
   afterEach(() => {
     server.resetHandlers();
   });
