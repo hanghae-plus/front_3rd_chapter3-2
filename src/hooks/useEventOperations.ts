@@ -28,19 +28,35 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   };
 
   const saveEvent = async (eventData: Event | EventForm) => {
+    const isRepeatEvent = eventData.repeat.type !== 'none';
+
     try {
       let response;
       if (editing) {
-        response = await fetch(`/api/events/${(eventData as Event).id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
+        if (isRepeatEvent) {
+          response = await fetch(`/api/events/${(eventData as Event).id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...eventData,
+              repeat: {
+                type: 'none',
+                interval: 1,
+              },
+            }),
+          });
+        } else {
+          response = await fetch(`/api/events/${(eventData as Event).id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(eventData),
+          });
+        }
 
         // TODO: 기존 일정은 수정하고, 새로운 반복 일정 등록(기존 일정과 동일한 날짜는 제거)
       } else {
         // 반복일정이 아닐 경우
-        if (eventData.repeat.type === 'none') {
+        if (!isRepeatEvent) {
           response = await fetch('/api/events', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

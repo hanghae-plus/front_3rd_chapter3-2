@@ -10,6 +10,7 @@ import {
   setupMockHandlerRepeatCreation,
   setupMockHandlerUpdating,
   반복일정삭제모킹,
+  반복일정수정모킹,
   // 반복일정조회모킹,
 } from '../__mocks__/handlersUtils';
 import App from '../App';
@@ -281,6 +282,39 @@ describe('일정 CRUD 및 기본 기능', () => {
       await user.click(deleteButton);
 
       expect(eventList.getAllByText('데일리 미팅', { exact: true })).toHaveLength(4);
+    });
+  });
+
+  describe.only('반복 일정 수정', () => {
+    it('반복 일정을 수정하면 단일 일정으로 변경되고, 반복 일정 아이콘이 사라진다', async () => {
+      반복일정수정모킹();
+
+      const { user } = setup(<App />);
+
+      await assertLoadingCompleted();
+
+      const monthView = within(screen.getByTestId('month-view'));
+      expect(monthView.getAllByTestId('repeat-icon')).toHaveLength(5);
+
+      const eventList = within(screen.getByTestId('event-list'));
+      const [editButton] = eventList.getAllByRole('button', { name: 'Edit event' });
+
+      await user.click(editButton);
+
+      await user.clear(screen.getByLabelText('시작 시간'));
+      await user.type(screen.getByLabelText('시작 시간'), '14:00');
+
+      await user.clear(screen.getByLabelText('종료 시간'));
+      await user.type(screen.getByLabelText('종료 시간'), '15:00');
+
+      await user.clear(screen.getByLabelText('위치'));
+      await user.type(screen.getByLabelText('위치'), '회의실 B');
+
+      await user.click(screen.getByTestId('event-submit-button'));
+
+      expect(eventList.getAllByText(/회의실 A/)).toHaveLength(4);
+      expect(eventList.getByText(/회의실 B/)).toBeInTheDocument();
+      expect(monthView.getAllByTestId('repeat-icon')).toHaveLength(4);
     });
   });
 });

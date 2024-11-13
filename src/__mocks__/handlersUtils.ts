@@ -270,3 +270,99 @@ export const 반복일정삭제모킹 = () => {
     })
   );
 };
+
+export const 반복일정수정모킹 = () => {
+  const repeatId = '1';
+
+  let mockRepeatEvents: Event[] = [
+    {
+      id: '1',
+      title: '데일리 미팅',
+      date: '2024-10-14',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: repeatId, type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '데일리 미팅',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: repeatId, type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+    {
+      id: '3',
+      title: '데일리 미팅',
+      date: '2024-10-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: repeatId, type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+    {
+      id: '4',
+      title: '데일리 미팅',
+      date: '2024-10-17',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: repeatId, type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+    {
+      id: '5',
+      title: '데일리 미팅',
+      date: '2024-10-18',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: repeatId, type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+  ];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({
+        events: mockRepeatEvents,
+      });
+    }),
+
+    http.put('/api/events/:id', async ({ params, request }) => {
+      const { id } = params;
+      const updatedEvent = (await request.json()) as Event;
+      const index = mockRepeatEvents.findIndex((event) => event.id === id);
+
+      if (index === -1) {
+        return new HttpResponse(null, { status: 404 });
+      }
+
+      mockRepeatEvents = mockRepeatEvents.map((event) => {
+        if (event.id !== id) return event;
+
+        return {
+          ...event,
+          ...updatedEvent,
+        };
+      });
+
+      return HttpResponse.json(mockRepeatEvents[index]);
+    })
+  );
+};
