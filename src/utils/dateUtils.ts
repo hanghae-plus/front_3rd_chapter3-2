@@ -185,3 +185,42 @@ export function getWeekday(date: Date): WeekType {
   }
 }
 
+/**
+ * 지정된 요일에 해당하는 날짜들을 시작일부터 종료일까지 반환합니다.
+ */
+export function getRemainingDatesByWeek(
+  currentDate: Date = new Date(),
+  endDate: Date = new Date(MAX_END_DATE),
+  interval: number = 1,
+  weekType: WeekType = 'none'
+): Date[] {
+  const dates: Date[] = [];
+
+  // 종료일자가 시작일자보다 이전인 경우 빈 배열을 반환합니다.
+  if (endDate < currentDate) {
+    return dates;
+  }
+
+  // 간격이 0보다 작은 경우 빈 배열을 반환합니다.
+  if (interval <= 0) {
+    return dates;
+  }
+
+  // 요일이 지정된 경우 지정된 요일을 기준으로 합니다.
+  if (weekType === 'none') {
+    return dates;
+  }
+
+  let current = new Date(currentDate);
+  // 먼저 interval 만큼 이동
+  current.setDate(current.getDate() + 7 * interval);
+
+  // 종료일까지 7일 간격으로 날짜를 추가합니다
+  while (current <= endDate) {
+    dates.push(new Date(current));
+    current.setDate(current.getDate() + 7 * interval);
+  }
+
+  return dates;
+}
+
