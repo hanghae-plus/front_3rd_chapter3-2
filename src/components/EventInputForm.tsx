@@ -170,6 +170,7 @@ export const EventInputForm = ({ events, saveEvent }: Props) => {
         <Checkbox
           isChecked={isRepeating}
           onChange={(e) => setEventForm({ isRepeating: e.target.checked })}
+          disabled={Boolean(editingEvent)}
         >
           반복 일정
         </Checkbox>
@@ -196,6 +197,7 @@ export const EventInputForm = ({ events, saveEvent }: Props) => {
             <Select
               value={repeatType}
               onChange={(e) => setEventForm({ repeat: { type: e.target.value as RepeatType } })}
+              disabled={Boolean(editingEvent)}
             >
               <option value="none" disabled>
                 선택하기
@@ -214,6 +216,7 @@ export const EventInputForm = ({ events, saveEvent }: Props) => {
                 value={repeatInterval}
                 onChange={(e) => setEventForm({ repeat: { interval: Number(e.target.value) } })}
                 min={1}
+                disabled={Boolean(editingEvent)}
               />
             </FormControl>
             <FormControl>
@@ -222,6 +225,7 @@ export const EventInputForm = ({ events, saveEvent }: Props) => {
                 type="date"
                 value={repeatEndDate}
                 onChange={(e) => setEventForm({ repeat: { endDate: e.target.value } })}
+                disabled={Boolean(editingEvent)}
               />
             </FormControl>
           </HStack>

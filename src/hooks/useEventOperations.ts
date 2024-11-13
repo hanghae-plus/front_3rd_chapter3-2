@@ -48,12 +48,14 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
   // 반복 이벤트 저장
   const saveRepeatedEvent = async (eventData: Event | EventForm) => {
-    const eventList = generateRepeatedEvents(eventData);
-
     const isEditing = editing && isEvent(eventData);
     if (isEditing) {
-      //
+      await saveSingleEvent({
+        ...eventData,
+        repeat: { type: 'none', interval: 0, endDate: undefined },
+      });
     } else {
+      const eventList = generateRepeatedEvents(eventData);
       await eventApi.addEventList(eventList);
     }
   };
