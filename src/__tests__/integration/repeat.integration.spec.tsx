@@ -40,7 +40,7 @@ const saveSchedule = async (user: UserEvent, form: Omit<Event, 'id' | 'notificat
   await user.click(screen.getByTestId('event-submit-button'));
 };
 
-describe('반복일정과 캘린더', () => {
+describe('반복일정과 캘린더, 리스트', () => {
   beforeEach(() => {
     vi.setSystemTime(new Date('2024-11-15'));
   });
@@ -49,7 +49,7 @@ describe('반복일정과 캘린더', () => {
     vi.useRealTimers();
   });
 
-  it('저장된 반복일정을 캘린더에 반영한다.', async () => {
+  it('저장된 반복일정을 캘린더, 리스트에 반영한다.', async () => {
     setupMockHandlerCreation();
 
     const { user } = setup(<App />);
@@ -66,11 +66,14 @@ describe('반복일정과 캘린더', () => {
     });
 
     const $calendar = within(screen.getByTestId('month-view'));
+    const $eventList = within(screen.getByTestId('event-list'));
     expect($calendar.getAllByText(/마틴 외데고르/i)).toHaveLength(3);
+    expect($eventList.getAllByText(/마틴 외데고르/i)).toHaveLength(3);
 
     await user.click(screen.getByLabelText('Next'));
 
     expect($calendar.getAllByText(/마틴 외데고르/i)).toHaveLength(1);
+    expect($eventList.getAllByText(/마틴 외데고르/i)).toHaveLength(1);
   });
 
   it('캘린더에 표시되는 일정 중 반복일정을 구분한다.', async () => {
