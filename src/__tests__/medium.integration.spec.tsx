@@ -63,9 +63,12 @@ const saveRepeatSchedule = async (
   await user.type(screen.getByLabelText('설명'), description);
   await user.type(screen.getByLabelText('위치'), location);
   await user.selectOptions(screen.getByLabelText('카테고리'), category);
-  // await user.click(screen.getByLabelText('반복 설정'));
-  await user.selectOptions(screen.getByLabelText('반복 유형'), repeat.type);
 
+  await act(async () => {
+    await user.click(screen.getByRole('checkbox', { name: /반복 일정/ }));
+  });
+
+  await user.selectOptions(screen.getByLabelText('반복 유형'), repeat.type);
   await user.clear(screen.getByLabelText('반복 간격'));
   await user.type(screen.getByLabelText('반복 간격'), repeat.interval.toString());
 

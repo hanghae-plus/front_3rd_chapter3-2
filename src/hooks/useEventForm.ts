@@ -13,8 +13,10 @@ export const useEventForm = (initialEvent?: Event) => {
   const [description, setDescription] = useState(initialEvent?.description || '');
   const [location, setLocation] = useState(initialEvent?.location || '');
   const [category, setCategory] = useState(initialEvent?.category || '');
-  const [isRepeating, setIsRepeating] = useState(initialEvent?.repeat.type !== 'none');
-  const [repeatType, setRepeatType] = useState<RepeatType>(initialEvent?.repeat.type || 'none');
+  const [isRepeating, setIsRepeating] = useState(
+    initialEvent ? initialEvent.repeat.type !== 'none' : false
+  );
+  const [repeatType, setRepeatType] = useState<RepeatType>(initialEvent?.repeat.type || 'daily');
   const [repeatInterval, setRepeatInterval] = useState(initialEvent?.repeat.interval || 1);
   const [repeatEndDate, setRepeatEndDate] = useState(initialEvent?.repeat.endDate || '');
   const [notificationTime, setNotificationTime] = useState(initialEvent?.notificationTime || 10);
