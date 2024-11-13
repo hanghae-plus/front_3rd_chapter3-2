@@ -9,6 +9,8 @@ import {
   setupMockHandlerDeletion,
   setupMockHandlerRepeatCreation,
   setupMockHandlerUpdating,
+  반복일정삭제모킹,
+  // 반복일정조회모킹,
 } from '../__mocks__/handlersUtils';
 import App from '../App';
 import { server } from '../setupTests';
@@ -19,6 +21,10 @@ const setup = (element: ReactElement) => {
   const user = userEvent.setup();
 
   return { ...render(<ChakraProvider>{element}</ChakraProvider>), user }; // ? Med: 왜 ChakraProvider로 감싸는지 물어보자
+};
+
+const assertLoadingCompleted = async () => {
+  expect(await screen.findByText(/일정 로딩 완료!/)).toBeInTheDocument();
 };
 
 // ! Hard 여기 제공 안함
@@ -257,6 +263,24 @@ describe('일정 CRUD 및 기본 기능', () => {
 
       const cell = within(monthView.getByRole('cell', { name: /28/ }));
       expect(cell.getByText('2월말 팀 회의')).toBeInTheDocument();
+    });
+  });
+
+  describe('반복 일정 삭제', () => {
+    it('하나의 반복 일정만 삭제된다', async () => {
+      반복일정삭제모킹();
+
+      const { user } = setup(<App />);
+
+      await assertLoadingCompleted();
+
+      const eventList = within(screen.getByTestId('event-list'));
+      expect(eventList.getAllByText('데일리 미팅', { exact: true })).toHaveLength(5);
+
+      const [deleteButton] = eventList.getAllByRole('button', { name: 'Delete event' });
+      await user.click(deleteButton);
+
+      expect(eventList.getAllByText('데일리 미팅', { exact: true })).toHaveLength(4);
     });
   });
 });

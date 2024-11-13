@@ -112,3 +112,161 @@ export const setupMockHandlerRepeatCreation = () => {
     })
   );
 };
+
+export const 반복일정조회모킹 = () => {
+  const mockRepeatEvents: Event[] = [
+    {
+      id: '1',
+      title: '데일리 미팅',
+      date: '2024-10-14',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: '1', type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '데일리 미팅',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: '1', type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+    {
+      id: '3',
+      title: '데일리 미팅',
+      date: '2024-10-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: '1', type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+    {
+      id: '4',
+      title: '데일리 미팅',
+      date: '2024-10-17',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: '1', type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+    {
+      id: '5',
+      title: '데일리 미팅',
+      date: '2024-10-18',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: '1', type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+  ];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({
+        events: mockRepeatEvents,
+      });
+    })
+  );
+};
+
+export const 반복일정삭제모킹 = () => {
+  const repeatId = '1';
+
+  let mockRepeatEvents: Event[] = [
+    {
+      id: '1',
+      title: '데일리 미팅',
+      date: '2024-10-14',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: repeatId, type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '데일리 미팅',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: repeatId, type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+    {
+      id: '3',
+      title: '데일리 미팅',
+      date: '2024-10-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: repeatId, type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+    {
+      id: '4',
+      title: '데일리 미팅',
+      date: '2024-10-17',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: repeatId, type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+    {
+      id: '5',
+      title: '데일리 미팅',
+      date: '2024-10-18',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '일일 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { id: repeatId, type: 'daily', interval: 1, endDate: '2024-10-18' },
+      notificationTime: 10,
+    },
+  ];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({
+        events: mockRepeatEvents,
+      });
+    }),
+
+    http.delete('/api/events/:id', ({ params }) => {
+      const { id } = params;
+      // const index = mockRepeatEvents.findIndex((event) => event.id === id);
+      // mockRepeatEvents.splice(index, 1);
+
+      mockRepeatEvents = mockRepeatEvents.filter((event) => event.id !== id);
+
+      return new HttpResponse(null, { status: 204 });
+    })
+  );
+};
