@@ -909,3 +909,62 @@ describe('getRemainingDatesByMonth', () => {
   });
 });
 
+describe('getMonth', () => {
+  it('🟢 1월은 "jan"을 반환합니다.', () => {
+    const testDate = new Date('2024-01-19');
+    expect(getMonth(testDate)).toBe('jan');
+  });
+  it('🟢 2월은 "feb"을 반환합니다.', () => {
+    const testDate = new Date('2024-02-19');
+    expect(getMonth(testDate)).toBe('feb');
+  });
+  it('🟢 3월은 "mar"을 반환합니다.', () => {
+    const testDate = new Date('2024-03-19');
+    expect(getMonth(testDate)).toBe('mar');
+  });
+  it('🟢 4월은 "apr"을 반환합니다.', () => {
+    const testDate = new Date('2024-04-19');
+    expect(getMonth(testDate)).toBe('apr');
+  });
+  it('🟢 5월은 "may"을 반환합니다.', () => {
+    const testDate = new Date('2024-05-19');
+    expect(getMonth(testDate)).toBe('may');
+  });
+  it('🟢 6월은 "jun"을 반환합니다.', () => {
+    const testDate = new Date('2024-06-19');
+    expect(getMonth(testDate)).toBe('jun');
+  });
+  it('🟢 7월은 "jul"을 반환합니다.', () => {
+    const testDate = new Date('2024-07-19');
+    expect(getMonth(testDate)).toBe('jul');
+  });
+  it('🟢 8월은 "aug"을 반환합니다.', () => {
+    const testDate = new Date('2024-08-19');
+    expect(getMonth(testDate)).toBe('aug');
+  });
+  it('🟢 9월은 "sep"을 반환합니다.', () => {
+    const testDate = new Date('2024-09-19');
+    expect(getMonth(testDate)).toBe('sep');
+  });
+  it('🟢 10월은 "oct"을 반환합니다.', () => {
+    const testDate = new Date('2024-10-19');
+    expect(getMonth(testDate)).toBe('oct');
+  });
+  it('🟢 11월은 "nov"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-19');
+    expect(getMonth(testDate)).toBe('nov');
+  });
+  it('🟢 12월은 "dec"을 반환합니다.', () => {
+    const testDate = new Date('2024-12-19');
+    expect(getMonth(testDate)).toBe('dec');
+  });
+  it('🔴 올바르지 않은 월의 날짜는 "none"을 반환합니다.', () => {
+    const testDate = new Date('2024-13-19');
+    expect(getMonth(testDate)).toBe('none');
+  });
+  it('🔴 올바르지 않은 일의 날짜는 "none"을 반환합니다.', () => {
+    const testDate = new Date('2024-12-39');
+    expect(getMonth(testDate)).toBe('none');
+  });
+});
+
