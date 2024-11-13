@@ -21,7 +21,7 @@ import React, { useCallback } from 'react';
 import { NOTIFICATION_COLORS } from '@/constants/notifications';
 import useScheduleForm from '@/stores/useScheduleForm';
 import { Event } from '@/types';
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 type PropsType = {
   currentDate: Date;
@@ -68,7 +68,13 @@ export const WeekView: React.FC<PropsType> = ({ currentDate, holidays }) => {
               const holiday = holidays[dateString];
 
               return (
-                <Td key={date.toISOString()} height="100px" verticalAlign="top" width="14.28%">
+                <Td
+                  key={date.toISOString()}
+                  height="100px"
+                  verticalAlign="top"
+                  width="14.28%"
+                  data-testid={`calendar-${dateString}`}
+                >
                   <Text fontWeight="bold">{date.getDate()}</Text>
                   {holiday && (
                     <Text bg="red.500" color="white" fontSize="sm" px={1}>

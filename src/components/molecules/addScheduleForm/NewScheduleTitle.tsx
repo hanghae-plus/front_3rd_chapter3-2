@@ -2,7 +2,7 @@ import { InputWithLabel } from '@molecules/InputWithLabel';
 import useScheduleForm from '@stores/useScheduleForm';
 import { useCallback } from 'react';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const NewScheduleTitle = () => {
   const title = useScheduleForm((state) => state.title);

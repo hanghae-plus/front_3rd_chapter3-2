@@ -3,7 +3,7 @@ import { HStack, IconButton, Select } from '@chakra-ui/react';
 import { useCalendarView } from '@hooks/useCalendarView';
 import React from 'react';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 type PropsType = {};
 

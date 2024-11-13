@@ -12,7 +12,7 @@ import { SelectCategory } from '@molecules/SelectCategory';
 import { SetRepeatDetail } from '@organisms/SetRepeatDetail';
 import React from 'react';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const AddSchedule: React.FC = () => {
   return (

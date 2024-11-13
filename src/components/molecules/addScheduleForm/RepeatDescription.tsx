@@ -2,7 +2,7 @@ import { InputWithLabel } from '@molecules/InputWithLabel';
 import useScheduleForm from '@stores/useScheduleForm';
 import React from 'react';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const RepeatDescription: React.FC = () => {
   const description = useScheduleForm((state) => state.description);

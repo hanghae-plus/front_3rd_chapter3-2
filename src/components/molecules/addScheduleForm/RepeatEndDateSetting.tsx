@@ -3,7 +3,7 @@ import React from 'react';
 
 import { InputWithLabel } from '../InputWithLabel';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const RepeatEndDateSetting: React.FC = () => {
   const endDate = useScheduleForm((state) => state.repeat.endDate);

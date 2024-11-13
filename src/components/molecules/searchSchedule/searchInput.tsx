@@ -2,7 +2,7 @@ import { useSearch } from '@hooks/useSearch';
 import { InputWithLabel } from '@molecules/InputWithLabel';
 import React from 'react';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const SearchInput: React.FC = () => {
   const { searchTerm, setSearchTerm } = useSearch();

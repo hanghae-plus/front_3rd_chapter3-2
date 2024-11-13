@@ -22,7 +22,7 @@ import { formatDate, formatMonth, getEventsForDay, getWeeksAtMonth } from '../..
 import { NOTIFICATION_COLORS } from '@/constants/notifications';
 import useScheduleForm from '@/stores/useScheduleForm';
 import { Event } from '@/types';
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 type PropsType = {
   currentDate: Date;
@@ -76,6 +76,7 @@ export const MonthView: React.FC<PropsType> = ({ currentDate, holidays }) => {
                     width="14.28%"
                     position="relative"
                     p={2}
+                    data-testid={`calendar-${dateString}`}
                   >
                     {day && (
                       <>

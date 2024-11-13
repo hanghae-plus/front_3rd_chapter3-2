@@ -3,7 +3,7 @@ import useScheduleForm from '@stores/useScheduleForm';
 
 import { SelectWithLabel } from './SelectWithLabel';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const SelectCategory = () => {
   const category = useScheduleForm((state) => state.category);

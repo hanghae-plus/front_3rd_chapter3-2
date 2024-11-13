@@ -4,7 +4,7 @@ import React, { useCallback } from 'react';
 
 import { InputWithToolTipLabel } from '../InputWithToolTipLabel';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const RepeatTimeSetting: React.FC = () => {
   const startTimeError = useScheduleForm((state) => state.startTimeError);

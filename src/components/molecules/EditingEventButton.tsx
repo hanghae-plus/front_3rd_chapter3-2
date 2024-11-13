@@ -1,7 +1,7 @@
 import { Button, Flex } from '@chakra-ui/react';
 import { useSaveEvent } from '@hooks/useSaveEvent';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const EditingEventButton = () => {
   const {

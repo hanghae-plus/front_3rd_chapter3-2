@@ -4,6 +4,8 @@ import { Event, EventForm, RepeatInfo, RepeatType } from '../types';
 
 export interface NewScheduleForm extends Omit<EventForm, 'repeat'> {
   isEditing: boolean;
+  isRecurring: boolean;
+  setIsRecurring: (v: boolean) => void;
   id: string;
 
   setTitle: (v: string) => void;
@@ -34,6 +36,9 @@ export interface NewScheduleForm extends Omit<EventForm, 'repeat'> {
 
   setNotificationTime: (v: number) => void; // 분 단위로 저장
 
+  exceptionList: string[];
+  setExceptionList: (list: string[]) => void;
+
   setForm: (form: Event) => void;
 
   resetForm: () => void;
@@ -41,6 +46,8 @@ export interface NewScheduleForm extends Omit<EventForm, 'repeat'> {
 
 const useScheduleForm = create<NewScheduleForm>((set) => ({
   isEditing: false,
+  isRecurring: false,
+  setIsRecurring: (v: boolean) => set(() => ({ isRecurring: v })),
   id: '',
 
   title: '',
@@ -71,14 +78,27 @@ const useScheduleForm = create<NewScheduleForm>((set) => ({
   setCategory: (category: string) => set(() => ({ category })),
 
   isRepeating: true,
-  setIsRepeating: (isRepeating: boolean) => set(() => ({ isRepeating })),
+  setIsRepeating: (isRepeating: boolean) =>
+    set(() => {
+      return {
+        isRepeating,
+        repeat: { type: 'none', interval: 1, endDate: '' },
+      };
+    }),
 
-  repeat: { type: 'none' as RepeatType, interval: 0, endDate: '' },
+  repeat: { type: 'none' as RepeatType, interval: 1, endDate: '' },
   setRepeat: (newValue: { [key: string]: string | number }) =>
     set((state) => ({ repeat: { ...state.repeat, ...newValue } })),
 
   notificationTime: 10,
   setNotificationTime: (notificationTime: number) => set(() => ({ notificationTime })),
+
+  exceptionList: [],
+  setExceptionList: (list: string[]) =>
+    set((state) => {
+      const exception = new Set([...state.exceptionList, ...list]);
+      return { exceptionList: Array.from(exception) };
+    }),
 
   setForm: (form: Event) =>
     set(() => ({
@@ -101,6 +121,7 @@ const useScheduleForm = create<NewScheduleForm>((set) => ({
   resetForm: () =>
     set(() => ({
       isEditing: false,
+      isRecurring: false,
       id: '',
       title: '',
       date: '',

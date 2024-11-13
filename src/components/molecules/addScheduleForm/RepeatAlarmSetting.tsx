@@ -3,7 +3,7 @@ import { SelectWithLabel } from '@molecules/SelectWithLabel';
 import useScheduleForm from '@stores/useScheduleForm';
 import React from 'react';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const RepeatAlarmSetting: React.FC = () => {
   const notificationTime = useScheduleForm((state) => state.notificationTime);

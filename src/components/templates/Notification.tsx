@@ -2,7 +2,7 @@ import { Alert, AlertIcon, AlertTitle, Box, CloseButton, VStack } from '@chakra-
 import { useNotifications } from '@hooks/useNotifications';
 import React from 'react';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const Notification: React.FC = () => {
   const { notifications, deleteNotification } = useNotifications();

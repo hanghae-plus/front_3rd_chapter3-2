@@ -5,7 +5,7 @@ import { RepeatType } from 'src/types';
 
 import { SelectWithLabel } from '../SelectWithLabel';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const RepeatTypeSetting: React.FC = () => {
   const type = useScheduleForm((state) => state.repeat.type);

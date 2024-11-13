@@ -4,7 +4,7 @@ import { SearchInput } from '@molecules/searchSchedule/searchInput';
 import { FilteredEvents } from '@organisms/FilteredEvents';
 import React from 'react';
 
-import { TEST_ID } from '@/__tests__/constants';
+import { TEST_ID } from '@/constants/testID';
 
 export const ScheduleManager: React.FC = () => {
   const { isLoading } = useFetchEvents();

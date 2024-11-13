@@ -9,7 +9,7 @@ export const useFetchEvents = () => {
     select: (data) =>
       data.sort((a: Event, b: Event) => new Date(a.date).getTime() - new Date(b.date).getTime()),
     staleTime: 1000 * 60,
-    retry: false,
+    retry: 6,
   });
 
   if (isLoading || error) return { events: [], isLoading, error };
