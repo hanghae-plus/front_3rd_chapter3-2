@@ -31,6 +31,23 @@ const dayMap: Record<WeekType, number> = {
   none: -1,
 };
 
+// 월 인덱스 맵핑
+const monthMap: Record<MonthType, number> = {
+  none: -1,
+  jan: 0,
+  feb: 1,
+  mar: 2,
+  apr: 3,
+  may: 4,
+  jun: 5,
+  jul: 6,
+  aug: 7,
+  sep: 8,
+  oct: 9,
+  nov: 10,
+  dec: 11,
+};
+
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
  */
@@ -366,4 +383,80 @@ export function getMonth(currentDate: Date): MonthType {
   } catch (error) {
     return 'none';
   }
+}
+
+/**
+ * 지정된 규칙의 연도에 해당하는 날짜들을 시작일부터 종료일까지 반환합니다.
+ */
+export function getRemainingDatesByYear(
+  currentDate: Date = new Date(),
+  endDate: Date = new Date(MAX_END_DATE),
+  interval: number = 1,
+  monthType: MonthType = 'none',
+  weekType: WeekType = 'none',
+  day?: number,
+  weekOrder?: number
+): Date[] {
+  const dates: Date[] = [];
+
+  // 기본 유효성 검사
+  if (endDate < currentDate) {
+    return dates;
+  }
+
+  if (interval <= 0) {
+    return dates;
+  }
+
+  if (monthType === 'none') {
+    return dates;
+  }
+
+  if (weekType === 'none') {
+    return dates;
+  }
+
+  // day가 0이나 음수인 경우 빈 배열을 반환합니다.
+  if (day !== undefined && day <= 0) {
+    return dates;
+  }
+
+  const targetMonth = monthMap[monthType];
+  if (targetMonth === -1) return dates;
+
+  // 시작일의 연도를 기준으로 처리
+  let current = new Date(currentDate);
+  let year = current.getFullYear();
+
+  while (new Date(year, targetMonth, 1) <= endDate) {
+    let dateToAdd: Date | null = null;
+
+    if (weekOrder !== undefined) {
+      // N번째 요일 처리
+      const firstDayOfMonth = new Date(year, targetMonth, 1);
+      dateToAdd = getNthWeekday(firstDayOfMonth, weekOrder, weekType);
+    } else if (day !== undefined) {
+      const lastDayOfMonth = getDaysInMonth(year, targetMonth + 1);
+      // 말일 처리
+      dateToAdd = new Date(year, targetMonth, Math.min(day, lastDayOfMonth));
+    } else {
+      dateToAdd = new Date(year, targetMonth, currentDate.getDate());
+    }
+
+    // 유효한 날짜이고 종료일 이전인 경우에만 추가
+    // 현재 날짜와 같은 날짜는 제외
+    if (
+      dateToAdd &&
+      isValidDate(dateToAdd) &&
+      dateToAdd <= endDate &&
+      dateToAdd.getTime() > currentDate.getTime()
+    ) {
+      dates.push(dateToAdd);
+    }
+
+    // 다음 연도로 이동 (interval 적용)
+    year += interval;
+  }
+
+  return dates;
 }
