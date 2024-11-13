@@ -1,6 +1,6 @@
 import { Box, Flex } from '@chakra-ui/react';
 
-import { Calendar } from './components/Calendar.tsx';
+import { Calendar } from './components/Calendar/Calendar.tsx';
 import { DialogEventOverlapAlert } from './components/DialogEventOverlapAlert.tsx';
 import { EventInputForm } from './components/EventInputForm/EventInputForm.tsx';
 import { EventSearchForm } from './components/EventSearchForm.tsx';

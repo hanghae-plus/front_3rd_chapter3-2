@@ -15,8 +15,8 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 
-import { Event, EventId } from '../types';
 import { EventItem } from './EventItem';
+import { Event, EventId } from '../../types';
 import {
   formatDate,
   formatMonth,
@@ -24,7 +24,7 @@ import {
   getEventsForDay,
   getWeekDates,
   getWeeksAtMonth,
-} from '../utils/dateUtils';
+} from '../../utils/dateUtils';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 

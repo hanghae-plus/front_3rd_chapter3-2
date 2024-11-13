@@ -1,7 +1,7 @@
 import { BellIcon } from '@chakra-ui/icons';
 import { Box, HStack, Text } from '@chakra-ui/react';
 
-import { Event } from '../types';
+import { Event } from '../../types';
 
 type Props = {
   event: Event;
