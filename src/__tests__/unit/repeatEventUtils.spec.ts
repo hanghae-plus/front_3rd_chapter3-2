@@ -56,7 +56,7 @@ describe('getRepeatingEvent', () => {
     ];
 
     const repeatEvents = getRepeatingEvent(events);
-    const lastRepeatingEvent: Event = repeatEvents[repeatEvents.length - 1];
+    const lastRepeatingEvent = repeatEvents[0].at(-1) as Event;
 
     expect(dayjs(lastRepeatingEvent.date).isBefore('2025-06-30')).toBe(true);
   });
@@ -72,14 +72,14 @@ describe('getRepeatingEvent', () => {
         description: '아스날',
         location: '런던',
         category: '개인',
-        repeat: { type: 'monthly', interval: 1, endDate: '2024-01-31' },
+        repeat: { type: 'monthly', interval: 1, endDate: '2024-12-31' },
         notificationTime: 10,
       },
     ];
 
-    const repeatEvents: Event[] = getRepeatingEvent(events);
-    const repeatEventFeb = repeatEvents.find((event) => '2024-02'.includes(event.date));
-    const repeatEventJune = repeatEvents.find((event) => '2024-06'.includes(event.date));
+    const repeatEvents: Array<Event[]> = getRepeatingEvent(events);
+    const repeatEventFeb = repeatEvents[0].find((event) => event.date.includes('2024-02'));
+    const repeatEventJune = repeatEvents[0].find((event) => event.date.includes('2024-06'));
 
     expect(repeatEventFeb?.date).toBe('2024-02-29');
     expect(repeatEventJune?.date).toBe('2024-06-30');
