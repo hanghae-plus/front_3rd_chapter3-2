@@ -8,6 +8,7 @@ import {
   getEventsForDay,
   getNthWeekday,
   getRemainingDatesByDay,
+  getRemainingDatesByMonth,
   getRemainingDatesByWeek,
   getWeekDates,
   getWeekday,
