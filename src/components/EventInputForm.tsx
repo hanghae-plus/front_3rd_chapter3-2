@@ -197,6 +197,9 @@ export const EventInputForm = ({ events, saveEvent }: Props) => {
               value={repeatType}
               onChange={(e) => setEventForm({ repeat: { type: e.target.value as RepeatType } })}
             >
+              <option value="none" disabled>
+                선택하기
+              </option>
               <option value="daily">매일</option>
               <option value="weekly">매주</option>
               <option value="monthly">매월</option>
