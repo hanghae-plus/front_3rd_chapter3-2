@@ -626,5 +626,19 @@ describe('getNthWeekday', () => {
     const result = getNthWeekday(testDate, testNth, weekType);
     expect(result).toBeNull();
   });
+  it('🔴 nth가 0일 경우 null을 반환합니다.', () => {
+    const testDate = new Date('2024-03-31');
+    const testNth = 0;
+    const weekType = 'mon';
+    const result = getNthWeekday(testDate, testNth, weekType);
+    expect(result).toBeNull();
+  });
+  it('🔴 nth가 음수일 경우 null을 반환합니다.', () => {
+    const testDate = new Date('2024-03-31');
+    const testNth = 0;
+    const weekType = 'mon';
+    const result = getNthWeekday(testDate, testNth, weekType);
+    expect(result).toBeNull();
+  });
 });
 
