@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
 import { ChangeEvent, Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 
 import { getInitialFormState, validateEventForm } from '../../../entities/event/lib/eventFormUtils';
@@ -16,6 +18,7 @@ interface UseEventFormReturn {
   errors: EventFormErrors;
   handleInputChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   handleCheckboxChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  isDirty: boolean;
 }
 
 export const useEventForm = (initialEvent: Event | null): UseEventFormReturn => {
@@ -25,6 +28,18 @@ export const useEventForm = (initialEvent: Event | null): UseEventFormReturn => 
   const [errors, setErrors] = useState<EventFormErrors>({});
   const [isDirty, setIsDirty] = useState(false);
 
+  const validateAndUpdateErrors = useCallback((newState: EventFormState) => {
+    const validationErrors = validateEventForm(newState);
+    setErrors(validationErrors);
+  }, []);
+
+  const updateDirtyState = useCallback((state: EventFormState) => {
+    setIsDirty((prevIsDirty) => {
+      if (prevIsDirty) return true;
+      return Boolean(state.title && state.date && state.startTime && state.endTime);
+    });
+  }, []);
+
   const handleInputChange = useCallback(
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { name, value } = e.target;
@@ -32,28 +47,27 @@ export const useEventForm = (initialEvent: Event | null): UseEventFormReturn => 
       setFormState((prev) => {
         const newState = {
           ...prev,
-          [name]: name === 'notificationTime' ? (value as NotificationTime) : value,
+          [name]:
+            name === 'notificationTime'
+              ? ({
+                  value: Number(value),
+                  label: `${value}분 전`,
+                } as NotificationTime)
+              : value,
         };
-        const validationErrors = validateEventForm(newState, isDirty);
-        setErrors(validationErrors);
+
+        validateAndUpdateErrors(newState);
+        updateDirtyState(newState);
         return newState;
       });
-
-      setIsDirty((prevIsDirty) => {
-        if (!prevIsDirty) {
-          return formState.title && formState.date && formState.startTime && formState.endTime
-            ? true
-            : false;
-        }
-        return prevIsDirty;
-      });
     },
-    [isDirty] // formState 제거, 필요한 상태만 참조
+    [validateAndUpdateErrors, updateDirtyState]
   );
 
   const handleCheckboxChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       const { name, checked } = e.target;
+
       setFormState((prev) => {
         const newState = {
           ...prev,
@@ -66,35 +80,33 @@ export const useEventForm = (initialEvent: Event | null): UseEventFormReturn => 
               repeatEndCondition: 'date' as RepeatEndCondition,
               repeatCount: 1,
               repeatDate: [],
-              notificationTime: prev.notificationTime, // 알림 설정은 유지
             }),
         };
-        const validationErrors = validateEventForm(newState as EventFormState, isDirty);
-        setErrors(validationErrors);
+
+        validateAndUpdateErrors(newState as EventFormState);
         return newState;
       });
     },
-    [isDirty]
+    [validateAndUpdateErrors]
   );
 
+  // Initial form state setup
   useEffect(() => {
     const newState = getInitialFormState(initialEvent);
     setFormState(newState);
+    validateAndUpdateErrors(newState);
+  }, [initialEvent, validateAndUpdateErrors]);
 
-    const validationErrors = validateEventForm(newState, isDirty);
-    setErrors(validationErrors);
-  }, [initialEvent, isDirty]);
-
+  // Form validation on critical field changes
   useEffect(() => {
-    const validationErrors = validateEventForm(formState, isDirty);
-    setErrors(validationErrors);
+    validateAndUpdateErrors(formState);
   }, [
     formState.date,
     formState.startTime,
     formState.endTime,
     formState.repeatEndDate,
     formState.notificationTime,
-    isDirty,
+    validateAndUpdateErrors,
   ]);
 
   return {
@@ -103,5 +115,6 @@ export const useEventForm = (initialEvent: Event | null): UseEventFormReturn => 
     errors,
     handleInputChange,
     handleCheckboxChange,
+    isDirty,
   };
 };
