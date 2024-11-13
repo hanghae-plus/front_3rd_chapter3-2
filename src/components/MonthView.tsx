@@ -1,19 +1,7 @@
-import { BellIcon } from '@chakra-ui/icons';
-import {
-  Box,
-  Heading,
-  HStack,
-  Table,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  VStack,
-} from '@chakra-ui/react';
+import { Heading, Table, Tbody, Td, Text, Th, Thead, Tr, VStack } from '@chakra-ui/react';
 
 import { Event } from '../types';
+import { EventListView } from './EventListView';
 import { formatDate, formatMonth, getEventsForDay, getWeeksAtMonth } from '../utils/dateUtils';
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
@@ -22,6 +10,7 @@ interface MonthViewProps {
   currentDate: Date;
   holidays: { [key: string]: string };
   filteredEvents: Event[];
+  repeatEvents: Event[];
   notifiedEvents: string[];
 }
 
@@ -29,6 +18,7 @@ export const MonthView = ({
   currentDate,
   holidays,
   filteredEvents,
+  repeatEvents,
   notifiedEvents,
 }: MonthViewProps) => {
   const weeks = getWeeksAtMonth(currentDate);
@@ -70,24 +60,23 @@ export const MonthView = ({
                           </Text>
                         )}
                         {getEventsForDay(filteredEvents, day).map((event) => {
-                          const isNotified = notifiedEvents.includes(event.id);
                           return (
-                            <Box
+                            <EventListView
+                              event={event}
+                              notifiedEvents={notifiedEvents}
+                              type="main"
                               key={event.id}
-                              p={1}
-                              my={1}
-                              bg={isNotified ? 'red.100' : 'gray.100'}
-                              borderRadius="md"
-                              fontWeight={isNotified ? 'bold' : 'normal'}
-                              color={isNotified ? 'red.500' : 'inherit'}
-                            >
-                              <HStack spacing={1}>
-                                {isNotified && <BellIcon />}
-                                <Text fontSize="sm" noOfLines={1}>
-                                  {event.title}
-                                </Text>
-                              </HStack>
-                            </Box>
+                            />
+                          );
+                        })}
+                        {getEventsForDay(repeatEvents, day).map((event) => {
+                          return (
+                            <EventListView
+                              event={event}
+                              notifiedEvents={notifiedEvents}
+                              type="repeat"
+                              key={event.id}
+                            />
                           );
                         })}
                       </>
