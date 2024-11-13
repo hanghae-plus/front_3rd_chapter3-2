@@ -2,6 +2,8 @@ import { CheckBoxWithLabel } from '@molecules/CheckBoxWithLabel';
 import useScheduleForm from '@stores/useScheduleForm';
 import React, { useCallback } from 'react';
 
+import { TEST_ID } from '@/__tests__/constants';
+
 export const RepeatCheckBox: React.FC = () => {
   const isRepeating = useScheduleForm((state) => state.isRepeating);
   const setIsRepeating = useScheduleForm((state) => state.setIsRepeating);
@@ -10,7 +12,7 @@ export const RepeatCheckBox: React.FC = () => {
 
   return (
     <CheckBoxWithLabel
-      data-testid="schedule-repeat-setting"
+      data-testid={TEST_ID.FORM.REPEAT_SET}
       label="반복 설정"
       checkBoxLabel="반복 일정"
       isChecked={isRepeating}

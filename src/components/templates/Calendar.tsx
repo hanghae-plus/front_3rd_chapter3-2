@@ -7,7 +7,7 @@ export const Calendar: React.FC = () => {
   const { view, currentDate, holidays } = useCalendarView();
   return (
     <>
-      {view === 'week' && <WeekView currentDate={currentDate} />}
+      {view === 'week' && <WeekView currentDate={currentDate} holidays={holidays} />}
       {view === 'month' && <MonthView currentDate={currentDate} holidays={holidays} />}
     </>
   );

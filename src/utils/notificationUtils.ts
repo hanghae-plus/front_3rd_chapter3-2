@@ -3,18 +3,14 @@ import { Event } from '../types';
 const 초 = 1000;
 const 분 = 초 * 60;
 
-export function getUpcomingEvents(
-  events: Event[],
-  now: Date,
-  notifiedEvents: Set<string>,
-  deletedNotifications: Set<string>
-) {
+export function getUpcomingEvents(events: Event[], now: Date, notifiedEvents: Set<string>) {
   return events.filter((event) => {
     const eventStart = new Date(`${event.date}T${event.startTime}`);
-    const timeDiff = Math.floor((eventStart.getTime() - now.getTime()) / 분);
+    const timeDiff = (eventStart.getTime() - now.getTime()) / 분;
 
-    const isUpcoming = timeDiff > 0 && timeDiff === event.notificationTime;
-    return isUpcoming && !deletedNotifications.has(event.id) && !notifiedEvents.has(event.id);
+    const min = event.notificationTime - 0.1 < 0 ? 0 : event.notificationTime - 0.1;
+    const isUpcoming = timeDiff > min && timeDiff <= event.notificationTime;
+    return isUpcoming && !notifiedEvents.has(event.id);
   });
 }
 

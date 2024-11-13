@@ -2,6 +2,8 @@ import { Alert, AlertIcon, AlertTitle, Box, CloseButton, VStack } from '@chakra-
 import { useNotifications } from '@hooks/useNotifications';
 import React from 'react';
 
+import { TEST_ID } from '@/__tests__/constants';
+
 export const Notification: React.FC = () => {
   const { notifications, deleteNotification } = useNotifications();
 
@@ -13,7 +15,7 @@ export const Notification: React.FC = () => {
       right={4}
       spacing={2}
       align="flex-end"
-      data-testid="notification-alert"
+      data-testid={TEST_ID.ALERT}
     >
       {notifications.map((notification, index) => (
         <Alert key={index} status="info" variant="solid" width="auto">

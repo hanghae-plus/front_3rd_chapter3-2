@@ -17,7 +17,12 @@ export const AlertDuplicateSchedule: React.FC = () => {
   const { dialogName, setDialogName, overlapEvents, setOverlapEvents } = useDialogContext();
   const cancelRef = useRef<HTMLButtonElement>(null);
 
-  const { isEditing, createSchedule, updateSchedule } = useSaveEvent();
+  const { isRecurring, save, splitRecurringEvent } = useSaveEvent();
+
+  const updateSchedule = () => {
+    isRecurring ? splitRecurringEvent() : save();
+  };
+
   return (
     <AlertDialog
       isOpen={dialogName === 'overlappingEvents'}
@@ -26,7 +31,7 @@ export const AlertDuplicateSchedule: React.FC = () => {
     >
       <AlertDialogOverlay>
         <AlertDialogContent>
-          <AlertDialogHeader fontSize="lg" fontWeight="bold" data-testid="alert-dialog-header">
+          <AlertDialogHeader fontSize="lg" fontWeight="bold">
             일정 겹침 경고
           </AlertDialogHeader>
 
@@ -49,7 +54,7 @@ export const AlertDuplicateSchedule: React.FC = () => {
               onClick={() => {
                 setDialogName('');
                 setOverlapEvents([]);
-                isEditing ? updateSchedule() : createSchedule();
+                updateSchedule();
               }}
               ml={3}
             >

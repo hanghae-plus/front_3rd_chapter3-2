@@ -18,13 +18,14 @@ export const fetchJson = async (
       method: requestInit?.method,
     });
 
-    const { ok } = response;
-    if (requestInit?.method === 'DELETE') return { ok, data: null };
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { ok: false, data: new Error(errorData.message || 'Request failed') };
+    }
 
-    if (ok) return { ok: true, data: await response.json() };
+    if (requestInit?.method === 'DELETE') return { ok: true, data: null };
 
-    const errorData = await response.json();
-    return { ok: false, data: new Error(errorData.message || 'Request failed') };
+    return { ok: true, data: await response.json() };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     return { ok: false, data: new Error(message) };

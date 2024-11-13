@@ -14,8 +14,6 @@ interface NotificationEvents {
 
   deleteNotifications: (index: number) => void;
 
-  dismissedNotifications: Set<string>;
-
   notifiedEvents: Set<string>;
 
   reset: () => void;
@@ -40,18 +38,14 @@ const useNotificationStore = create<NotificationEvents>((set) => ({
     set((state) => {
       if (!state.notifications[index]) return state;
       return {
-        dismissedNotifications: state.dismissedNotifications.add(state.notifications[index].id),
         notifications: state.notifications.filter((_, i) => i !== index),
       };
     }),
-
-  dismissedNotifications: new Set(),
 
   notifiedEvents: new Set(),
 
   reset: () =>
     set(() => ({
-      dismissedNotifications: new Set(),
       notifiedEvents: new Set(),
       notifications: [],
     })),

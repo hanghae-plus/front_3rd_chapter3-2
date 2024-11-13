@@ -3,7 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AddSchedule } from '@templates/AddSchedule.tsx';
 import { AlertDuplicateSchedule } from '@templates/AlertDialog.tsx';
-import { CalendarManager } from '@templates/CalenderManager.tsx';
+import { CalendarManager } from '@/components/templates/CalendarManager';
 import { Notification } from '@templates/Notification.tsx';
 import { ScheduleManager } from '@templates/ScheduleManager.tsx';
 

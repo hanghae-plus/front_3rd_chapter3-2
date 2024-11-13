@@ -3,7 +3,7 @@ import { createContext } from 'react';
 import { Event } from '@/types';
 
 export interface DialogContextType {
-  dialogName: string;
+  dialogName: 'overlappingEvents' | '';
   overlapEvents: Event[];
   setOverlapEvents: (v: Event[]) => void;
   setDialogName: (v: string) => void;

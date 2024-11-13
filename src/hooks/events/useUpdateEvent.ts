@@ -23,8 +23,24 @@ export const useUpdateEvent = () => {
     },
   });
 
-  const updateEvent = (event: Event) => updateEventMutation.mutate(event);
-  // const updateEvent = (event: Event) => updateEventMutation.mutate({ ...event, id: 'a35sd1' });
+  const updateEvent = async (event: Event) => {
+    try {
+      await updateEventMutation.mutateAsync(event);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '요청 처리 중 알 수 없는 오류 발생';
 
-  return { updateEvent };
+      toast({
+        title: message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  return {
+    updateEvent,
+    isSuccess: updateEventMutation.isSuccess,
+    isError: updateEventMutation.isError,
+  };
 };

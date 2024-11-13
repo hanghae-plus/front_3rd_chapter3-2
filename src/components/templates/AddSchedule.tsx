@@ -1,4 +1,3 @@
-import { EditingEventButton } from '@atoms/EditingEventButton';
 import { EditingEventHeading } from '@atoms/EditingEventHeading';
 import { HStack, VStack } from '@chakra-ui/react';
 import { NewScheduleTitle } from '@molecules/addScheduleForm/NewScheduleTitle';
@@ -8,13 +7,16 @@ import { RepeatDateSetting } from '@molecules/addScheduleForm/RepeatDateSetting'
 import { RepeatDescription } from '@molecules/addScheduleForm/RepeatDescription';
 import { RepeatLocation } from '@molecules/addScheduleForm/RepeatLocation';
 import { RepeatTimeSetting } from '@molecules/addScheduleForm/RepeatTimeSetting';
+import { EditingEventButton } from '@molecules/EditingEventButton';
 import { SelectCategory } from '@molecules/SelectCategory';
 import { SetRepeatDetail } from '@organisms/SetRepeatDetail';
 import React from 'react';
 
+import { TEST_ID } from '@/__tests__/constants';
+
 export const AddSchedule: React.FC = () => {
   return (
-    <VStack w="400px" spacing={5} align="stretch" data-testid="edit-schedule">
+    <VStack w="400px" spacing={5} align="stretch" data-testid={TEST_ID.EDIT_AREA}>
       {/* 일정 수정 / 추가 Heading */}
       <EditingEventHeading />
       {/* 제목 */}

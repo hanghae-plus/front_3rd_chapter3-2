@@ -5,12 +5,14 @@ import { RepeatType } from 'src/types';
 
 import { SelectWithLabel } from '../SelectWithLabel';
 
+import { TEST_ID } from '@/__tests__/constants';
+
 export const RepeatTypeSetting: React.FC = () => {
   const type = useScheduleForm((state) => state.repeat.type);
   const setRepeat = useScheduleForm((state) => state.setRepeat);
   return (
     <SelectWithLabel
-      data-testid="schedule-repeat-type"
+      data-testid={TEST_ID.FORM.REPEAT_TYPE}
       label="반복 유형"
       value={type}
       onChange={(v) => setRepeat({ type: v as RepeatType })}

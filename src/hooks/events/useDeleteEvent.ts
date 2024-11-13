@@ -25,7 +25,24 @@ export const useDeleteEvent = () => {
     },
   });
 
-  const deleteEvent = (id: string) => deleteEventMutation.mutate(id);
+  const deleteEvent = async (id: string) => {
+    try {
+      await deleteEventMutation.mutateAsync(id);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '요청 처리 중 알 수 없는 오류 발생';
 
-  return { deleteEvent };
+      toast({
+        title: message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  return {
+    deleteEvent,
+    isSuccess: deleteEventMutation.isSuccess,
+    isError: deleteEventMutation.isError,
+  };
 };

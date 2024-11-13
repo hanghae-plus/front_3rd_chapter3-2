@@ -1,2 +1,2 @@
-export * from './editingEventValidation';
+export * from './eventValidation';
 export * from './fetchHolidays';

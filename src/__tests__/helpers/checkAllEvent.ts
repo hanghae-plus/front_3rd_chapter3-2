@@ -1,9 +1,9 @@
 import { screen, waitFor, within } from '@testing-library/react';
 
-import { EVENT_LIST_TEST_ID } from '../constants';
+import { TEST_ID } from '../constants';
 
 export const checkAllEvent = async () => {
-  const scheduleList = await waitFor(() => screen.findByTestId(EVENT_LIST_TEST_ID));
+  const scheduleList = await waitFor(() => screen.findByTestId(TEST_ID.EVENT_LIST));
 
   expect(within(scheduleList).getByText('점심 약속')).toBeInTheDocument();
   expect(within(scheduleList).getByText('식당 A')).toBeInTheDocument();

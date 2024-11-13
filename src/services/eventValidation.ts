@@ -1,6 +1,6 @@
 import { EventForm } from 'src/types';
 
-export const editingEventValidation = (
+export const eventFormValidation = (
   form: Partial<EventForm> & { startTimeError?: string; endTimeError?: string }
 ) => {
   const { title, date, startTime, endTime } = form;

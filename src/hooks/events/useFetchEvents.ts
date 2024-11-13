@@ -6,10 +6,10 @@ export const useFetchEvents = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['events'],
     queryFn: readEvents,
-    staleTime: 0,
     select: (data) =>
       data.sort((a: Event, b: Event) => new Date(a.date).getTime() - new Date(b.date).getTime()),
-    refetchOnMount: false,
+    staleTime: 1000 * 60,
+    retry: false,
   });
 
   if (isLoading || error) return { events: [], isLoading, error };

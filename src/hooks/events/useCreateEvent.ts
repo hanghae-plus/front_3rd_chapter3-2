@@ -20,7 +20,24 @@ export const useCreateEvent = () => {
     },
   });
 
-  const createEvent = (event: EventForm) => createEventMutation.mutate(event);
+  const createEvent = async (event: EventForm) => {
+    try {
+      await createEventMutation.mutateAsync(event);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '요청 처리 중 알 수 없는 오류 발생';
 
-  return { createEvent };
+      toast({
+        title: message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  return {
+    createEvent,
+    isSuccess: createEventMutation.isSuccess,
+    isError: createEventMutation.isError,
+  };
 };

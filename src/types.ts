@@ -16,6 +16,7 @@ export interface EventForm {
   category: string;
   repeat: RepeatInfo;
   notificationTime: number; // 분 단위로 저장
+  exceptionList: string[];
 }
 
 export interface Event extends EventForm {

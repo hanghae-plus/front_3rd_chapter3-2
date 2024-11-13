@@ -4,12 +4,14 @@ import { SearchInput } from '@molecules/searchSchedule/searchInput';
 import { FilteredEvents } from '@organisms/FilteredEvents';
 import React from 'react';
 
+import { TEST_ID } from '@/__tests__/constants';
+
 export const ScheduleManager: React.FC = () => {
   const { isLoading } = useFetchEvents();
 
   if (isLoading) return <div>Loading...</div>;
   return (
-    <VStack data-testid="event-list" w="500px" h="full" overflowY="auto">
+    <VStack data-testid={TEST_ID.EVENT_LIST} w="500px" h="full" overflowY="auto">
       {/* 검색어 입력 */}
       <SearchInput />
 

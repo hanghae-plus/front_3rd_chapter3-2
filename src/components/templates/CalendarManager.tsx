@@ -14,7 +14,7 @@ export const CalendarManager: React.FC = () => {
 
   if (isLoading) return <div>loading...</div>;
   return (
-    <VStack flex={1} spacing={5} align="stretch" data-testid="calender">
+    <VStack flex={1} spacing={5} align="stretch">
       <Heading>일정 보기</Heading>
       {/* week / month 컨트롤 */}
       <CalendarController />

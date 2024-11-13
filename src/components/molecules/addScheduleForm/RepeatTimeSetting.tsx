@@ -4,6 +4,8 @@ import React, { useCallback } from 'react';
 
 import { InputWithToolTipLabel } from '../InputWithToolTipLabel';
 
+import { TEST_ID } from '@/__tests__/constants';
+
 export const RepeatTimeSetting: React.FC = () => {
   const startTimeError = useScheduleForm((state) => state.startTimeError);
   const setStartTimeError = useScheduleForm((state) => state.setStartTimeError);
@@ -29,7 +31,7 @@ export const RepeatTimeSetting: React.FC = () => {
   return (
     <>
       <InputWithToolTipLabel
-        data-testid="schedule-start-time"
+        data-testid={TEST_ID.FORM.START_TIME}
         type="time"
         label="시작 시간"
         value={startTime}
@@ -40,7 +42,7 @@ export const RepeatTimeSetting: React.FC = () => {
         isInvalid={Boolean(startTimeError)}
       />
       <InputWithToolTipLabel
-        data-testid="schedule-end-time"
+        data-testid={TEST_ID.FORM.END_TIME}
         type="time"
         label="종료 시간"
         value={endTime}
