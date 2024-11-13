@@ -12,6 +12,7 @@ import {
 import React from 'react';
 
 import { notificationOptions } from '../constants/notification';
+import { useEventFormStore } from '../store/useEventFormStore';
 import { Event, EventId } from '../types';
 
 type Props = {
@@ -20,8 +21,6 @@ type Props = {
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
 
   notifiedEvents: EventId[];
-
-  editEvent: (event: Event) => void;
 
   deleteEvent: (id: EventId) => Promise<void>;
 };
@@ -32,8 +31,9 @@ export const EventSearchForm = ({
   filteredEvents,
   notifiedEvents,
   deleteEvent,
-  editEvent,
 }: Props) => {
+  const { setEditingEvent } = useEventFormStore();
+
   return (
     <VStack data-testid="event-list" w="500px" h="full" overflowY="auto">
       <FormControl>
@@ -98,7 +98,7 @@ export const EventSearchForm = ({
                 <IconButton
                   aria-label="Edit event"
                   icon={<EditIcon />}
-                  onClick={() => editEvent(event)}
+                  onClick={() => setEditingEvent(event)}
                 />
                 <IconButton
                   aria-label="Delete event"

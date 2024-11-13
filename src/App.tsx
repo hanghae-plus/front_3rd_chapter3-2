@@ -12,7 +12,7 @@ import { useSearch } from './hooks/useSearch.ts';
 import { useEventFormStore } from './store/useEventFormStore.ts';
 
 function App() {
-  const { editingEvent, resetEditingEvent, editEvent } = useEventFormStore();
+  const { editingEvent, resetEditingEvent } = useEventFormStore();
 
   const { events, saveEvent, deleteEvent } = useEventOperations(
     Boolean(editingEvent),
@@ -41,7 +41,6 @@ function App() {
 
         <EventSearchForm
           deleteEvent={deleteEvent}
-          editEvent={editEvent}
           filteredEvents={filteredEvents}
           notifiedEvents={notifiedEvents}
           searchTerm={searchTerm}
