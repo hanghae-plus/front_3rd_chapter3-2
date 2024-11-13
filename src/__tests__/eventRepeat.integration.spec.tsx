@@ -30,7 +30,7 @@ vi.mock('@chakra-ui/react', async () => {
 });
 
 describe('이벤트 > 반복과 관련된 통합테스트', () => {
-  it('반복 유형 > 반복 유형을 0을 입력할 경우 1로 변경된다.', async () => {
+  it('반복 간격 > 반복 간격을 0을 입력할 경우 1로 변경된다.', async () => {
     render(
       <ChakraProvider>
         <App />
@@ -45,7 +45,6 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
     const repeatIntervalInput = screen.getByLabelText('반복 간격') as HTMLInputElement;
 
     await user.clear(screen.getByLabelText('반복 간격'));
-    // await user.type(screen.getByLabelText('반복 간격'), '');
 
     await waitFor(() => {
       expect(repeatIntervalInput.value).toBe('1');
