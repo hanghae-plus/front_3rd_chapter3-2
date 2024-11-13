@@ -1,8 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
 
+import { Event } from '../../entities/event/model/types.ts';
 import { useNotifications } from '../../hooks/useNotifications.ts';
 import { formatDate } from '../../shared/lib/date.ts';
-import { Event } from '../../types.ts';
 import { parseHM } from '../utils.ts';
 
 const 초 = 1000;
@@ -10,12 +10,13 @@ const 분 = 초 * 60;
 
 it('초기 상태에서는 알림이 없어야 한다', () => {
   const { result } = renderHook(() => useNotifications([]));
+  console.log(result.current.notifications);
   expect(result.current.notifications).toEqual([]);
   expect(result.current.notifiedEvents).toEqual([]);
 });
 
 it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다', () => {
-  const notificationTime = 5;
+  const notificationTime = 10;
   const mockEvents: Event[] = [
     {
       id: '1',
@@ -26,8 +27,12 @@ it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime,
+      repeat: { type: 'none', interval: 0, endCondition: 'never' },
+      notificationTime: {
+        value: notificationTime,
+        label: `${notificationTime}분 전`,
+      },
+      isRepeating: false,
     },
   ];
 
