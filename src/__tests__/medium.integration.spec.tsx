@@ -382,23 +382,16 @@ describe('알림 기능', () => {
   });
 
   it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트가 노출된다', async () => {
-    // 회의 시작 10분 1초 전으로 시간 설정
     vi.setSystemTime(new Date('2024-10-15T08:49:59'));
 
     setup(<App />);
-
-    // 일정 로딩 완료 대기
     await screen.findByText('일정 로딩 완료!');
 
-    // 초기에는 알림이 표시되지 않아야 함
     expect(screen.queryByText('10분 후 기존 회의 일정이 시작됩니다.')).not.toBeInTheDocument();
-
-    // 1초 진행하여 정확히 10분 전이 되도록 함
     act(() => {
       vi.advanceTimersByTime(1000);
     });
 
-    // 알림이 표시되는지 확인 (비동기로 처리)
     await screen.findByText('10분 후 기존 회의 일정이 시작됩니다.', {}, { timeout: 1000 });
   });
 });

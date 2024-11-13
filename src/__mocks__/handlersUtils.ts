@@ -33,8 +33,8 @@ export const setupMockHandlerUpdating = () => {
       category: '업무',
       isRepeating: false,
       repeat: {
-        type: 'none',
-        interval: 0,
+        type: 'daily',
+        interval: 2,
         endCondition: 'never',
       },
       notificationTime: {
@@ -90,11 +90,12 @@ export const setupMockHandlerDeletion = () => {
       description: '삭제할 이벤트입니다',
       location: '어딘가',
       category: '기타',
-      isRepeating: false,
+      isRepeating: true,
       repeat: {
-        type: 'none',
-        interval: 0,
-        endCondition: 'never',
+        type: 'weekly',
+        interval: 1,
+        endCondition: 'date',
+        endDate: '2024-12-10',
       },
       notificationTime: {
         value: 10,

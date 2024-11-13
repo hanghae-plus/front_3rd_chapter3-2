@@ -111,7 +111,7 @@ export const EventForm = memo(
         ),
       }));
     }, [formState.date, formState.repeatEndDate, formState.repeatInterval, formState.isRepeating]);
-    console.log(formState);
+
     return (
       <VStack
         w="100%"
@@ -242,15 +242,24 @@ export const EventForm = memo(
             <FormControl>
               <FormLabel fontWeight="medium">반복 유형</FormLabel>
               <Select
+                data-testid="repeat-type-button"
                 name="repeatType"
                 value={formState?.repeatType}
                 onChange={handleInputChange}
                 size="lg"
               >
-                <option value="daily">매일</option>
-                <option value="weekly">매주</option>
-                <option value="monthly">매월</option>
-                <option value="yearly">매년</option>
+                <option data-testid="repeat-type-option" value="daily">
+                  매일
+                </option>
+                <option data-testid="repeat-type-option" value="weekly">
+                  매주
+                </option>
+                <option data-testid="repeat-type-option" value="monthly">
+                  매월
+                </option>
+                <option data-testid="repeat-type-option" value="yearly">
+                  매년
+                </option>
               </Select>
               {formState.repeatType === 'monthly' && (
                 <RepeatDateMessage
@@ -367,6 +376,7 @@ export const EventForm = memo(
                   취소
                 </Button>
                 <Button
+                  data-testid="edit-submit-button"
                   colorScheme="blue"
                   onClick={() => {
                     handleFinalSubmit();

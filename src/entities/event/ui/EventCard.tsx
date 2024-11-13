@@ -69,7 +69,7 @@ export const EventCard = ({ event, isNotified, onEdit, onDelete }: EventCardProp
   const handleDelete = () => {
     onDelete(event.id, event.isRepeating);
   };
-  console.log(event);
+
   return (
     <Box
       borderWidth={1}
@@ -89,7 +89,7 @@ export const EventCard = ({ event, isNotified, onEdit, onDelete }: EventCardProp
             </Text>
             {event.isRepeating && (
               <Tooltip label={getRepeatText()}>
-                <RepeatIcon boxSize={18} color={iconColor} />
+                <RepeatIcon data-testid="repeat-icon" boxSize={18} color={iconColor} />
               </Tooltip>
             )}
             {isNotified && (
@@ -100,6 +100,7 @@ export const EventCard = ({ event, isNotified, onEdit, onDelete }: EventCardProp
           </HStack>
           <HStack spacing={2}>
             <IconButton
+              data-testid="edit-button"
               aria-label="Edit event"
               icon={<EditIcon boxSize={18} />}
               size="sm"
@@ -107,6 +108,7 @@ export const EventCard = ({ event, isNotified, onEdit, onDelete }: EventCardProp
               onClick={() => onEdit(event)}
             />
             <IconButton
+              data-testid="delete-button"
               aria-label="Delete event"
               icon={<DeleteIcon boxSize={18} />}
               size="sm"
