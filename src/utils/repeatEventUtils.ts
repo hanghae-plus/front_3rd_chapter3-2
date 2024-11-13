@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-import { Event } from '../types';
+import { Event, EventForm } from '../types';
 
 const formatRepeatType = {
   daily: 'day',
@@ -9,14 +9,7 @@ const formatRepeatType = {
   yearly: 'year',
 };
 
-export const getRepeatingEvent = (events: Event[]): Array<Event[]> => {
-  const eventsWithRepeat = events.filter((event) => event.repeat.type !== 'none');
-  const repeatingEvents = eventsWithRepeat.map((event) => getRepeatingUntilEnd(event));
-
-  return repeatingEvents;
-};
-
-const getRepeatingUntilEnd = (event: Event) => {
+export const getRepeatingEvent = (event: Event | EventForm): Event[] | EventForm[] => {
   if (event.repeat.type === 'none') {
     return [];
   }
