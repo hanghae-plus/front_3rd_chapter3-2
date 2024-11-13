@@ -11,8 +11,19 @@ import {
 } from '../__mocks__/handlersUtils';
 import App from '../App';
 import { server } from '../setupTests';
+import { useEventFormStore } from '../store/useEventFormStore';
 import { useEventOverlapStore } from '../store/useEventOverlapStore';
 import { Event } from '../types';
+
+beforeEach(() => {
+  useEventOverlapStore.setState({
+    isOverlapDialogOpen: false,
+    overlappingEvents: [],
+  });
+
+  const initialState = useEventFormStore.getInitialState();
+  useEventFormStore.setState(initialState);
+});
 
 // ! Hard 여기 제공 안함
 const setup = (element: ReactElement) => {
@@ -63,9 +74,8 @@ describe('일정 CRUD 및 기본 기능', () => {
       location: '회의실 A',
       category: '업무',
       repeat: {
-        interval: 1,
-        type: 'daily',
-        endDate: '2025-06-30',
+        interval: 0,
+        type: 'none',
       },
     });
 
@@ -77,7 +87,6 @@ describe('일정 CRUD 및 기본 기능', () => {
     expect(eventList.getByText('프로젝트 진행 상황 논의')).toBeInTheDocument();
     expect(eventList.getByText('회의실 A')).toBeInTheDocument();
     expect(eventList.getByText('카테고리: 업무')).toBeInTheDocument();
-    expect(eventList.getByText('반복: 1일마다 (종료: 2025-06-30)')).toBeInTheDocument();
   });
 
   it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
@@ -272,13 +281,6 @@ describe('검색 기능', () => {
 });
 
 describe('일정 충돌', () => {
-  beforeEach(() => {
-    useEventOverlapStore.setState({
-      isOverlapDialogOpen: false,
-      overlappingEvents: [],
-    });
-  });
-
   afterEach(() => {
     server.resetHandlers();
   });
@@ -360,8 +362,54 @@ it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트
 });
 
 describe('🔁 반복 일정 CURD', () => {
-  it('매일 반복 일정을 생성할 수 있다', (context) => {
-    context.skip();
+  beforeEach(() => {
+    vi.setSystemTime(new Date('2024-11-01'));
+  });
+
+  it('매일 반복 일정을 생성할 수 있다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    await saveSchedule(user, {
+      title: '반복되는 회의',
+      date: '2024-11-01',
+      startTime: '14:00',
+      endTime: '15:00',
+      description: '프로젝트 진행 상황 논의',
+      location: '회의실 A',
+      category: '업무',
+
+      // 반복 설정: 2일에 1번씩 반복, 종료일은 2024-11-03
+      repeat: {
+        interval: 2,
+        type: 'daily',
+        endDate: '2024-11-03',
+      },
+    });
+
+    const calendarView = within(screen.getByTestId('calendar-view'));
+
+    // 1일, 3일에 반복 일정이 보임 (2일에 1번씩 반복되므로)
+    expect(
+      within(calendarView.getByTestId('day-1')).getByText('🔁 반복되는 회의')
+    ).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-3')).getByText('🔁 반복되는 회의')
+    ).toBeInTheDocument();
+
+    // 2일에는 반복 일정이 보이지 않음 (interval에 의해 2일 간격으로만 반복되므로 해당 날짜에는 일정이 없음)
+    expect(
+      within(calendarView.getByTestId('day-2')).queryByText('🔁 반복되는 회의')
+    ).not.toBeInTheDocument();
+
+    // 4일과 5일에는 반복 일정이 보이지 않음 (endDate가 2024-11-03으로 설정되어 있어, 종료일 이후에는 반복되지 않음)
+    expect(
+      within(calendarView.getByTestId('day-4')).queryByText('🔁 반복되는 회의')
+    ).not.toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-5')).queryByText('🔁 반복되는 회의')
+    ).not.toBeInTheDocument();
   });
   it('매주 반복 일정을 생성할 수 있다', (context) => {
     context.skip();

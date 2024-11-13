@@ -135,6 +135,7 @@ export const Calendar = ({
                       verticalAlign="top"
                       width="14.28%"
                       position="relative"
+                      data-testid={`day-${day}`}
                     >
                       {day && (
                         <>
@@ -179,7 +180,7 @@ export const Calendar = ({
   };
 
   return (
-    <VStack flex={1} spacing={5} align="stretch">
+    <VStack flex={1} spacing={5} align="stretch" data-testid="calendar-view">
       <Heading>일정 보기</Heading>
 
       <HStack mx="auto" justifyContent="space-between">
