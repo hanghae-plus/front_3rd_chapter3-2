@@ -1,3 +1,5 @@
+import { expect } from 'vitest';
+
 import { RepeatType } from '../../types';
 import { getNextEventDate, getRepeatEvents } from '../../utils/eventRepeat';
 

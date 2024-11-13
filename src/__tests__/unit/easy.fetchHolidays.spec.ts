@@ -1,3 +1,5 @@
+import { expect } from 'vitest';
+
 import { fetchHolidays } from '../../apis/fetchHolidays';
 
 describe('fetchHolidays', () => {

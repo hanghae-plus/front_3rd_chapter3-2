@@ -2,6 +2,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { render, screen, within, waitFor } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { Provider } from 'jotai';
+import { expect } from 'vitest';
 
 import { setupMockHandler } from '../../__mocks__/handlersUtils';
 import { events } from '../../__mocks__/response/events.json' assert { type: 'json' };

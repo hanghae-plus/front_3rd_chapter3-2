@@ -1,3 +1,5 @@
+import { expect } from 'vitest';
+
 import { Event } from '../../types';
 import {
   convertEventToDateRange,

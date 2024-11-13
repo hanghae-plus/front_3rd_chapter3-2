@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import React from 'react';
+import { expect } from 'vitest';
 
 import { setupMockHandler } from '../../__mocks__/handlersUtils';
 import App from '../../App';

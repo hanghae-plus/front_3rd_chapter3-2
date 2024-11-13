@@ -22,7 +22,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["vitest/globals", "cypress", "node"]
+    "types": ["vitest/globals", "cypress", "node", "@testing-library/cypress"]
   },
   "include": ["src", "e2e"]
 }
