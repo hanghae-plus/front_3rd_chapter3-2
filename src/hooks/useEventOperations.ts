@@ -3,12 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { eventApi } from '../apis/eventApi';
 import { Event, EventForm, EventId } from '../types';
-import {
-  generateDailyEvents,
-  generateMonthlyEvents,
-  generateWeeklyEvents,
-  generateYearlyEvents,
-} from '../utils/eventRepeatUtils';
+import { generateRepeatedEvents } from '../utils/RepeatedEventUtils';
 
 const isEvent = (eventData: Event | EventForm): eventData is Event => {
   return (eventData as Event).id !== undefined;
@@ -52,30 +47,8 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   };
 
   // 반복 이벤트 저장
-  const saveRepeatEvent = async (eventData: Event | EventForm) => {
-    const { repeat } = eventData;
-    const { type, interval, endDate } = repeat;
-
-    let eventList: EventForm[] = [];
-    switch (type) {
-      case 'daily':
-        eventList = generateDailyEvents(eventData, interval, endDate);
-        break;
-
-      case 'weekly':
-        eventList = generateWeeklyEvents(eventData, interval, endDate);
-        break;
-
-      case 'monthly':
-        eventList = generateMonthlyEvents(eventData, interval, endDate);
-        break;
-
-      case 'yearly':
-        eventList = generateYearlyEvents(eventData, interval, endDate);
-        break;
-
-      default:
-    }
+  const saveRepeatedEvent = async (eventData: Event | EventForm) => {
+    const eventList = generateRepeatedEvents(eventData);
 
     const isEditing = editing && isEvent(eventData);
     if (isEditing) {
@@ -93,7 +66,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       // (5,6) RepeatInfo가 있는 일정을 수정할 때, 그 일정의 RepeatInfo 삭제
 
       if (eventData.repeat.type !== 'none') {
-        await saveRepeatEvent(eventData);
+        await saveRepeatedEvent(eventData);
       } else {
         await saveSingleEvent(eventData);
       }

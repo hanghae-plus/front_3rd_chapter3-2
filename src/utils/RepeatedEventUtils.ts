@@ -1,10 +1,10 @@
-import { EventForm, RepeatInfo } from '../types';
+import { Event, EventForm, RepeatInfo } from '../types';
 import { formatToISODate } from './dateUtils';
 
 const DEFAULT_END_DATE = '2025-06-30';
 
 // 매일 반복 일정 생성
-export const generateDailyEvents = (
+const generateDailyEvents = (
   eventData: EventForm,
   interval: RepeatInfo['interval'],
   endDate: RepeatInfo['endDate'] = DEFAULT_END_DATE
@@ -24,7 +24,7 @@ export const generateDailyEvents = (
 };
 
 // 매주 반복 일정 생성
-export const generateWeeklyEvents = (
+const generateWeeklyEvents = (
   eventData: EventForm,
   interval: RepeatInfo['interval'],
   endDate: RepeatInfo['endDate'] = DEFAULT_END_DATE
@@ -44,7 +44,7 @@ export const generateWeeklyEvents = (
 };
 
 // 매월 반복 일정 생성
-export const generateMonthlyEvents = (
+const generateMonthlyEvents = (
   eventData: EventForm,
   interval: RepeatInfo['interval'],
   endDate: RepeatInfo['endDate'] = DEFAULT_END_DATE
@@ -64,7 +64,7 @@ export const generateMonthlyEvents = (
 };
 
 // 매년 반복 일정 생성
-export const generateYearlyEvents = (
+const generateYearlyEvents = (
   eventData: EventForm,
   interval: RepeatInfo['interval'],
   endDate: RepeatInfo['endDate'] = DEFAULT_END_DATE
@@ -81,4 +81,26 @@ export const generateYearlyEvents = (
   }
 
   return events;
+};
+
+export const generateRepeatedEvents = (eventData: Event | EventForm): EventForm[] => {
+  const { repeat } = eventData;
+  const { type, interval, endDate } = repeat;
+
+  switch (type) {
+    case 'daily':
+      return generateDailyEvents(eventData, interval, endDate);
+
+    case 'weekly':
+      return generateWeeklyEvents(eventData, interval, endDate);
+
+    case 'monthly':
+      return generateMonthlyEvents(eventData, interval, endDate);
+
+    case 'yearly':
+      return generateYearlyEvents(eventData, interval, endDate);
+
+    default:
+      return [];
+  }
 };
