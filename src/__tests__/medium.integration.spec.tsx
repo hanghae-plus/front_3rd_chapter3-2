@@ -1,5 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
@@ -22,11 +22,10 @@ const setup = (element: ReactElement) => {
 };
 
 // ! Hard 여기 제공 안함
-const saveSchedule = async (
-  user: UserEvent,
-  form: Omit<Event, 'id' | 'notificationTime' | 'repeat'>
-) => {
-  const { title, date, startTime, endTime, location, description, category } = form;
+const saveSchedule = async (user: UserEvent, form: Omit<Event, 'id' | 'notificationTime'>) => {
+  const { title, date, startTime, endTime, location, description, category, repeat } = form;
+
+  console.log(repeat);
 
   await user.click(screen.getAllByText('일정 추가')[0]);
 
@@ -37,6 +36,16 @@ const saveSchedule = async (
   await user.type(screen.getByLabelText('설명'), description);
   await user.type(screen.getByLabelText('위치'), location);
   await user.selectOptions(screen.getByLabelText('카테고리'), category);
+
+  if (repeat.type !== 'none') {
+    await user.click(screen.getByLabelText('반복 설정'));
+    await user.selectOptions(screen.getByLabelText('반복 유형'), repeat.type);
+    await user.type(screen.getByLabelText('반복 간격'), repeat.interval.toString());
+
+    if (repeat.endDate) {
+      await user.type(screen.getByLabelText('반복 종료일'), repeat.endDate);
+    }
+  }
 
   await user.click(screen.getByTestId('event-submit-button'));
 };
@@ -55,15 +64,22 @@ describe('일정 CRUD 및 기본 기능', () => {
       description: '프로젝트 진행 상황 논의',
       location: '회의실 A',
       category: '업무',
+      repeat: {
+        interval: 1,
+        type: 'daily',
+        endDate: '2025-06-30',
+      },
     });
 
     const eventList = within(screen.getByTestId('event-list'));
+
     expect(eventList.getByText('새 회의')).toBeInTheDocument();
     expect(eventList.getByText('2024-10-15')).toBeInTheDocument();
     expect(eventList.getByText('14:00 - 15:00')).toBeInTheDocument();
     expect(eventList.getByText('프로젝트 진행 상황 논의')).toBeInTheDocument();
     expect(eventList.getByText('회의실 A')).toBeInTheDocument();
     expect(eventList.getByText('카테고리: 업무')).toBeInTheDocument();
+    expect(eventList.getByText('반복: 1일마다 (종료: 2025-06-30)')).toBeInTheDocument();
   });
 
   it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
@@ -126,6 +142,10 @@ describe('일정 뷰', () => {
       description: '이번주 팀 회의입니다.',
       location: '회의실 A',
       category: '업무',
+      repeat: {
+        type: 'none',
+        interval: 0,
+      },
     });
 
     await user.selectOptions(screen.getByLabelText('view'), 'week');
@@ -158,6 +178,10 @@ describe('일정 뷰', () => {
       description: '이번달 팀 회의입니다.',
       location: '회의실 A',
       category: '업무',
+      repeat: {
+        type: 'none',
+        interval: 0,
+      },
     });
 
     const monthView = within(screen.getByTestId('month-view'));
@@ -287,6 +311,10 @@ describe('일정 충돌', () => {
       description: '설명',
       location: '회의실 A',
       category: '업무',
+      repeat: {
+        type: 'none',
+        interval: 0,
+      },
     });
 
     expect(screen.getByText('일정 겹침 경고')).toBeInTheDocument();
