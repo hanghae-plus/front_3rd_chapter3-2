@@ -14,10 +14,12 @@ export const getRepeatingEvent = (event: Event | EventForm): Event[] | EventForm
     return [];
   }
 
-  let currentDate = event.date;
-  const endDate = event.repeat.endDate || '2025-06-30';
   let repeatInterval = event.repeat.interval;
   const repeatType = formatRepeatType[event.repeat.type] as 'day' | 'week' | 'month' | 'year';
+
+  const endDate = event.repeat.endDate || '2025-06-30';
+  let currentDate = addDate(event.date, repeatInterval, repeatType);
+
   const repeatEvents = [];
 
   while (isBeforeEndDate(currentDate, endDate)) {
@@ -25,11 +27,19 @@ export const getRepeatingEvent = (event: Event | EventForm): Event[] | EventForm
       ...event,
       date: currentDate,
     });
-    currentDate = dayjs(event.date).add(repeatInterval, repeatType).format('YYYY-MM-DD');
     repeatInterval += event.repeat.interval;
+    currentDate = addDate(event.date, repeatInterval, repeatType);
   }
 
   return repeatEvents;
+};
+
+const addDate = (
+  currentDate: string,
+  interval: number,
+  type: 'day' | 'week' | 'month' | 'year'
+) => {
+  return dayjs(currentDate).add(interval, type).format('YYYY-MM-DD');
 };
 
 const isBeforeEndDate = (targetDate: string, endDate: string) => {
