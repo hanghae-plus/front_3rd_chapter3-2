@@ -88,19 +88,33 @@ function App() {
             />
           </FormControl>
 
-          {filteredEvents.length === 0 ? (
+          {filteredEvents.length + filteredRepeats.length === 0 ? (
             <Text>검색 결과가 없습니다.</Text>
           ) : (
-            filteredEvents.map((event) => (
-              <EventCard
-                event={event}
-                notifiedEvents={notifiedEvents}
-                notificationOptions={notificationOptions}
-                editEvent={editEvent}
-                deleteEvent={deleteEvent}
-                key={event.id}
-              />
-            ))
+            <>
+              {filteredEvents.map((event) => (
+                <EventCard
+                  event={event}
+                  notifiedEvents={notifiedEvents}
+                  notificationOptions={notificationOptions}
+                  editEvent={editEvent}
+                  deleteEvent={deleteEvent}
+                  type="main"
+                  key={event.id}
+                />
+              ))}
+              {filteredRepeats.map((event) => (
+                <EventCard
+                  event={event}
+                  notifiedEvents={notifiedEvents}
+                  notificationOptions={notificationOptions}
+                  editEvent={editEvent}
+                  deleteEvent={deleteEvent}
+                  type="repeat"
+                  key={event.id}
+                />
+              ))}
+            </>
           )}
         </VStack>
       </Flex>

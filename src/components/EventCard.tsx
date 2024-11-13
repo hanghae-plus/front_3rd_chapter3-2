@@ -13,12 +13,14 @@ interface EventCardProps {
   }[];
   editEvent: (event: Event) => void;
   deleteEvent: (id: string) => Promise<void>;
+  type: 'main' | 'repeat';
 }
 
 export const EventCard = ({
   event,
   notifiedEvents,
   notificationOptions,
+  type,
   editEvent,
   deleteEvent,
 }: EventCardProps) => {
@@ -32,7 +34,7 @@ export const EventCard = ({
               fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
               color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
             >
-              {event.title}
+              {type === 'repeat' && '🔂'} {event.title}
             </Text>
           </HStack>
           <Text>{event.date}</Text>
