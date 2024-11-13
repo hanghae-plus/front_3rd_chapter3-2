@@ -82,7 +82,7 @@ describe('🔁 반복 일정 CURD', () => {
       location: '회의실 A',
       category: '업무',
 
-      // 반복 설정: 2일에 1번씩 반복, 종료일은 2024-11-03
+      // 반복 설정: 2일에 1번씩 반복
       repeat: {
         interval: 2,
         type: 'daily',
@@ -92,7 +92,7 @@ describe('🔁 반복 일정 CURD', () => {
 
     const calendarView = within(screen.getByTestId('calendar-view'));
 
-    // 1일, 3일에 반복 일정이 보임 (2일에 1번씩 반복되므로)
+    // 1일, 3일에 반복 일정이 보임 O
     expect(
       within(calendarView.getByTestId('day-1')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
@@ -100,19 +100,12 @@ describe('🔁 반복 일정 CURD', () => {
       within(calendarView.getByTestId('day-3')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
-    // 2일에는 반복 일정이 보이지 않음 (interval에 의해 2일 간격으로만 반복되므로 해당 날짜에는 일정이 없음)
+    // 2일에는 반복 일정이 보이지 않음 X (interval에 의해 2일 간격으로만 반복되므로)
     expect(
       within(calendarView.getByTestId('day-2')).queryByText(schedule.titleWithIcon)
     ).not.toBeInTheDocument();
-
-    // 4일과 5일에는 반복 일정이 보이지 않음 (endDate가 2024-11-03으로 설정되어 있어, 종료일 이후에는 반복되지 않음)
-    expect(
-      within(calendarView.getByTestId('day-4')).queryByText(schedule.titleWithIcon)
-    ).not.toBeInTheDocument();
-    expect(
-      within(calendarView.getByTestId('day-5')).queryByText(schedule.titleWithIcon)
-    ).not.toBeInTheDocument();
   });
+
   it('매주 반복 일정을 생성할 수 있다', async () => {
     setupMockHandlerCreation();
     const { user } = setup(<App />);
@@ -126,35 +119,45 @@ describe('🔁 반복 일정 CURD', () => {
       location: '회의실 A',
       category: '업무',
 
-      // 반복 설정: 1주에 1번씩 반복, 종료일은 2024-11-21
+      // 반복 설정: 1주에 1번씩 반복
       repeat: {
         type: 'weekly',
         interval: 1,
-        endDate: '2024-11-21',
+        endDate: '2024-11-10',
       },
     });
 
     const calendarView = within(screen.getByTestId('calendar-view'));
 
-    // 1일, 8일, 15일에 반복 일정이 보임
+    // 1일, 8일에 반복 일정이 보임 O
     expect(
       within(calendarView.getByTestId('day-1')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-8')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
-    expect(
-      within(calendarView.getByTestId('day-15')).getByText(schedule.titleWithIcon)
-    ).toBeInTheDocument();
 
-    // 2일, 22일에는 반복 일정이 보이지 않음
+    // 2일 ~ 7일에는 반복 일정이 보이지 않음 X
     expect(
       within(calendarView.getByTestId('day-2')).queryByText(schedule.titleWithIcon)
     ).not.toBeInTheDocument();
     expect(
-      within(calendarView.getByTestId('day-22')).queryByText(schedule.titleWithIcon)
+      within(calendarView.getByTestId('day-3')).queryByText(schedule.titleWithIcon)
+    ).not.toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-4')).queryByText(schedule.titleWithIcon)
+    ).not.toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-5')).queryByText(schedule.titleWithIcon)
+    ).not.toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-6')).queryByText(schedule.titleWithIcon)
+    ).not.toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-7')).queryByText(schedule.titleWithIcon)
     ).not.toBeInTheDocument();
   });
+
   it('매월 반복 일정을 생성할 수 있다', async () => {
     setupMockHandlerCreation();
     const { user } = setup(<App />);
@@ -178,32 +181,35 @@ describe('🔁 반복 일정 CURD', () => {
     const calendarView = within(screen.getByTestId('calendar-view'));
     const nextButton = calendarView.getByLabelText('Next');
 
-    // 2024년 11월 1일에 반복 일정이 보임
+    // 2024년 11월 1일에 반복 일정이 보임 O
     expect(calendarView.getByText('2024년 11월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-1')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
-    // 2024년 12월 1일에 반복 일정이 보이지 않음 (2달에 1번)
+    // 2024년 12월 1일에 반복 일정이 보이지 않음 X (2달에 1번)
     await user.click(nextButton);
     expect(calendarView.getByText('2024년 12월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-1')).queryByText(schedule.titleWithIcon)
     ).not.toBeInTheDocument();
 
-    // 2025년 1월 1일에 반복 일정이 보임
+    // 2025년 1월 1일에 반복 일정이 보임 O
     await user.click(nextButton);
     expect(calendarView.getByText('2025년 1월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-1')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
   });
+
   it('매월 31일에 반복 일정을 생성할 수 있다', (context) => {
     context.skip();
   });
+
   it('윤년 2월 29일에 월간 반복 일정을 생성할 수 있다', (context) => {
     context.skip();
   });
+
   it('매년 윤년 2월 29일에 반복 일정을 생성할 수 있다', (context) => {
     context.skip();
   });

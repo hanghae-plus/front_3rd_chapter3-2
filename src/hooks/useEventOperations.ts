@@ -3,7 +3,11 @@ import { useEffect, useState } from 'react';
 
 import { eventApi } from '../apis/eventApi';
 import { Event, EventForm, EventId } from '../types';
-import { generateDailyEvents, generateWeeklyEvents } from '../utils/eventRepeatUtils';
+import {
+  generateDailyEvents,
+  generateMonthlyEvents,
+  generateWeeklyEvents,
+} from '../utils/eventRepeatUtils';
 
 const isEvent = (eventData: Event | EventForm): eventData is Event => {
   return (eventData as Event).id !== undefined;
@@ -59,6 +63,10 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
       case 'weekly':
         eventList = generateWeeklyEvents(eventData, interval, endDate);
+        break;
+
+      case 'monthly':
+        eventList = generateMonthlyEvents(eventData, interval, endDate);
         break;
 
       default:
