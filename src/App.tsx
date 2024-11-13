@@ -29,7 +29,7 @@ function App() {
     setIsRepeating: eventFormState.setIsRepeating,
   });
   const { repeatEvent, updateRepeatEvent, deleteRepeatInstance } = useRepeatEvent();
-  const { events, saveEvent, saveRepeatEvent, deleteEvent } = useEventOperations(
+  const { events, saveEvent, deleteEvent } = useEventOperations(
     Boolean(editingEvent),
     updateRepeatEvent,
     () => setEditingEvent(null)
@@ -37,7 +37,12 @@ function App() {
 
   const { notifications, notifiedEvents, setNotifications } = useNotifications(events);
   const { view, setView, currentDate, holidays, navigate } = useCalendarView();
-  const { searchTerm, filteredEvents, setSearchTerm } = useSearch(events, currentDate, view);
+  const { searchTerm, filteredEvents, setSearchTerm } = useSearch(
+    events,
+    repeatEvent,
+    currentDate,
+    view
+  );
 
   return (
     <Box w="full" h="100vh" m="auto" p={5}>
@@ -58,6 +63,7 @@ function App() {
             <WeekView
               currentDate={currentDate}
               filteredEvents={filteredEvents}
+              repeatEvents={repeatEvent}
               notifiedEvents={notifiedEvents}
             />
           )}
@@ -65,6 +71,7 @@ function App() {
             <MonthView
               currentDate={currentDate}
               filteredEvents={filteredEvents}
+              repeatEvents={repeatEvent}
               holidays={holidays}
               notifiedEvents={notifiedEvents}
             />
