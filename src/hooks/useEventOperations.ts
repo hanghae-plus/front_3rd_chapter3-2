@@ -52,7 +52,6 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       } else {
         if (eventData.repeat.type !== 'none') {
           const repeatEvents = generateRepeatEvents(eventData as Event);
-          console.log('repeatEvents', repeatEvents);
           response = await fetch('/api/events-list', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
