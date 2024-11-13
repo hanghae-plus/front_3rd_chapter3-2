@@ -139,6 +139,16 @@ function App() {
       return;
     }
 
+    if (isRepeating && !repeatInterval) {
+      toast({
+        title: '반복 간격을 1이상 설정해 주세요.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
       title,

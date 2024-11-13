@@ -160,12 +160,12 @@ describe('반복 일정 생성', () => {
 });
 
 describe('반복 일정 예외 처리', () => {
-  it('반복 간격 설정을 0으로 입력시 오류 팝업이 노출 된다.', async () => {
+  it('반복 간격 설정을 0으로 입력시 오류 토스트가 노출 된다.', async () => {
     setupMockHandlerGetEvents();
     const { user } = setup(<App />);
 
     await saveScheduleRepeat(user, {
-      title: '',
+      title: '연말 회의',
       date: '2023-12-31',
       startTime: '10:00',
       endTime: '11:00',
