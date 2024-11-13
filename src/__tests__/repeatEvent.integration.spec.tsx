@@ -178,6 +178,24 @@ describe('반복 일정 예외 처리', () => {
     expect(screen.queryByText('반복 간격을 1이상 설정해 주세요.')).toBeInTheDocument();
   });
 
+  it('반복 종료일이 일정 날짜 보다 빠르면 오류 토스트가 노출 된다.', async () => {
+    setupMockHandlerGetEvents();
+    const { user } = setup(<App />);
+
+    await saveScheduleRepeat(user, {
+      title: '연말 회의',
+      date: '2024-10-31',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '설명',
+      location: '위치',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-29' },
+    });
+
+    expect(screen.queryByText('종료 시간을 시작 시간보다 늦게 설정해 주세요.')).toBeInTheDocument();
+  });
+
   it('윤년 29일에 매년 반복일정 설정 시 평년에서 28일로 설정되어야 한다.', async () => {
     setUpMockHandlerRepeatCreation();
     const { user } = setup(<App />);
