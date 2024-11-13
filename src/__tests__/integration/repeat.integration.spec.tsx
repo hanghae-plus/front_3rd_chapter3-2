@@ -4,7 +4,7 @@ import userEvent, { UserEvent } from '@testing-library/user-event';
 import { OverlayProvider } from 'overlay-kit';
 import { ReactElement } from 'react';
 
-import { setupMockHandlerCreation } from '../../__mocks__/handlersUtils';
+import { setupMockHandlerCreation, setupMockHandlerUpdating } from '../../__mocks__/handlersUtils';
 import App from '../../App';
 import { Event } from '../../types';
 
@@ -97,5 +97,23 @@ describe('반복일정과 캘린더, 리스트', () => {
 
     // 반복일정을 표시하는 유니코드
     expect($calendar.getAllByText(/🔂/i)).toHaveLength(2);
+  });
+
+  it('반복일정을 수정하면 그 반복일정은 메인일정이 된다.', async () => {
+    setupMockHandlerUpdating();
+
+    const { user } = setup(<App />);
+
+    await user.clear(screen.getByLabelText('제목'));
+    await user.type(screen.getByLabelText('제목'), '다비드 라야');
+    await user.click(screen.getByLabelText('반복 일정'));
+
+    expect(screen.getByLabelText('반복 일정')).not.toBeChecked();
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    const $eventList = within(screen.getByTestId('event-list'));
+    expect($eventList.getAllByText(/다비드 라야/i)).toHaveLength(1);
+    expect($eventList.getByText(/다비드 라야/i)).not.toHaveTextContent(/🔂/i);
   });
 });
