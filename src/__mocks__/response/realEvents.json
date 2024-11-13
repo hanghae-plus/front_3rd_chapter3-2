@@ -73,16 +73,16 @@
       "notificationTime": 120
     },
     {
-      "id": "1e790bc4-796c-4342-96d2-1a58204ea1d5",
+      "id": "f4f57d69-2e13-482a-95b0-75bd305b29db",
       "title": "2월 윤년 테스트",
-      "date": "2024-11-29",
-      "startTime": "02:26",
-      "endTime": "21:26",
+      "date": "2024-02-29",
+      "startTime": "03:00",
+      "endTime": "20:00",
       "description": "윤년 테스트",
       "location": "집",
-      "category": "기타",
-      "repeat": { "type": "yearly", "interval": 1, "endDate": "2100-11-13" },
-      "notificationTime": 1440
+      "category": "업무",
+      "repeat": { "type": "yearly", "interval": 1, "endDate": "2028-03-01" },
+      "notificationTime": 10
     }
   ]
 }

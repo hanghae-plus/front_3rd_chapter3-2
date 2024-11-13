@@ -72,4 +72,19 @@ describe('반복 일정 생성 및 반복 유형 선택', () => {
       expect(repeatTypeSelect).toHaveValue(type);
     }
   });
+
+  it('윤년(2024년) 2월 29일의 매년 반복 일정이 올바르게 생성된다', async () => {
+    const user = userEvent.setup();
+
+    // 1. 2024년(윤년) 2월 29일 일정 생성
+    await user.type(screen.getByLabelText('제목'), baseEventData.title!);
+    await user.type(screen.getByLabelText('날짜'), '2024-02-29');
+    await user.type(screen.getByLabelText('시작 시간'), baseEventData.startTime!);
+    await user.type(screen.getByLabelText('종료 시간'), baseEventData.endTime!);
+
+    // 2. 매년 반복 설정
+    await user.click(screen.getByLabelText('반복 일정'));
+    await user.selectOptions(screen.getByLabelText('반복 유형'), 'yearly');
+    await user.click(screen.getByTestId('event-submit-button'));
+  });
 });
