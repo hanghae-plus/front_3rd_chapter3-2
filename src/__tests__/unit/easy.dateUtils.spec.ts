@@ -7,6 +7,7 @@ import {
   getDaysInMonth,
   getEventsForDay,
   getRemainingDatesByDay,
+  getRemainingDatesByWeek,
   getWeekDates,
   getWeekday,
   getWeeksAtMonth,
@@ -491,5 +492,75 @@ describe('getWeekday', () => {
   it('🔴 올바르지 않은 일의 날짜는 "none"을 반환합니다.', () => {
     const testDate = new Date('2024-12-35');
     expect(getWeekday(testDate)).toBe('none');
+  });
+});
+
+describe('getRemainingDatesByWeek', () => {
+  it('🟢 현재일자 2024-11-12이고 2024-11-21까지 매주 화요일 간격일 경우 2024-11-19 의 날짜를 가진 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-11-21');
+    const interval = 1;
+    const weekType = 'tue';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([new Date('2024-11-19')]);
+  });
+  it('🔴 요일를 설정하지 않은 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-12');
+    const interval = 1;
+    const weekType = 'none';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 간격이 0인 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-21');
+    const interval = 0;
+    const weekType = getWeekday(currentDate);
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 간격이 -1인 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-21');
+    const interval = -1;
+    const weekType = getWeekday(currentDate);
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(0);
+  });
+  it('🟢 간격을 입력하지 않은 경우 기본값은 1로 들어갑니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-11-21');
+    const interval = undefined;
+    const weekType = getWeekday(currentDate);
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([new Date('2024-11-19')]);
+  });
+  it('🔴 종료일자가 시작일자보다 이전인 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-01-21');
+    expect(getRemainingDatesByWeek(currentDate, endDate)).toHaveLength(0);
+  });
+  it('🔴 현재일자의 월의 날짜가 올바르지 않은 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-31-12');
+    const endDate = new Date('2024-12-21');
+    expect(getRemainingDatesByWeek(currentDate, endDate)).toHaveLength(0);
+  });
+  it('🔴 현재일자의 일의 날짜가 올바르지 않은 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-01-39');
+    const endDate = new Date('2024-12-21');
+    expect(getRemainingDatesByWeek(currentDate, endDate)).toHaveLength(0);
+  });
+  it('🔴 종료일자의 월의 날짜가 올바르지 않은 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-01-01');
+    const endDate = new Date('2024-92-21');
+    expect(getRemainingDatesByWeek(currentDate, endDate)).toHaveLength(0);
+  });
+  it('🔴 종료일자의 일의 날짜가 올바르지 않은 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-01-01');
+    const endDate = new Date('2024-12-81');
+    expect(getRemainingDatesByWeek(currentDate, endDate)).toHaveLength(0);
   });
 });
