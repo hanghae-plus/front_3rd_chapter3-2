@@ -193,7 +193,9 @@ describe('반복 일정 예외 처리', () => {
       repeat: { type: 'daily', interval: 1, endDate: '2024-10-29' },
     });
 
-    expect(screen.queryByText('종료 시간을 시작 시간보다 늦게 설정해 주세요.')).toBeInTheDocument();
+    expect(
+      screen.queryByText('반복 종료일을 시작 날짜보다 늦게 설정해 주세요.')
+    ).toBeInTheDocument();
   });
 
   it('윤년 29일에 매년 반복일정 설정 시 평년에서 28일로 설정되어야 한다.', async () => {
