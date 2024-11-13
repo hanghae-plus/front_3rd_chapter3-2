@@ -2,6 +2,7 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import { Event, EventForm } from '../types';
+import { generateRepeatingEvents } from '../utils/dateUtils';
 
 export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -30,17 +31,33 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     try {
       let response;
       if (editing) {
-        response = await fetch(`/api/events/${(eventData as Event).id}`, {
+        // 일정 수정 시 , 단일로 수정 (반복일정->일반일정)
+        const editEvent: EventForm = {
+          ...eventData,
+          repeat: {
+            ...eventData.repeat,
+            type: 'none',
+          },
+        };
+        response = await fetch(`/api/events/${(editEvent as Event).id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
+          body: JSON.stringify(editEvent),
         });
       } else {
-        response = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
+        if (eventData.repeat.type !== 'none') {
+          response = await fetch('/api/events-list', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ events: generateRepeatingEvents(eventData) }),
+          });
+        } else {
+          response = await fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(eventData),
+          });
+        }
       }
 
       if (!response.ok) {

@@ -15,6 +15,9 @@ export const useEventForm = (initialEvent?: Event) => {
   const [category, setCategory] = useState(initialEvent?.category || '');
   const [isRepeating, setIsRepeating] = useState(initialEvent?.repeat.type !== 'none');
   const [repeatType, setRepeatType] = useState<RepeatType>(initialEvent?.repeat.type || 'none');
+  const [repeatCount, setRepeatCount] = useState<number | undefined>(
+    initialEvent?.repeat.count || 0
+  );
   const [repeatInterval, setRepeatInterval] = useState(initialEvent?.repeat.interval || 1);
   const [repeatEndDate, setRepeatEndDate] = useState(initialEvent?.repeat.endDate || '');
   const [notificationTime, setNotificationTime] = useState(initialEvent?.notificationTime || 10);
@@ -25,6 +28,7 @@ export const useEventForm = (initialEvent?: Event) => {
     startTimeError: null,
     endTimeError: null,
   });
+  const [repeatIntervalError, setRepeatIntervalError] = useState<string | null>();
 
   const handleStartTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newStartTime = e.target.value;
@@ -38,6 +42,16 @@ export const useEventForm = (initialEvent?: Event) => {
     setTimeError(getTimeErrorMessage(startTime, newEndTime));
   };
 
+  const handleRepeatIntervalChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const newRepeatInterval = Number(e.target.value);
+    if (newRepeatInterval < 1 || !Number.isInteger(newRepeatInterval)) {
+      setRepeatIntervalError('반복 간격은 1 이상의 정수여야 합니다.');
+      return;
+    }
+    setRepeatInterval(newRepeatInterval);
+    setRepeatIntervalError(null);
+  };
+
   const resetForm = () => {
     setTitle('');
     setDate('');
@@ -48,6 +62,7 @@ export const useEventForm = (initialEvent?: Event) => {
     setCategory('');
     setIsRepeating(false);
     setRepeatType('none');
+    setRepeatCount(0);
     setRepeatInterval(1);
     setRepeatEndDate('');
     setNotificationTime(10);
@@ -64,7 +79,8 @@ export const useEventForm = (initialEvent?: Event) => {
     setCategory(event.category);
     setIsRepeating(event.repeat.type !== 'none');
     setRepeatType(event.repeat.type);
-    setRepeatInterval(event.repeat.interval);
+    setRepeatCount(event.repeat.count || 0);
+    setRepeatInterval(event.repeat.interval || 1);
     setRepeatEndDate(event.repeat.endDate || '');
     setNotificationTime(event.notificationTime);
   };
@@ -91,15 +107,19 @@ export const useEventForm = (initialEvent?: Event) => {
     repeatInterval,
     setRepeatInterval,
     repeatEndDate,
+    repeatCount,
     setRepeatEndDate,
+    setRepeatCount,
     notificationTime,
     setNotificationTime,
     startTimeError,
     endTimeError,
+    repeatIntervalError,
     editingEvent,
     setEditingEvent,
     handleStartTimeChange,
     handleEndTimeChange,
+    handleRepeatIntervalChange,
     resetForm,
     editEvent,
   };

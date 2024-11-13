@@ -1,5 +1,6 @@
 import {
   BellIcon,
+  RepeatIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   DeleteIcon,
@@ -88,17 +89,20 @@ function App() {
     repeatType,
     setRepeatType,
     repeatInterval,
-    setRepeatInterval,
     repeatEndDate,
+    repeatCount,
     setRepeatEndDate,
+    setRepeatCount,
     notificationTime,
     setNotificationTime,
     startTimeError,
     endTimeError,
+    repeatIntervalError,
     editingEvent,
     setEditingEvent,
     handleStartTimeChange,
     handleEndTimeChange,
+    handleRepeatIntervalChange,
     resetForm,
     editEvent,
   } = useEventForm();
@@ -137,7 +141,7 @@ function App() {
       });
       return;
     }
-
+    console.log(isRepeating, repeatType);
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
       title,
@@ -150,6 +154,7 @@ function App() {
       repeat: {
         type: isRepeating ? repeatType : 'none',
         interval: repeatInterval,
+        count: repeatCount || 0,
         endDate: repeatEndDate || undefined,
       },
       notificationTime,
@@ -160,6 +165,7 @@ function App() {
       setOverlappingEvents(overlapping);
       setIsOverlapDialogOpen(true);
     } else {
+      console.log(eventData);
       await saveEvent(eventData);
       resetForm();
     }
@@ -201,6 +207,9 @@ function App() {
                         >
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
+                            {event.repeat.type !== 'none' && (
+                              <RepeatIcon data-testid={`repeat-icon-${event.id}`} />
+                            )}
                             <Text fontSize="sm" noOfLines={1}>
                               {event.title}
                             </Text>
@@ -270,6 +279,9 @@ function App() {
                               >
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
+                                  {event.repeat.type !== 'none' && (
+                                    <RepeatIcon data-testid={`repeat-icon-${event.id}`} />
+                                  )}
                                   <Text fontSize="sm" noOfLines={1}>
                                     {event.title}
                                   </Text>
@@ -393,12 +405,18 @@ function App() {
               <HStack width="100%">
                 <FormControl>
                   <FormLabel>반복 간격</FormLabel>
-                  <Input
-                    type="number"
-                    value={repeatInterval}
-                    onChange={(e) => setRepeatInterval(Number(e.target.value))}
-                    min={1}
-                  />
+                  <Tooltip
+                    label={repeatIntervalError}
+                    isOpen={!!repeatIntervalError}
+                    placement="top"
+                  >
+                    <Input
+                      type="number"
+                      value={repeatInterval}
+                      onChange={handleRepeatIntervalChange}
+                      min={1}
+                    />
+                  </Tooltip>
                 </FormControl>
                 <FormControl>
                   <FormLabel>반복 종료일</FormLabel>
@@ -409,6 +427,14 @@ function App() {
                   />
                 </FormControl>
               </HStack>
+              <FormControl>
+                <FormLabel>반복 횟수</FormLabel>
+                <Input
+                  type="number"
+                  value={repeatCount}
+                  onChange={(e) => setRepeatCount(Number(e.target.value))}
+                />
+              </FormControl>
             </VStack>
           )}
 
@@ -464,6 +490,9 @@ function App() {
                   <VStack align="start">
                     <HStack>
                       {notifiedEvents.includes(event.id) && <BellIcon color="red.500" />}
+                      {event.repeat.type !== 'none' && (
+                        <RepeatIcon data-testid={`repeat-icon-${event.id}`} />
+                      )}
                       <Text
                         fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
                         color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
@@ -559,6 +588,7 @@ function App() {
                       type: isRepeating ? repeatType : 'none',
                       interval: repeatInterval,
                       endDate: repeatEndDate || undefined,
+                      count: repeatCount || 0,
                     },
                     notificationTime,
                   });
