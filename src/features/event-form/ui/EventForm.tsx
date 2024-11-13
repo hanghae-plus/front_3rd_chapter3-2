@@ -395,6 +395,7 @@ export const EventForm = memo(
             취소
           </Button>
           <Button
+            data-testid="event-submit-button"
             size="lg"
             colorScheme="blue"
             onClick={handleSubmitClick}

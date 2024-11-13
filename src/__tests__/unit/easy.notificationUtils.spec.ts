@@ -1,4 +1,4 @@
-import { Event } from '../../types';
+import { Event } from '../../entities/event/model/types';
 import { createNotificationMessage, getUpcomingEvents } from '../../utils/notificationUtils';
 
 describe('getUpcomingEvents', () => {
@@ -12,8 +12,16 @@ describe('getUpcomingEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 10,
+      isRepeating: false,
+      repeat: {
+        type: 'none',
+        interval: 0,
+        endCondition: 'never',
+      },
+      notificationTime: {
+        value: 10,
+        label: '10분 전',
+      },
     },
     {
       id: '2',
@@ -24,8 +32,16 @@ describe('getUpcomingEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 30,
+      isRepeating: false,
+      repeat: {
+        type: 'none',
+        interval: 0,
+        endCondition: 'never',
+      },
+      notificationTime: {
+        value: 30,
+        label: '30분 전',
+      },
     },
     {
       id: '3',
@@ -36,8 +52,16 @@ describe('getUpcomingEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 60,
+      isRepeating: false,
+      repeat: {
+        type: 'none',
+        interval: 0,
+        endCondition: 'never',
+      },
+      notificationTime: {
+        value: 10,
+        label: '10분 전',
+      },
     },
   ];
 
@@ -83,8 +107,16 @@ describe('createNotificationMessage', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 15,
+      isRepeating: false,
+      repeat: {
+        type: 'none',
+        interval: 0,
+        endCondition: 'never',
+      },
+      notificationTime: {
+        value: 15,
+        label: '15분 전',
+      },
     };
     const message = createNotificationMessage(event);
     expect(message).toBe('15분 후 중요 회의 일정이 시작됩니다.');

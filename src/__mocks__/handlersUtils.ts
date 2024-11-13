@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
+import { Event } from '../entities/event/model/types';
 import { server } from '../setupTests';
-import { Event } from '../types';
 
 // ! Hard 여기 제공 안함
 export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
@@ -31,8 +31,16 @@ export const setupMockHandlerUpdating = () => {
       description: '기존 팀 미팅',
       location: '회의실 B',
       category: '업무',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 10,
+      isRepeating: false,
+      repeat: {
+        type: 'none',
+        interval: 0,
+        endCondition: 'never',
+      },
+      notificationTime: {
+        value: 10,
+        label: '10분 전',
+      },
     },
     {
       id: '2',
@@ -43,8 +51,16 @@ export const setupMockHandlerUpdating = () => {
       description: '기존 팀 미팅 2',
       location: '회의실 C',
       category: '업무 회의',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 5,
+      isRepeating: false,
+      repeat: {
+        type: 'none',
+        interval: 0,
+        endCondition: 'never',
+      },
+      notificationTime: {
+        value: 5,
+        label: '5분 전',
+      },
     },
   ];
 
@@ -74,8 +90,16 @@ export const setupMockHandlerDeletion = () => {
       description: '삭제할 이벤트입니다',
       location: '어딘가',
       category: '기타',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 10,
+      isRepeating: false,
+      repeat: {
+        type: 'none',
+        interval: 0,
+        endCondition: 'never',
+      },
+      notificationTime: {
+        value: 10,
+        label: '10분 전',
+      },
     },
   ];
 

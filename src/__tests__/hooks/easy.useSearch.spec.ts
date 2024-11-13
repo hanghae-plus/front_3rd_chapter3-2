@@ -19,7 +19,10 @@ const mockEvents: Event[] = [
       endCondition: 'never',
     },
     isRepeating: false,
-    notificationTime: '10분 전',
+    notificationTime: {
+      value: 10,
+      label: '10분 전',
+    },
   },
   {
     id: '2',
@@ -36,7 +39,10 @@ const mockEvents: Event[] = [
       endCondition: 'never',
     },
     isRepeating: false,
-    notificationTime: '10분 전',
+    notificationTime: {
+      value: 10,
+      label: '10분 전',
+    },
   },
   {
     id: '3',
@@ -53,7 +59,10 @@ const mockEvents: Event[] = [
       endCondition: 'never',
     },
     isRepeating: false,
-    notificationTime: '10분 전',
+    notificationTime: {
+      value: 10,
+      label: '10분 전',
+    },
   },
 ];
 
@@ -89,7 +98,10 @@ it('검색어에 맞는 이벤트만 필터링해야 한다', () => {
         endCondition: 'never',
       },
       isRepeating: false,
-      notificationTime: '10분 전',
+      notificationTime: {
+        value: 10,
+        label: '10분 전',
+      },
     },
   ]);
 });
@@ -117,7 +129,10 @@ it('검색어가 제목, 설명, 위치 중 하나라도 일치하면 해당 이
         endCondition: 'never',
       },
       isRepeating: false,
-      notificationTime: '10분 전',
+      notificationTime: {
+        value: 10,
+        label: '10분 전',
+      },
     },
   ]);
 });
@@ -141,7 +156,10 @@ it('현재 뷰(주간/월간)에 해당하는 이벤트만 반환해야 한다',
         endCondition: 'never',
       },
       isRepeating: false,
-      notificationTime: '10분 전',
+      notificationTime: {
+        value: 10,
+        label: '10분 전',
+      },
     },
   ]);
 });
@@ -169,7 +187,10 @@ it("검색어를 '회의'에서 '점심'으로 변경하면 필터링된 결과�
         endCondition: 'never',
       },
       isRepeating: false,
-      notificationTime: '10분 전',
+      notificationTime: {
+        value: 10,
+        label: '10분 전',
+      },
     },
   ]);
 
@@ -193,7 +214,10 @@ it("검색어를 '회의'에서 '점심'으로 변경하면 필터링된 결과�
         endCondition: 'never',
       },
       isRepeating: false,
-      notificationTime: '10분 전',
+      notificationTime: {
+        value: 10,
+        label: '10분 전',
+      },
     },
   ]);
 });

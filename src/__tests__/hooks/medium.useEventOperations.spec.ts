@@ -66,7 +66,10 @@ it('정의된 이벤트 정보를 기준으로 적절하게 저장이 된다', a
       endCondition: 'never',
     },
     isRepeating: false,
-    notificationTime: '10분 전',
+    notificationTime: {
+      value: 10,
+      label: '10분 전',
+    },
   };
 
   await act(async () => {
@@ -96,7 +99,10 @@ it("새로 정의된 'title', 'endTime' 기준으로 적절하게 일정이 업�
       endCondition: 'never',
     },
     isRepeating: false,
-    notificationTime: '10분 전',
+    notificationTime: {
+      value: 10,
+      label: '10분 전',
+    },
     title: '수정된 회의',
     endTime: '11:00',
   };
@@ -163,7 +169,10 @@ it("존재하지 않는 이벤트 수정 시 '일정 저장 실패'라는 토스
       endCondition: 'never',
     },
     isRepeating: false,
-    notificationTime: '10분 전',
+    notificationTime: {
+      value: 10,
+      label: '10분 전',
+    },
   };
 
   await act(async () => {
