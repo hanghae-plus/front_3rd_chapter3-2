@@ -30,7 +30,30 @@ vi.mock('@chakra-ui/react', async () => {
 });
 
 describe('이벤트 > 반복과 관련된 통합테스트', () => {
-  it('반복 유형을 daily, 반복 간격을 2로 설정할 경우 이벤트는 2일 간격으로 등록된다.', async () => {
+  it('반복 유형 > 반복 유형을 0이나 음수로 입력할 경우 1로 변경된다.', async () => {
+    render(
+      <ChakraProvider>
+        <App />
+      </ChakraProvider>
+    );
+
+    const checkbox = screen.getByLabelText('반복 일정');
+    await userEvent.click(checkbox);
+
+    await user.selectOptions(screen.getByLabelText('반복 유형'), 'daily');
+    await user.type(screen.getByLabelText('반복 간격'), '-1');
+
+    const repeatIntervalInput = screen.getByLabelText('반복 간격') as HTMLInputElement;
+
+    expect(repeatIntervalInput.value).toBe('1');
+
+    await user.clear(screen.getByLabelText('반복 간격'));
+    await user.type(screen.getByLabelText('반복 간격'), '0');
+
+    expect(repeatIntervalInput.value).toBe('1');
+  });
+
+  it('반복 간격 > 반복 유형을 daily, 반복 간격을 2로 설정할 경우 이벤트는 2일 간격으로 등록된다.', async () => {
     vi.setSystemTime('2024-11-01');
 
     const result = generateRecurringEvents('2024-11-01', 2, 'daily' as RepeatType, '2024-11-05');
@@ -81,7 +104,7 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
     });
   });
 
-  it('반복 일정이 설정된 경우 반복 일정이 endDate까지 생성된다.', async () => {
+  it('반복 일정 > 반복 일정이 설정된 경우 반복 일정이 endDate까지 생성된다.', async () => {
     vi.useFakeTimers();
     vi.setSystemTime('2024-11-01');
 
@@ -181,7 +204,7 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
     vi.useRealTimers();
   });
 
-  it('반복 일정 등록 시 endDate를 설정하지 않으면 2025년 6월 30일이 endDate이다.', async () => {
+  it('반복 일정 > 반복 일정 등록 시 endDate를 설정하지 않으면 2025년 6월 30일이 endDate이다.', async () => {
     vi.setSystemTime('2024-11-01');
 
     const result = generateRecurringEvents('2024-11-01', 1, 'monthly' as RepeatType, '2025-02-01');
@@ -241,7 +264,67 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
     });
   });
 
-  it('반복 종료일이 시작일보다 이전인 경우 오류 메시지가 표시된다.', async () => {
+  it('반복 일정 > 반복 일정에는 at sign icon을 arai label로 가진 아이콘이 존재한다.', async () => {
+    vi.setSystemTime('2024-11-01');
+
+    const result = generateRecurringEvents('2024-11-01', 1, 'monthly' as RepeatType, '2025-02-01');
+
+    const eventData: Event = {
+      id: '1',
+      title: '매월 반복 이벤트',
+      date: '2025-11-01',
+      startTime: '21:25',
+      endTime: '23:31',
+      description: '',
+      location: '',
+      category: '',
+      repeat: {
+        type: 'monthly',
+        interval: 1,
+        endDate: '',
+      },
+      notificationTime: 10,
+    };
+
+    const recurringEvents = result.map((eventDate, index) => ({
+      ...eventData,
+      id: index.toString(),
+      date: eventDate,
+    }));
+
+    const noRepeatEvent: Event = {
+      id: '1',
+      title: '단일 일정 이벤트',
+      date: '2025-11-03',
+      startTime: '21:25',
+      endTime: '23:31',
+      description: '',
+      location: '',
+      category: '',
+      repeat: {
+        type: 'none',
+        interval: 1,
+        endDate: '',
+      },
+      notificationTime: 10,
+    };
+    setupMockHandlerCreation([noRepeatEvent]);
+    setupMockHandlerBatchCreation(recurringEvents);
+
+    render(
+      <ChakraProvider>
+        <App />
+      </ChakraProvider>
+    );
+
+    const firstDay = await screen.findByTestId('1');
+    const thirdDay = await screen.findByTestId('3');
+
+    expect(within(firstDay).getByLabelText('at-sign-icon')).toBeInTheDocument();
+    expect(within(thirdDay).queryByRole('img')).toBeNull();
+  });
+
+  it('반복 종료 > 반복 종료일이 시작일보다 이전인 경우 오류 메시지가 표시된다.', async () => {
     vi.setSystemTime('2024-11-01');
 
     const result = generateRecurringEvents('2024-11-01', 1, 'monthly' as RepeatType, '2025-02-01');
@@ -299,7 +382,7 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
     );
   });
 
-  it('반복 일정을 수정하면 단일 일정으로 변경되며 반복 일정 아이콘도 사라진다.', async () => {
+  it('반복 일정 단일 수정 > 반복 일정을 수정하면 단일 일정으로 변경되며 반복 일정 아이콘도 사라진다.', async () => {
     vi.setSystemTime(new Date('2024-11-01'));
 
     const recurringDates = generateRecurringEvents(
@@ -368,7 +451,7 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
     vi.useRealTimers();
   });
 
-  it('매월 반복 일정 중 한개를 삭제할 경우 해당 일정만 삭제된다.', async () => {
+  it('반복 일정 단일 삭제 > 매월 반복 일정 중 한개를 삭제할 경우 해당 일정만 삭제된다.', async () => {
     vi.setSystemTime('2024-11-01');
 
     const result = generateRecurringEvents('2024-11-01', 1, 'daily' as RepeatType, '2024-11-10');
