@@ -39,17 +39,17 @@ export const useEventOperations = (
     }
   };
 
-  //생각할것
-  // post할 경우 그냥 저장
-  // put할 경우 안에 내용물 다 바꿔서 저장
-  // put으로 반복일정 삭제할경우 반복일정 전체 삭제
   const saveEvent = async (eventData: Event | EventForm) => {
+    const requestBody = { ...eventData };
     try {
       let response;
       if (editing) {
-        response = await axios.put(`/api/events/${(eventData as Event).id}`, eventData);
+        if (requestBody.repeat.id !== undefined) {
+          delete requestBody.repeat.id;
+        }
+        response = await axios.put(`/api/events/${(requestBody as Event).id}`, requestBody);
       } else {
-        response = await axios.post('api/events', eventData);
+        response = await axios.post('api/events', requestBody);
       }
 
       if (response.status !== 200 && response.status !== 201) {
@@ -75,8 +75,8 @@ export const useEventOperations = (
     }
 
     // repeat type 이 존재할 때 repeatEvent도 저장
-    if (eventData.repeat.type !== 'none') {
-      const repeatEvents = getRepeatingEvent(eventData);
+    if (requestBody.repeat.type !== 'none') {
+      const repeatEvents = getRepeatingEvent(requestBody);
 
       saveRepeatEvent(repeatEvents);
     }

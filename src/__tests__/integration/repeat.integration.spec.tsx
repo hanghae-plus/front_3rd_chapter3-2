@@ -40,6 +40,7 @@ const saveSchedule = async (user: UserEvent, form: Omit<Event, 'id' | 'notificat
   await user.click(screen.getByTestId('event-submit-button'));
 };
 
+// 요구사항 3
 describe('반복일정과 캘린더, 리스트', () => {
   it('저장된 반복일정을 캘린더, 리스트에 반영한다.', async () => {
     vi.setSystemTime(new Date('2024-11-15'));
@@ -69,6 +70,7 @@ describe('반복일정과 캘린더, 리스트', () => {
     expect($eventList.getAllByText(/마틴 외데고르/i)).toHaveLength(1);
   });
 
+  // 요구사항 3
   it('캘린더에 표시되는 일정 중 반복일정을 구분한다.', async () => {
     vi.setSystemTime(new Date('2024-11-15'));
     setupMockHandlerCreation();
@@ -93,6 +95,7 @@ describe('반복일정과 캘린더, 리스트', () => {
     expect($calendar.getAllByText(/🔂/i)).toHaveLength(2);
   });
 
+  // 요구사항 5
   it('반복일정을 수정하면 그 반복일정은 메인일정이 된다.', async () => {
     vi.setSystemTime(new Date('2024-11-15'));
 
@@ -106,7 +109,7 @@ describe('반복일정과 캘린더, 리스트', () => {
         description: '아스날',
         location: '런던',
         category: '업무',
-        repeat: { type: 'weekly', interval: 1, endDate: '2024-12-07' },
+        repeat: { type: 'weekly', interval: 1, endDate: '2024-12-07', id: '1' },
         notificationTime: 10,
       },
     ]);
@@ -127,6 +130,6 @@ describe('반복일정과 캘린더, 리스트', () => {
     await user.click(screen.getByTestId('event-submit-button'));
 
     expect($eventList.getAllByText(/다비드 라야/i)).toHaveLength(1);
-    expect($eventList.getByText(/🔂/i)).toBeInTheDocument();
+    expect($eventList.queryByText(/🔂/i)).not.toBeInTheDocument();
   });
 });
