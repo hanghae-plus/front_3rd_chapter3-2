@@ -518,6 +518,141 @@ describe('반복 일정 추가 / 수정 / 삭제', () => {
     expect(monthViewElement.querySelector('svg')).not.toBeInTheDocument();
   });
 
+  it('반복 일정을 수정하면 단일 일정으로 변경된다.', async () => {
+    setupMockHandlerUpdating([
+      {
+        id: '1',
+        title: '반복 회의',
+        date: '2024-10-01',
+        startTime: '14:00',
+        endTime: '15:00',
+        description: '프로젝트 진행 상황 논의',
+        location: '회의실 A',
+        category: '업무',
+        notificationTime: 10,
+        repeat: { type: 'daily', interval: 1, endDate: '2024-10-03' },
+      },
+      {
+        id: '2',
+        title: '반복 회의',
+        date: '2024-10-02',
+        startTime: '14:00',
+        endTime: '15:00',
+        description: '프로젝트 진행 상황 논의',
+        location: '회의실 A',
+        category: '업무',
+        notificationTime: 10,
+        repeat: { type: 'daily', interval: 1, endDate: '2024-10-03' },
+      },
+      {
+        id: '3',
+        title: '반복 회의',
+        date: '2024-10-03',
+        startTime: '14:00',
+        endTime: '15:00',
+        description: '프로젝트 진행 상황 논의',
+        location: '회의실 A',
+        category: '업무',
+        notificationTime: 10,
+        repeat: { type: 'daily', interval: 1, endDate: '2024-10-03' },
+      },
+    ]);
+
+    const { user } = setup(<App />);
+
+    await screen.findByText('일정 로딩 완료!');
+
+    const eventList = within(screen.getByTestId('event-list'));
+    expect(eventList.getAllByText('반복 회의')).toHaveLength(3);
+
+    const monthView = within(screen.getByTestId('month-view'));
+    expect(monthView.getAllByText('반복 회의')).toHaveLength(3);
+
+    const monthViewElement = screen.getByTestId('month-view');
+    expect(monthViewElement.querySelectorAll('svg')).toHaveLength(3);
+
+    const eventItem = eventList.queryByTestId('event-item-3');
+    expect(eventItem).toBeInTheDocument();
+
+    const editButton = within(eventItem!).getByLabelText('Edit event');
+    await user.click(editButton);
+
+    await user.clear(screen.getByLabelText('설명'));
+    await user.type(screen.getByLabelText('설명'), 'something else');
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    await screen.findByText('일정이 수정되었습니다.');
+
+    expect(eventList.getAllByText('something else')).toHaveLength(1);
+    expect(eventList.getAllByText('반복 회의')).toHaveLength(3);
+    expect(monthViewElement.querySelectorAll('svg')).toHaveLength(2);
+  });
+
+  it('반복 일정을 삭제하면 단일 일정만 삭제된다.', async () => {
+    setupMockHandlerDeletion([
+      {
+        id: '1',
+        title: '반복 회의',
+        date: '2024-10-01',
+        startTime: '14:00',
+        endTime: '15:00',
+        description: '프로젝트 진행 상황 논의',
+        location: '회의실 A',
+        category: '업무',
+        notificationTime: 10,
+        repeat: { type: 'daily', interval: 1, endDate: '2024-10-03' },
+      },
+      {
+        id: '2',
+        title: '반복 회의',
+        date: '2024-10-02',
+        startTime: '14:00',
+        endTime: '15:00',
+        description: '프로젝트 진행 상황 논의',
+        location: '회의실 A',
+        category: '업무',
+        notificationTime: 10,
+        repeat: { type: 'daily', interval: 1, endDate: '2024-10-03' },
+      },
+      {
+        id: '3',
+        title: '반복 회의',
+        date: '2024-10-03',
+        startTime: '14:00',
+        endTime: '15:00',
+        description: '프로젝트 진행 상황 논의',
+        location: '회의실 A',
+        category: '업무',
+        notificationTime: 10,
+        repeat: { type: 'daily', interval: 1, endDate: '2024-10-03' },
+      },
+    ]);
+
+    const { user } = setup(<App />);
+
+    await screen.findByText('일정 로딩 완료!');
+
+    const eventList = within(screen.getByTestId('event-list'));
+    expect(eventList.getAllByText('반복 회의')).toHaveLength(3);
+
+    const monthView = within(screen.getByTestId('month-view'));
+    expect(monthView.getAllByText('반복 회의')).toHaveLength(3);
+
+    const monthViewElement = screen.getByTestId('month-view');
+    expect(monthViewElement.querySelectorAll('svg')).toHaveLength(3);
+
+    const eventItem = eventList.queryByTestId('event-item-3');
+    expect(eventItem).toBeInTheDocument();
+
+    const deleteButton = within(eventItem!).getByLabelText('Delete event');
+    await user.click(deleteButton);
+
+    expect(eventList.queryByTestId('event-item-3')).not.toBeInTheDocument();
+    expect(eventList.getAllByText('반복 회의')).toHaveLength(2);
+    expect(monthViewElement.querySelectorAll('svg')).toHaveLength(2);
+  });
+
   it('반복 일정을 삭제할 수 있다.', async () => {
     setupMockHandlerDeletion([
       {

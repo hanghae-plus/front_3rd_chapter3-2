@@ -33,12 +33,14 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
       if (editing) {
         if (eventData.repeat.type !== 'none') {
-          const repeatEvents = generateRepeatEvents(eventData as Event);
-          // todo: 반복 일정 수정 로직 추가
+          const updatedEventData = {
+            ...eventData,
+            repeat: { type: 'none', interval: 0 },
+          };
           response = await fetch(`/api/events/${(eventData as Event).id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(repeatEvents),
+            body: JSON.stringify(updatedEventData),
           });
         } else {
           response = await fetch(`/api/events/${(eventData as Event).id}`, {
