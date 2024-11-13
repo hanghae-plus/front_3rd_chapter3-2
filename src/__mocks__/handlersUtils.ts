@@ -175,6 +175,18 @@ export const 반복일정조회모킹 = () => {
       repeat: { id: '1', type: 'daily', interval: 1, endDate: '2024-10-18' },
       notificationTime: 10,
     },
+    {
+      id: '100',
+      title: '월간 미팅',
+      date: '2024-10-21',
+      startTime: '15:00',
+      endTime: '16:00',
+      description: '월간 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 1 },
+      notificationTime: 10,
+    },
   ];
 
   server.use(

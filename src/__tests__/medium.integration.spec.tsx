@@ -11,7 +11,7 @@ import {
   setupMockHandlerUpdating,
   반복일정삭제모킹,
   반복일정수정모킹,
-  // 반복일정조회모킹,
+  반복일정조회모킹,
 } from '../__mocks__/handlersUtils';
 import App from '../App';
 import { server } from '../setupTests';
@@ -285,7 +285,7 @@ describe('일정 CRUD 및 기본 기능', () => {
     });
   });
 
-  describe.only('반복 일정 수정', () => {
+  describe('반복 일정 수정', () => {
     it('반복 일정을 수정하면 단일 일정으로 변경되고, 반복 일정 아이콘이 사라진다', async () => {
       반복일정수정모킹();
 
@@ -395,84 +395,21 @@ describe('일정 뷰', () => {
   });
 
   it('반복 일정이 있을 경우, 월별 뷰에 반복 일정이 표시된다', async () => {
-    server.use(
-      http.get('/api/events', () => {
-        return HttpResponse.json({
-          events: [
-            {
-              id: 1,
-              title: '팀 회의',
-              date: '2024-10-15',
-              startTime: '09:00',
-              endTime: '10:00',
-              description: '주간 팀 미팅',
-              location: '회의실 A',
-              category: '업무',
-              repeat: { id: 1, type: 'daily', interval: 1, endDate: '2024-10-16' },
-              notificationTime: 10,
-            },
-            {
-              id: 2,
-              title: '프로젝트 계획',
-              date: '2024-10-16',
-              startTime: '14:00',
-              endTime: '15:00',
-              description: '새 프로젝트 계획 수립',
-              location: '회의실 B',
-              category: '업무',
-              repeat: { id: 1, type: 'daily', interval: 1, endDate: '2024-10-16' },
-              notificationTime: 10,
-            },
-          ],
-        });
-      })
-    );
+    반복일정조회모킹();
 
     setup(<App />);
 
     await screen.findByText('일정 로딩 완료!');
 
     const monthView = within(screen.getByTestId('month-view'));
-    expect(monthView.getByText(/팀 회의/)).toBeInTheDocument();
-    expect(monthView.getByText(/프로젝트 계획/)).toBeInTheDocument();
-    expect(monthView.getAllByTestId('repeat-icon')).toHaveLength(2);
+    expect(monthView.getAllByText('데일리 미팅')).toHaveLength(5);
+    expect(monthView.getAllByTestId('repeat-icon')).toHaveLength(5);
   });
 
   it('반복 일정이 있을 경우, 주간 뷰에 반복 일정이 표시된다', async () => {
     vi.setSystemTime(new Date('2024-10-15'));
 
-    server.use(
-      http.get('/api/events', () => {
-        return HttpResponse.json({
-          events: [
-            {
-              id: 1,
-              title: '팀 회의',
-              date: '2024-10-15',
-              startTime: '09:00',
-              endTime: '10:00',
-              description: '주간 팀 미팅',
-              location: '회의실 A',
-              category: '업무',
-              repeat: { id: 1, type: 'daily', interval: 1, endDate: '2024-10-16' },
-              notificationTime: 10,
-            },
-            {
-              id: 2,
-              title: '프로젝트 계획',
-              date: '2024-10-16',
-              startTime: '14:00',
-              endTime: '15:00',
-              description: '새 프로젝트 계획 수립',
-              location: '회의실 B',
-              category: '업무',
-              repeat: { id: 1, type: 'daily', interval: 1, endDate: '2024-10-16' },
-              notificationTime: 10,
-            },
-          ],
-        });
-      })
-    );
+    반복일정조회모킹();
 
     const { user } = setup(<App />);
 
@@ -481,9 +418,12 @@ describe('일정 뷰', () => {
     await screen.findByText('일정 로딩 완료!');
 
     const weekView = within(screen.getByTestId('week-view'));
-    expect(weekView.getByText(/팀 회의/)).toBeInTheDocument();
-    expect(weekView.getByText(/프로젝트 계획/)).toBeInTheDocument();
-    expect(weekView.getAllByTestId('repeat-icon')).toHaveLength(2);
+    expect(weekView.getAllByTestId('repeat-icon')).toHaveLength(5);
+
+    const nextButton = screen.getByRole('button', { name: 'Next' });
+    await user.click(nextButton);
+
+    expect(weekView.queryAllByTestId('repeat-icon')).toHaveLength(0);
   });
 });
 
