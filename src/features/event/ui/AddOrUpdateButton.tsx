@@ -65,7 +65,7 @@ export const AddOrUpdateButton = ({ events, saveEvent }: AddOrUpdateButtonProps)
 
     if (isRepeating && date > repeatEndDate) {
       toast({
-        title: '반복 종료일은 시작일보다 빨라야 합니다.',
+        title: '반복 종료일은 시작일 보다 이후여야 합니다.',
         status: 'error',
         duration: 3000,
         isClosable: true,

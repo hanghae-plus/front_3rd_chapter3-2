@@ -18,7 +18,11 @@ export const RepeatForm = () => {
       <VStack width="100%">
         <FormControl>
           <FormLabel>반복 유형</FormLabel>
-          <Select value={repeatType} onChange={(e) => setRepeatType(e.target.value as RepeatType)}>
+          <Select
+            data-testId="repeatType"
+            value={repeatType}
+            onChange={(e) => setRepeatType(e.target.value as RepeatType)}
+          >
             <option value="daily">매일</option>
             <option value="weekly">매주</option>
             <option value="monthly">매월</option>

@@ -1,1 +1,3 @@
-{"events":[{"id":"6095b3a2-dc5c-41d7-a1ae-29ba9e5e1eed","title":"테스트 일정","date":"2024-10-01","startTime":"14:37","endTime":"16:37","description":"1235","location":"1234","category":"업무","repeat":{"type":"weekly","interval":3,"endDate":"2024-11-30","id":"1b02a584-84c7-447e-9360-3cf4986d1d43"},"notificationTime":10},{"id":"ef25ab35-b5ff-4735-af20-a7cd08da58e2","title":"테스트 일정","date":"2024-10-22","startTime":"14:37","endTime":"16:37","description":"1235","location":"1234","category":"업무","repeat":{"type":"weekly","interval":3,"endDate":"2024-11-30","id":"1b02a584-84c7-447e-9360-3cf4986d1d43"},"notificationTime":10}]}
+{
+  "events": []
+}

@@ -67,8 +67,20 @@ describe('일정 CRUD 및 기본 기능', () => {
 
   it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
     const { user } = setup(<App />);
-
-    setupMockHandlerUpdating();
+    setupMockHandlerUpdating([
+      {
+        id: '1',
+        title: '기존 일정',
+        date: '2024-10-04',
+        startTime: '13:00',
+        endTime: '14:00',
+        description: 'CoreTech Weekly Standup',
+        location: 'CoreTech 회의실',
+        category: '업무',
+        repeat: { type: 'none', interval: 0 },
+        notificationTime: 10,
+      },
+    ]);
 
     await user.click(await screen.findByLabelText('Edit event'));
 
@@ -85,7 +97,20 @@ describe('일정 CRUD 및 기본 기능', () => {
   });
 
   it('일정을 삭제하고 더 이상 조회되지 않는지 확인한다', async () => {
-    setupMockHandlerDeletion();
+    setupMockHandlerDeletion([
+      {
+        id: '1',
+        title: '삭제할 이벤트',
+        date: '2024-10-04',
+        startTime: '13:00',
+        endTime: '14:00',
+        description: 'CoreTech Weekly Standup',
+        location: 'CoreTech 회의실',
+        category: '업무',
+        repeat: { type: 'none', interval: 0 },
+        notificationTime: 10,
+      },
+    ]);
 
     const { user } = setup(<App />);
     const eventList = within(screen.getByTestId('event-list'));
@@ -290,7 +315,32 @@ describe('일정 충돌', () => {
   });
 
   it('기존 일정의 시간을 수정하여 충돌이 발생하면 경고가 노출된다', async () => {
-    setupMockHandlerUpdating();
+    setupMockHandlerCreation([
+      {
+        id: '1',
+        title: '기존 회의',
+        date: '2024-10-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '기존 팀 미팅',
+        location: '회의실 B',
+        category: '업무',
+        repeat: { type: 'none', interval: 0 },
+        notificationTime: 10,
+      },
+      {
+        id: '2',
+        title: '다른 회의',
+        date: '2024-10-15',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '기존 팀 미팅',
+        location: '회의실 B',
+        category: '업무',
+        repeat: { type: 'none', interval: 0 },
+        notificationTime: 10,
+      },
+    ]);
 
     const { user } = setup(<App />);
 
@@ -299,9 +349,9 @@ describe('일정 충돌', () => {
 
     // 시간 수정하여 다른 일정과 충돌 발생
     await user.clear(screen.getByLabelText(/시작 시간/));
-    await user.type(screen.getByLabelText(/시작 시간/), '08:30');
+    await user.type(screen.getByLabelText(/시작 시간/), '09:00');
     await user.clear(screen.getByLabelText(/종료 시간/));
-    await user.type(screen.getByLabelText(/종료 시간/), '10:30');
+    await user.type(screen.getByLabelText(/종료 시간/), '10:00');
 
     await user.click(screen.getByTestId('event-submit-button'));
 

@@ -95,6 +95,7 @@ export const useEventOperations = () => {
       }
 
       await fetchEvents();
+
       setEditingEvent(null);
     } catch (error) {
       console.error('Error saving event:', error);
