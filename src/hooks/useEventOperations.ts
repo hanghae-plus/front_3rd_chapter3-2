@@ -48,7 +48,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       if (!response.ok) {
         throw new Error('Failed to save event');
       }
-      console.log('여기를 지나는가');
+
       await fetchEvents();
       onSave?.();
       toast({

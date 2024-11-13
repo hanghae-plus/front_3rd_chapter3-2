@@ -36,6 +36,7 @@ export interface EventFormState extends Omit<Event, 'id' | 'repeat'> {
   repeatEndDate: string;
   repeatEndCondition: RepeatEndCondition;
   repeatCount?: number;
+  notificationTime: NotificationTime;
 }
 
 export interface EventFormErrors {

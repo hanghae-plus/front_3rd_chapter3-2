@@ -22,7 +22,6 @@ export const MonthView = memo(
     const getEventsForDate = (day: number | null) => {
       if (!day) return [];
 
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
       const dateString = formatDate(currentDate, day);
 
       // 일반 일정 필터링
@@ -40,7 +39,7 @@ export const MonthView = memo(
 
       return [...regularEventsForDate, ...repeatingEventsForDate];
     };
-    console.log(events);
+
     return (
       <VStack data-testid="month-view" align="stretch" w="full" spacing={4}>
         <Heading size="md" color="blue.600" fontWeight="semibold">

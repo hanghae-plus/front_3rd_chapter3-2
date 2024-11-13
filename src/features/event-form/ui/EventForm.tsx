@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/rules-of-hooks */
 import { RepeatIcon } from '@chakra-ui/icons';
 import {
@@ -15,12 +17,12 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react';
-import { Dispatch, memo, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
+import { Dispatch, memo, SetStateAction, useCallback, useEffect, useRef } from 'react';
 
 import RepeatDateMessage from './RepeatDateMessage';
 import { getInitialFormState } from '../../../entities/event/lib/eventFormUtils';
 import { Event, RepeatType } from '../../../entities/event/model/types';
-import { categories, notificationOptions } from '../../../shared/config/constant';
+import { categories } from '../../../shared/config/constant';
 import { FormControl, FormLabel } from '../../../shared/ui/FormControl';
 import Input from '../../../shared/ui/Input';
 import { Select } from '../../../shared/ui/Select';
@@ -42,7 +44,6 @@ export const EventForm = memo(
       useEventForm(initialEvent as unknown as Event);
 
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const [modificationType, setModificationType] = useState<'all' | 'single'>('single');
     const cancelRef = useRef(null);
 
     const bgColor = useColorModeValue('white', 'gray.800');
@@ -61,7 +62,7 @@ export const EventForm = memo(
       try {
         await onSubmit({
           ...formState,
-          id: initialEvent?.id || '',
+          id: initialEvent?.id || Math.random().toString(36).substr(2, 9),
           repeat: {
             type: formState.repeatType as RepeatType,
             interval: formState.repeatInterval,
@@ -110,7 +111,7 @@ export const EventForm = memo(
         ),
       }));
     }, [formState.date, formState.repeatEndDate, formState.repeatInterval, formState.isRepeating]);
-
+    console.log(formState);
     return (
       <VStack
         w="100%"
@@ -235,21 +236,6 @@ export const EventForm = memo(
             반복 일정
           </Checkbox>
         </FormControl>
-        <FormControl>
-          <FormLabel fontWeight="medium">알림 설정</FormLabel>
-          <Select
-            name="notificationTime"
-            value={formState.notificationTime}
-            onChange={handleInputChange}
-            size="lg"
-          >
-            {notificationOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
-        </FormControl>
 
         {formState?.isRepeating && (
           <VStack spacing={4} bg={useColorModeValue('gray.50', 'gray.700')} p={4} borderRadius="md">
@@ -345,7 +331,29 @@ export const EventForm = memo(
             </HStack>
           </VStack>
         )}
-
+        <FormControl>
+          <FormLabel fontWeight="medium">알림 설정</FormLabel>
+          <HStack
+            style={{
+              width: '100%',
+            }}
+          >
+            <Input
+              type="number"
+              name="notificationTime"
+              value={formState?.notificationTime.value}
+              placeholder="숫자만 입력"
+              inputMode="numeric"
+              onChange={handleInputChange}
+              size="md"
+              min="0"
+              style={{
+                width: '85%',
+              }}
+            />
+            <Text>분 전</Text>
+          </HStack>
+        </FormControl>
         <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={cancelRef}>
           <AlertDialogOverlay>
             <AlertDialogContent>
@@ -361,7 +369,6 @@ export const EventForm = memo(
                 <Button
                   colorScheme="blue"
                   onClick={() => {
-                    setModificationType('single');
                     handleFinalSubmit();
                   }}
                   ml={3}
@@ -388,6 +395,7 @@ export const EventForm = memo(
             취소
           </Button>
           <Button
+            data-testid="event-submit-button"
             size="lg"
             colorScheme="blue"
             onClick={handleSubmitClick}

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
   BellIcon,
   DeleteIcon,
@@ -10,7 +11,6 @@ import {
 } from '@chakra-ui/icons';
 import { IconButton, Text, Badge, Tooltip, useColorModeValue } from '@chakra-ui/react';
 
-import { notificationOptions } from '../../../shared/config/constant';
 import { Flex as Box } from '../../../shared/ui/Flex';
 import { HStack, VStack } from '../../../shared/ui/Stack';
 import { Event } from '../model/types';
@@ -69,7 +69,7 @@ export const EventCard = ({ event, isNotified, onEdit, onDelete }: EventCardProp
   const handleDelete = () => {
     onDelete(event.id, event.isRepeating);
   };
-
+  console.log(event);
   return (
     <Box
       borderWidth={1}
@@ -166,9 +166,7 @@ export const EventCard = ({ event, isNotified, onEdit, onDelete }: EventCardProp
           {/* 알림 설정 */}
           <HStack spacing={2}>
             <BellIcon boxSize={18} color={iconColor} />
-            <Text>
-              {notificationOptions.find((option) => option.label === event.notificationTime)?.label}
-            </Text>
+            <Text>{event.notificationTime.value} 분 전</Text>
           </HStack>
         </VStack>
       </VStack>

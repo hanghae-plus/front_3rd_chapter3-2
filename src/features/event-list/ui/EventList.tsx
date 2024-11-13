@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Text } from '@chakra-ui/react';
 import { Dispatch, SetStateAction } from 'react';
 
