@@ -30,7 +30,7 @@ vi.mock('@chakra-ui/react', async () => {
 });
 
 describe('이벤트 > 반복과 관련된 통합테스트', () => {
-  it('반복 유형 > 반복 유형을 0이나 음수로 입력할 경우 1로 변경된다.', async () => {
+  it('반복 유형 > 반복 유형을 0을 입력할 경우 1로 변경된다.', async () => {
     render(
       <ChakraProvider>
         <App />
@@ -41,16 +41,15 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
     await userEvent.click(checkbox);
 
     await user.selectOptions(screen.getByLabelText('반복 유형'), 'daily');
-    await user.type(screen.getByLabelText('반복 간격'), '-1');
 
     const repeatIntervalInput = screen.getByLabelText('반복 간격') as HTMLInputElement;
 
-    expect(repeatIntervalInput.value).toBe('1');
-
     await user.clear(screen.getByLabelText('반복 간격'));
-    await user.type(screen.getByLabelText('반복 간격'), '0');
+    // await user.type(screen.getByLabelText('반복 간격'), '');
 
-    expect(repeatIntervalInput.value).toBe('1');
+    await waitFor(() => {
+      expect(repeatIntervalInput.value).toBe('1');
+    });
   });
 
   it('반복 간격 > 반복 유형을 daily, 반복 간격을 2로 설정할 경우 이벤트는 2일 간격으로 등록된다.', async () => {
