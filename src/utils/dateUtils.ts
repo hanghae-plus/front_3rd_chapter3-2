@@ -228,6 +228,15 @@ export function getRemainingDatesByWeek(
   }
 
   return getRemainingDatesByDay(currentDate, endDate, NUM_OF_WEEK);
+}
+
+/**
+ * 유효한 날짜인지 확인합니다.
+ */
+export function isValidDate(date: Date): boolean {
+  return date instanceof Date && !isNaN(date.getTime());
+}
+
 
 // getRemainingDatesByYear
 
