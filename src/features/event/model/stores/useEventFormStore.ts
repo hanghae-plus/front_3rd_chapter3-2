@@ -1,4 +1,4 @@
-import { Event, RepeatType } from '@entities/event/model/types';
+import { Event, RepeatDepth, RepeatType } from '@entities/event/model/types';
 import { getTimeErrorMessage } from '@features/event/model/utils';
 import { ChangeEvent } from 'react';
 import { create } from 'zustand';
@@ -25,6 +25,7 @@ interface EventFormState {
   timeErrors: TimeErrorRecord;
   startTimeError: string | null;
   endTimeError: string | null;
+  repeatDepth: RepeatDepth;
 
   setTitle: (title: string) => void;
   setDate: (date: string) => void;
@@ -40,6 +41,7 @@ interface EventFormState {
   setNotificationTime: (notificationTime: number) => void;
   setEditingEvent: (event: Event | null) => void;
   setTimeErrors: (errors: TimeErrorRecord) => void;
+  setRepeatDepth: (repeatDepth: RepeatDepth) => void;
 
   handleStartTimeChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleEndTimeChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -59,6 +61,7 @@ export const useEventFormStore = create<EventFormState>((set) => ({
   repeatType: 'daily',
   repeatInterval: 1,
   repeatEndDate: '',
+  repeatDepth: 'fix',
   notificationTime: 10,
   editingEvent: null,
   startTimeError: null,
@@ -82,6 +85,7 @@ export const useEventFormStore = create<EventFormState>((set) => ({
   setNotificationTime: (notificationTime) => set({ notificationTime }),
   setEditingEvent: (editingEvent) => set({ editingEvent }),
   setTimeErrors: (timeErrors) => set({ timeErrors }),
+  setRepeatDepth: (repeatDepth) => set({ repeatDepth }),
 
   handleStartTimeChange: (e) =>
     set((state) => {
@@ -117,6 +121,7 @@ export const useEventFormStore = create<EventFormState>((set) => ({
       repeatInterval: 1,
       repeatEndDate: '',
       notificationTime: 10,
+      repeatDepth: 'fix',
       editingEvent: null,
       timeErrors: {
         startTimeError: null,
@@ -139,5 +144,6 @@ export const useEventFormStore = create<EventFormState>((set) => ({
       repeatInterval: event.repeat.interval,
       repeatEndDate: event.repeat.endDate || '',
       notificationTime: event.notificationTime,
+      repeatDepth: event.repeat.depth || 'fix',
     }),
 }));

@@ -26,6 +26,7 @@ export const AddOrUpdateButton = ({ events, saveEvent }: AddOrUpdateButtonProps)
     startTimeError,
     endTimeError,
     editingEvent,
+    repeatDepth,
     resetForm,
   } = useEventFormStore();
 
@@ -86,6 +87,7 @@ export const AddOrUpdateButton = ({ events, saveEvent }: AddOrUpdateButtonProps)
         type: isRepeating ? repeatType : 'none',
         interval: repeatInterval,
         endDate: repeatEndDate || undefined,
+        depth: repeatDepth || 'fix',
       },
       notificationTime,
     };
