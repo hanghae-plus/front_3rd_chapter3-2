@@ -59,6 +59,132 @@ const saveSchedule = async (user: UserEvent, form: Omit<Event, 'id' | 'notificat
   await user.click(screen.getByTestId('event-submit-button'));
 };
 
+describe('🔁 반복 일정 CURD', () => {
+  beforeEach(() => {
+    vi.setSystemTime(new Date('2024-11-01'));
+  });
+
+  const schedule = {
+    title: '반복되는 회의',
+    titleWithIcon: '🔁 반복되는 회의',
+  };
+
+  it('매일 반복 일정을 생성할 수 있다', async () => {
+    setupMockHandlerCreation();
+    const { user } = setup(<App />);
+
+    await saveSchedule(user, {
+      title: schedule.title,
+      date: '2024-11-01',
+      startTime: '14:00',
+      endTime: '15:00',
+      description: '프로젝트 진행 상황 논의',
+      location: '회의실 A',
+      category: '업무',
+
+      // 반복 설정: 2일에 1번씩 반복, 종료일은 2024-11-03
+      repeat: {
+        interval: 2,
+        type: 'daily',
+        endDate: '2024-11-03',
+      },
+    });
+
+    const calendarView = within(screen.getByTestId('calendar-view'));
+
+    // 1일, 3일에 반복 일정이 보임 (2일에 1번씩 반복되므로)
+    expect(
+      within(calendarView.getByTestId('day-1')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-3')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+
+    // 2일에는 반복 일정이 보이지 않음 (interval에 의해 2일 간격으로만 반복되므로 해당 날짜에는 일정이 없음)
+    expect(
+      within(calendarView.getByTestId('day-2')).queryByText(schedule.titleWithIcon)
+    ).not.toBeInTheDocument();
+
+    // 4일과 5일에는 반복 일정이 보이지 않음 (endDate가 2024-11-03으로 설정되어 있어, 종료일 이후에는 반복되지 않음)
+    expect(
+      within(calendarView.getByTestId('day-4')).queryByText(schedule.titleWithIcon)
+    ).not.toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-5')).queryByText(schedule.titleWithIcon)
+    ).not.toBeInTheDocument();
+  });
+  it('매주 반복 일정을 생성할 수 있다', async () => {
+    setupMockHandlerCreation();
+    const { user } = setup(<App />);
+
+    await saveSchedule(user, {
+      title: schedule.title,
+      date: '2024-11-01',
+      startTime: '14:00',
+      endTime: '15:00',
+      description: '프로젝트 진행 상황 논의',
+      location: '회의실 A',
+      category: '업무',
+
+      // 반복 설정: 1주에 1번씩 반복, 종료일은 2024-11-21
+      repeat: {
+        type: 'weekly',
+        interval: 1,
+        endDate: '2024-11-21',
+      },
+    });
+
+    const calendarView = within(screen.getByTestId('calendar-view'));
+
+    // 1일, 8일, 15일에 반복 일정이 보임
+    expect(
+      within(calendarView.getByTestId('day-1')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-8')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-15')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+
+    // 2일, 22일에는 반복 일정이 보이지 않음
+    expect(
+      within(calendarView.getByTestId('day-2')).queryByText(schedule.titleWithIcon)
+    ).not.toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-22')).queryByText(schedule.titleWithIcon)
+    ).not.toBeInTheDocument();
+  });
+  it('매월 반복 일정을 생성할 수 있다', (context) => {
+    context.skip();
+  });
+  it('매월 31일에 반복 일정을 생성할 수 있다', (context) => {
+    context.skip();
+  });
+  it('윤년 2월 29일에 월간 반복 일정을 생성할 수 있다', (context) => {
+    context.skip();
+  });
+  it('매년 윤년 2월 29일에 반복 일정을 생성할 수 있다', (context) => {
+    context.skip();
+  });
+
+  it('반복 종료일이 없으면 기본 종료일인 2025-06-30까지 생성된다', (context) => {
+    context.skip();
+  });
+
+  it('반복 종료일이 있으면 해당 종료일까지 반복된다', (context) => {
+    context.skip();
+  });
+
+  it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된다', (context) => {
+    context.skip();
+  });
+
+  it('반복 일정을 삭제하면 해당 일정만 삭제된다', (context) => {
+    context.skip();
+  });
+});
+
 describe('일정 CRUD 및 기본 기능', () => {
   it('입력한 새로운 일정 정보에 맞춰 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
     setupMockHandlerCreation();
@@ -359,87 +485,4 @@ it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트
   });
 
   expect(screen.getByText('10분 후 기존 회의 일정이 시작됩니다.')).toBeInTheDocument();
-});
-
-describe('🔁 반복 일정 CURD', () => {
-  beforeEach(() => {
-    vi.setSystemTime(new Date('2024-11-01'));
-  });
-
-  it('매일 반복 일정을 생성할 수 있다', async () => {
-    setupMockHandlerCreation();
-
-    const { user } = setup(<App />);
-
-    await saveSchedule(user, {
-      title: '반복되는 회의',
-      date: '2024-11-01',
-      startTime: '14:00',
-      endTime: '15:00',
-      description: '프로젝트 진행 상황 논의',
-      location: '회의실 A',
-      category: '업무',
-
-      // 반복 설정: 2일에 1번씩 반복, 종료일은 2024-11-03
-      repeat: {
-        interval: 2,
-        type: 'daily',
-        endDate: '2024-11-03',
-      },
-    });
-
-    const calendarView = within(screen.getByTestId('calendar-view'));
-
-    // 1일, 3일에 반복 일정이 보임 (2일에 1번씩 반복되므로)
-    expect(
-      within(calendarView.getByTestId('day-1')).getByText('🔁 반복되는 회의')
-    ).toBeInTheDocument();
-    expect(
-      within(calendarView.getByTestId('day-3')).getByText('🔁 반복되는 회의')
-    ).toBeInTheDocument();
-
-    // 2일에는 반복 일정이 보이지 않음 (interval에 의해 2일 간격으로만 반복되므로 해당 날짜에는 일정이 없음)
-    expect(
-      within(calendarView.getByTestId('day-2')).queryByText('🔁 반복되는 회의')
-    ).not.toBeInTheDocument();
-
-    // 4일과 5일에는 반복 일정이 보이지 않음 (endDate가 2024-11-03으로 설정되어 있어, 종료일 이후에는 반복되지 않음)
-    expect(
-      within(calendarView.getByTestId('day-4')).queryByText('🔁 반복되는 회의')
-    ).not.toBeInTheDocument();
-    expect(
-      within(calendarView.getByTestId('day-5')).queryByText('🔁 반복되는 회의')
-    ).not.toBeInTheDocument();
-  });
-  it('매주 반복 일정을 생성할 수 있다', (context) => {
-    context.skip();
-  });
-  it('매월 반복 일정을 생성할 수 있다', (context) => {
-    context.skip();
-  });
-  it('매월 31일에 반복 일정을 생성할 수 있다', (context) => {
-    context.skip();
-  });
-  it('윤년 2월 29일에 월간 반복 일정을 생성할 수 있다', (context) => {
-    context.skip();
-  });
-  it('매년 윤년 2월 29일에 반복 일정을 생성할 수 있다', (context) => {
-    context.skip();
-  });
-
-  it('반복 종료일이 없으면 기본 종료일인 2025-06-30까지 생성된다', (context) => {
-    context.skip();
-  });
-
-  it('반복 종료일이 있으면 해당 종료일까지 반복된다', (context) => {
-    context.skip();
-  });
-
-  it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된다', (context) => {
-    context.skip();
-  });
-
-  it('반복 일정을 삭제하면 해당 일정만 삭제된다', (context) => {
-    context.skip();
-  });
 });
