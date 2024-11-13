@@ -34,6 +34,19 @@ export const OverlappingEventDialog = ({
 }: OverlappingEventDialogProps) => {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
+  const handleSaveEvent = () => {
+    close();
+    saveEvent({
+      id: editingEvent ? editingEvent.id : undefined,
+      ...eventForm,
+      repeat: {
+        type: isRepeating ? eventForm.repeat.type : 'none',
+        interval: eventForm.repeat.interval,
+        endDate: eventForm.repeat.endDate || undefined,
+      },
+    });
+  };
+
   return (
     <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={close}>
       <AlertDialogOverlay>
@@ -56,22 +69,7 @@ export const OverlappingEventDialog = ({
             <Button ref={cancelRef} onClick={close}>
               취소
             </Button>
-            <Button
-              colorScheme="red"
-              onClick={() => {
-                close();
-                saveEvent({
-                  id: editingEvent ? editingEvent.id : undefined,
-                  ...eventForm,
-                  repeat: {
-                    type: isRepeating ? eventForm.repeat.type : 'none',
-                    interval: eventForm.repeat.interval,
-                    endDate: eventForm.repeat.endDate || undefined,
-                  },
-                });
-              }}
-              ml={3}
-            >
+            <Button colorScheme="red" onClick={handleSaveEvent} ml={3}>
               계속 진행
             </Button>
           </AlertDialogFooter>
