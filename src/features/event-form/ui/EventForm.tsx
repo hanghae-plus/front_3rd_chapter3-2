@@ -7,25 +7,26 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
-  AlertIcon,
   Button,
   Checkbox,
   Heading,
-  Icon,
   Text,
   Tooltip,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react';
-import { Dispatch, memo, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, memo, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 
-import { Event } from '../../../entities/event/model/types';
-import { categories } from '../../../shared/config/constant';
+import RepeatDateMessage from './RepeatDateMessage';
+import { getInitialFormState } from '../../../entities/event/lib/eventFormUtils';
+import { Event, RepeatType } from '../../../entities/event/model/types';
+import { categories, notificationOptions } from '../../../shared/config/constant';
 import { FormControl, FormLabel } from '../../../shared/ui/FormControl';
 import Input from '../../../shared/ui/Input';
 import { Select } from '../../../shared/ui/Select';
 import { HStack, VStack } from '../../../shared/ui/Stack';
 import { useEventForm } from '../hooks/useEventForm';
+import { findRepeatDate } from '../lib/repeatDateUtils';
 
 export const EventForm = memo(
   ({
@@ -48,25 +49,6 @@ export const EventForm = memo(
     const borderColor = useColorModeValue('gray.200', 'gray.600');
     const headingColor = useColorModeValue('blue.600', 'blue.300');
 
-    // 윤년/말일 처리를 위한 헬퍼 함수
-    const handleRepeatDateLogic = () => {
-      if (!formState.date || !formState.repeatType) return;
-
-      const eventDate = new Date(formState.date);
-      const day = eventDate.getDate();
-      const month = eventDate.getMonth();
-
-      if (day === 31 || (day === 29 && month === 1)) {
-        return (
-          <Text color="orange.500" fontSize="sm" mt={1}>
-            <Icon as={AlertIcon} mr={1} />
-            {day === 31 ? '매월 말일에 반복됩니다.' : '윤년이 아닌 경우 2월 28일에 반복됩니다.'}
-          </Text>
-        );
-      }
-      return null;
-    };
-
     const handleSubmitClick = () => {
       if (initialEvent?.isRepeating) {
         onOpen();
@@ -75,18 +57,33 @@ export const EventForm = memo(
       }
     };
 
-    const handleFinalSubmit = () => {
-      onSubmit({
-        ...formState,
-        id: initialEvent?.id || '',
-        repeat: {
-          type: formState.repeatType,
-          interval: formState.repeatInterval,
-          endDate: formState.repeatEndDate,
-        },
-      });
-      onClose();
+    const handleFinalSubmit = async () => {
+      try {
+        await onSubmit({
+          ...formState,
+          id: initialEvent?.id || '',
+          repeat: {
+            type: formState.repeatType as RepeatType,
+            interval: formState.repeatInterval,
+            endDate: formState.repeatEndDate,
+            endCondition: formState.repeatEndCondition,
+            count: formState.repeatCount,
+          },
+        });
+
+        // 폼 초기화
+        setFormState(getInitialFormState(null));
+        setEditingEvent(null);
+        onClose();
+      } catch (error) {
+        console.error('Failed to submit event:', error);
+      }
     };
+
+    const handleCancel = useCallback(() => {
+      setFormState(getInitialFormState(null));
+      setEditingEvent(null);
+    }, [setEditingEvent]);
 
     useEffect(() => {
       if (!initialEvent) return;
@@ -101,7 +98,19 @@ export const EventForm = memo(
       }
     }, [initialEvent, formState.isRepeating, setFormState]);
 
-    console.log(formState);
+    useEffect(() => {
+      if (!formState.isRepeating) return;
+      setFormState((prev) => ({
+        ...prev,
+        repeatDate: findRepeatDate(
+          formState.date,
+          formState.repeatEndDate,
+          formState.repeatInterval.toString(),
+          formState.repeatType
+        ),
+      }));
+    }, [formState.date, formState.repeatEndDate, formState.repeatInterval, formState.isRepeating]);
+
     return (
       <VStack
         w="100%"
@@ -226,6 +235,21 @@ export const EventForm = memo(
             반복 일정
           </Checkbox>
         </FormControl>
+        <FormControl>
+          <FormLabel fontWeight="medium">알림 설정</FormLabel>
+          <Select
+            name="notificationTime"
+            value={formState.notificationTime}
+            onChange={handleInputChange}
+            size="lg"
+          >
+            {notificationOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
 
         {formState?.isRepeating && (
           <VStack spacing={4} bg={useColorModeValue('gray.50', 'gray.700')} p={4} borderRadius="md">
@@ -242,7 +266,12 @@ export const EventForm = memo(
                 <option value="monthly">매월</option>
                 <option value="yearly">매년</option>
               </Select>
-              {handleRepeatDateLogic()}
+              {formState.repeatType === 'monthly' && (
+                <RepeatDateMessage
+                  date={formState.date}
+                  repeatType={formState.repeatType as RepeatType}
+                />
+              )}
             </FormControl>
 
             <FormControl>
@@ -283,9 +312,13 @@ export const EventForm = memo(
               </FormControl>
 
               {formState.repeatType !== 'none' && (
-                <FormControl>
+                <FormControl isRequired={formState.repeatEndCondition !== 'never'}>
                   <FormLabel fontWeight="medium">
-                    {formState.repeatEndCondition === 'date' ? '종료 날짜' : '반복 횟수'}
+                    {formState.repeatEndCondition === 'date'
+                      ? '종료 날짜'
+                      : formState.repeatEndCondition === 'count'
+                        ? '반복 횟수'
+                        : '종료 없음'}
                   </FormLabel>
                   {formState.repeatEndCondition === 'date' ? (
                     <Input
@@ -296,7 +329,7 @@ export const EventForm = memo(
                       size="lg"
                       max="2025-06-30"
                     />
-                  ) : (
+                  ) : formState.repeatEndCondition === 'count' ? (
                     <Input
                       type="number"
                       min="1"
@@ -306,7 +339,7 @@ export const EventForm = memo(
                       onChange={handleInputChange}
                       size="lg"
                     />
-                  )}
+                  ) : null}
                 </FormControl>
               )}
             </HStack>
@@ -321,7 +354,6 @@ export const EventForm = memo(
               </AlertDialogHeader>
 
               <AlertDialogBody>이 일정은 반복 일정입니다. 어떻게 처리하시겠습니까?</AlertDialogBody>
-
               <AlertDialogFooter>
                 <Button ref={cancelRef} onClick={onClose}>
                   취소
@@ -334,17 +366,7 @@ export const EventForm = memo(
                   }}
                   ml={3}
                 >
-                  이 일정만
-                </Button>
-                <Button
-                  colorScheme="blue"
-                  onClick={() => {
-                    setModificationType('all');
-                    handleFinalSubmit();
-                  }}
-                  ml={3}
-                >
-                  모든 반복 일정
+                  수정
                 </Button>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -358,9 +380,7 @@ export const EventForm = memo(
           <Button
             size="lg"
             colorScheme="gray"
-            onClick={() => {
-              setEditingEvent(null);
-            }}
+            onClick={handleCancel}
             style={{
               width: '50%',
             }}

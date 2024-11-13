@@ -30,23 +30,23 @@ export const EventCard = ({ event, isNotified, onEdit, onDelete }: EventCardProp
 
   // 반복 일정 정보 포맷팅
   const getRepeatText = () => {
-    if (!event.isRepeating) return null;
+    if (!event.isRepeating || event.repeat.type === 'none') return null;
 
-    const intervalText = `${event.repeat?.interval}${
-      event.repeat?.type === 'daily'
+    const intervalText = `${event.repeat.interval}${
+      event.repeat.type === 'daily'
         ? '일'
-        : event.repeat?.type === 'weekly'
+        : event.repeat.type === 'weekly'
           ? '주'
-          : event.repeat?.type === 'monthly'
+          : event.repeat.type === 'monthly'
             ? '개월'
             : '년'
     }마다`;
 
     const endText =
-      event.repeatEndCondition === 'date'
-        ? `(${event.repeat?.endDate}까지)`
-        : event.repeatEndCondition === 'count'
-          ? `(${event.repeatEndCondition}회)`
+      event.repeat.endCondition === 'date'
+        ? `(${event.repeat.endDate}까지)`
+        : event.repeat.endCondition === 'count'
+          ? `(${event.repeat.count}회)`
           : '(종료 없음)';
 
     return `${intervalText} ${endText}`;
@@ -167,7 +167,7 @@ export const EventCard = ({ event, isNotified, onEdit, onDelete }: EventCardProp
           <HStack spacing={2}>
             <BellIcon boxSize={18} color={iconColor} />
             <Text>
-              {notificationOptions.find((option) => option.value === event.notificationTime)?.label}
+              {notificationOptions.find((option) => option.label === event.notificationTime)?.label}
             </Text>
           </HStack>
         </VStack>

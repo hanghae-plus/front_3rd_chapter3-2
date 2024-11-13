@@ -9,7 +9,7 @@ export const useSearch = (events: Event[], currentDate: Date, view: 'week' | 'mo
   const filteredEvents = useMemo((): Event[] => {
     return getFilteredEvents(events, searchTerm, currentDate, view);
   }, [events, searchTerm, currentDate, view]);
-
+  console.log(filteredEvents);
   return {
     searchTerm,
     setSearchTerm,
