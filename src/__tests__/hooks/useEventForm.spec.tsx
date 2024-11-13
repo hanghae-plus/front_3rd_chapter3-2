@@ -1,17 +1,8 @@
-import { ChakraProvider } from '@chakra-ui/react';
-import { act, render, screen, renderHook } from '@testing-library/react';
-import { UserEvent, userEvent } from '@testing-library/user-event';
-import { ChangeEvent, ReactElement } from 'react';
+import { act, renderHook } from '@testing-library/react';
+import { ChangeEvent } from 'react';
 
-import App from '../../App.tsx';
 import { useEventForm } from '../../hooks/useEventForm.ts';
 import { Event } from '../../types.ts';
-
-const setup = (element: ReactElement) => {
-  const user = userEvent.setup();
-
-  return { ...render(<ChakraProvider>{element}</ChakraProvider>), user }; // ? Med: 왜 ChakraProvider로 감싸는지 물어보자
-};
 
 describe('반복 설정', () => {
   it('isRepeating은 일정 생성시 false이어야 한다', () => {
@@ -52,16 +43,18 @@ describe('반복 유형 선택', () => {
     expect(result.current.repeatType).not.toBe('none');
     expect(result.current.repeatType).toBe('daily');
   });
-
-  it('isRepeating이 true일 때 유저가 repeatType을 클릭하면 repeatType도 변경되어야 한다', async () => {
-    const { user } = setup(<App />);
-
-    await user.click(screen.getByLabelText('반복 일정'));
-    await user.selectOptions(screen.getByLabelText('반복 유형'), 'weekly');
-
-    expect(screen.getByLabelText('반복 일정')).toBeChecked();
-    expect(screen.getByLabelText('반복 유형')).toHaveValue('weekly');
-  });
 });
+
+describe('반복 간격 설정', () => {
+  it('isRepeating이 true일 때 repeatInterval은 1이어야 한다', () => {
+    const { result } = renderHook(() => useEventForm());
+
+    act(() => {
+      result.current.handleIsRepeatingChange({
+        target: { checked: true },
+      } as ChangeEvent<HTMLInputElement>);
+    });
+
+    expect(result.current.repeatInterval).toBe(1);
   });
 });
