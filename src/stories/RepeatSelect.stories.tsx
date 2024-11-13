@@ -1,4 +1,4 @@
-import type { Meta, StoryFn, StoryObj } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { Provider } from 'jotai';
 import { ChangeEvent } from 'react';
@@ -33,7 +33,6 @@ const meta: Meta<typeof RepeatSelect> = {
 } satisfies Meta<typeof RepeatSelect>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 
