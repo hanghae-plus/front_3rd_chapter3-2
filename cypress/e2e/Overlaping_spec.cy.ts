@@ -1,12 +1,8 @@
 describe('캘린더 E2E 테스트', () => {
   beforeEach(() => {
+    cy.clock(Date.UTC(2024, 10, 11), ['Date']);
     cy.visit('/');
-
-    cy.clock(new Date('2024-11-11').getTime());
-  });
-
-  afterEach(() => {
-    // cy.useRealTimers();
+    // new Date().
   });
 
   it('중복된 일정 등록 시, 경고 confirm창이 표시되며 "계속 진행" 선택 시 정상 저장되는 시나리오', () => {
@@ -49,10 +45,10 @@ describe('캘린더 E2E 테스트', () => {
     cy.contains('일정이 추가되었습니다.').should('exist');
 
     // 일정이 정상적으로 저장되었는지 확인 (중복된 일정이 추가됨 2개 이상인지 확인)
-    // cy.get('[data-testid="event-list"]').within(() => {
-    //   cy.contains('주간 팀 회의').should('have.length.greaterThan', 1);
-    //   cy.contains('2024-11-01').should('have.length.greaterThan', 1);
-    //   cy.contains('10:00 - 11:00').should('have.length.greaterThan', 1);
-    // });
+    cy.get('[data-testid="event-list"]').within(() => {
+      cy.contains('주간 팀 회의').should('have.length', 1);
+      cy.contains('2024-11-01').should('have.length', 1);
+      cy.contains('10:00 - 11:00').should('have.length', 1);
+    });
   });
 });

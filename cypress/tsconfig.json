@@ -2,7 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "types": ["cypress", "@testing-library/cypress"],
-    "module": "ESNext",
+    // "module": "ESNext",
   },
   "include": ["**/*.ts"]
 }

@@ -2,6 +2,7 @@
 describe('캘린더 E2E 테스트', () => {
   beforeEach(() => {
     cy.visit('/');
+    cy.clock(new Date('2024-11-01').getTime());
   });
 
   it('반복 일정를 등록하고 수정,삭제하는 시나리오', () => {
