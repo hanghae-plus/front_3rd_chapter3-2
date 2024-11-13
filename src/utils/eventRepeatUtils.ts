@@ -12,7 +12,7 @@ export const generateDailyEvents = (
   const events: EventForm[] = [];
   let currentDate = new Date(eventData.date);
 
-  while (!endDate || currentDate <= new Date(endDate)) {
+  while (currentDate <= new Date(endDate)) {
     events.push({
       ...eventData,
       date: formatToISODate(currentDate),
@@ -32,7 +32,7 @@ export const generateWeeklyEvents = (
   const events: EventForm[] = [];
   let currentDate = new Date(eventData.date);
 
-  while (!endDate || currentDate <= new Date(endDate)) {
+  while (currentDate <= new Date(endDate)) {
     events.push({
       ...eventData,
       date: formatToISODate(currentDate),
@@ -52,12 +52,32 @@ export const generateMonthlyEvents = (
   const events: EventForm[] = [];
   let currentDate = new Date(eventData.date);
 
-  while (!endDate || currentDate <= new Date(endDate)) {
+  while (currentDate <= new Date(endDate)) {
     events.push({
       ...eventData,
       date: formatToISODate(currentDate),
     });
     currentDate.setMonth(currentDate.getMonth() + interval); // interval만큼 월을 증가시킴
+  }
+
+  return events;
+};
+
+// 매년 반복 일정 생성
+export const generateYearlyEvents = (
+  eventData: EventForm,
+  interval: RepeatInfo['interval'],
+  endDate: RepeatInfo['endDate'] = DEFAULT_END_DATE
+) => {
+  const events: EventForm[] = [];
+  let currentDate = new Date(eventData.date);
+
+  while (currentDate <= new Date(endDate)) {
+    events.push({
+      ...eventData,
+      date: formatToISODate(currentDate),
+    });
+    currentDate.setFullYear(currentDate.getFullYear() + interval); // interval만큼 연도를 증가시킴
   }
 
   return events;

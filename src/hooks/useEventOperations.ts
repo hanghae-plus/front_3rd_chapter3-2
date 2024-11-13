@@ -7,6 +7,7 @@ import {
   generateDailyEvents,
   generateMonthlyEvents,
   generateWeeklyEvents,
+  generateYearlyEvents,
 } from '../utils/eventRepeatUtils';
 
 const isEvent = (eventData: Event | EventForm): eventData is Event => {
@@ -67,6 +68,10 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
       case 'monthly':
         eventList = generateMonthlyEvents(eventData, interval, endDate);
+        break;
+
+      case 'yearly':
+        eventList = generateYearlyEvents(eventData, interval, endDate);
         break;
 
       default:
