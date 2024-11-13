@@ -74,8 +74,8 @@ export const setupMockHandlerUpdating = (
   );
 };
 
-export const setupMockHandlerDeletion = () => {
-  const mockEvents: Event[] = [
+export const setupMockHandlerDeletion = (
+  mockEvents: Event[] = [
     {
       id: '1',
       title: '삭제할 이벤트',
@@ -88,8 +88,8 @@ export const setupMockHandlerDeletion = () => {
       repeat: { type: 'none', interval: 0 },
       notificationTime: 10,
     },
-  ];
-
+  ]
+) => {
   server.use(
     http.get('/api/events', () => {
       return HttpResponse.json({ events: mockEvents });

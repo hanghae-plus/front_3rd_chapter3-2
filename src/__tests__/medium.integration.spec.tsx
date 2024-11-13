@@ -540,8 +540,79 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
     expect(calendarView.queryByText('🔁 수정된 회의')).not.toBeInTheDocument();
   });
 
-  it('반복 일정을 삭제하면 해당 일정만 삭제된다', (context) => {
-    context.skip();
+  it('반복 일정을 삭제하면 해당 일정만 삭제된다', async () => {
+    setupMockHandlerDeletion([
+      {
+        id: '1',
+        title: schedule.title,
+        date: '2024-11-01',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '삭제할 이벤트입니다',
+        location: '어딘가',
+        category: '기타',
+        repeat: { type: 'daily', interval: 1, endDate: '2024-11-03' },
+        notificationTime: 10,
+      },
+      {
+        id: '2',
+        title: schedule.title,
+        date: '2024-11-02',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '삭제할 이벤트입니다',
+        location: '어딘가',
+        category: '기타',
+        repeat: { type: 'daily', interval: 1, endDate: '2024-11-03' },
+        notificationTime: 10,
+      },
+      {
+        id: '3',
+        title: schedule.title,
+        date: '2024-11-03',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '삭제할 이벤트입니다',
+        location: '어딘가',
+        category: '기타',
+        repeat: { type: 'daily', interval: 1, endDate: '2024-11-03' },
+        notificationTime: 10,
+      },
+    ]);
+
+    const { user } = setup(<App />);
+
+    await act(() => null);
+
+    const calendarView = within(screen.getByTestId('calendar-view'));
+
+    expect(calendarView.getByText('2024년 11월')).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-1')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-2')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-3')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+
+    // 삭제 버튼 클릭
+    const allDeleteButton = await screen.findAllByLabelText('Delete event');
+    await user.click(allDeleteButton[1]);
+
+    // 해당 반복일정만 삭제
+    expect(
+      within(calendarView.getByTestId('day-2')).queryByText(schedule.titleWithIcon)
+    ).not.toBeInTheDocument();
+
+    // 나머지 반복일정들은 유지
+    expect(
+      within(calendarView.getByTestId('day-1')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-3')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
   });
 });
 
