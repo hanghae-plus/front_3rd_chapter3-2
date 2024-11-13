@@ -38,6 +38,8 @@ export const useEventForm = (initialEvent?: Event) => {
     setTimeError(getTimeErrorMessage(startTime, newEndTime));
   };
 
+
+
   const resetForm = () => {
     setTitle('');
     setDate('');
@@ -68,6 +70,7 @@ export const useEventForm = (initialEvent?: Event) => {
     setRepeatEndDate(event.repeat.endDate || '');
     setNotificationTime(event.notificationTime);
   };
+
 
   return {
     title,
