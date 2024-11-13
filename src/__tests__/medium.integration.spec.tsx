@@ -401,12 +401,108 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
     ).toBeInTheDocument();
   });
 
-  it('반복 종료일이 없으면 기본 종료일인 2025-06-30까지 생성된다', (context) => {
-    context.skip();
+  it('반복 종료일이 없으면 기본 종료일인 2025-06-30까지 생성된다', async () => {
+    vi.setSystemTime(new Date('2025-04-01'));
+    setupMockHandlerCreation();
+    const { user } = setup(<App />);
+
+    await saveSchedule(user, {
+      title: schedule.title,
+      date: '2025-04-30',
+      startTime: '14:00',
+      endTime: '15:00',
+      description: '프로젝트 진행 상황 논의',
+      location: '회의실 A',
+      category: '업무',
+
+      // 반복 종료일 없음
+      repeat: {
+        interval: 1,
+        type: 'monthly',
+      },
+    });
+
+    const calendarView = within(screen.getByTestId('calendar-view'));
+    const nextButton = calendarView.getByLabelText('Next');
+
+    expect(calendarView.getByText('2025년 4월')).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+
+    await user.click(nextButton);
+    expect(calendarView.getByText('2025년 5월')).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+
+    await user.click(nextButton);
+    expect(calendarView.getByText('2025년 6월')).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+
+    await user.click(nextButton);
+    expect(calendarView.getByText('2025년 7월')).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-30')).queryByText(schedule.titleWithIcon)
+    ).not.toBeInTheDocument();
   });
 
-  it('반복 종료일이 있으면 해당 종료일까지 반복된다', (context) => {
-    context.skip();
+  it('반복 종료일이 있으면 해당 종료일까지 반복된다', async () => {
+    vi.setSystemTime(new Date('2025-04-01'));
+    setupMockHandlerCreation();
+    const { user } = setup(<App />);
+
+    await saveSchedule(user, {
+      title: schedule.title,
+      date: '2025-04-30',
+      startTime: '14:00',
+      endTime: '15:00',
+      description: '프로젝트 진행 상황 논의',
+      location: '회의실 A',
+      category: '업무',
+
+      // 반복 종료일 없음
+      repeat: {
+        interval: 1,
+        type: 'monthly',
+        endDate: '2025-07-30',
+      },
+    });
+
+    const calendarView = within(screen.getByTestId('calendar-view'));
+    const nextButton = calendarView.getByLabelText('Next');
+
+    expect(calendarView.getByText('2025년 4월')).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+
+    await user.click(nextButton);
+    expect(calendarView.getByText('2025년 5월')).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+
+    await user.click(nextButton);
+    expect(calendarView.getByText('2025년 6월')).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+
+    await user.click(nextButton);
+    expect(calendarView.getByText('2025년 7월')).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+
+    // 반복 종료일이 지난 8월에는 반복 일정이 보이지 않음 X
+    await user.click(nextButton);
+    expect(calendarView.getByText('2025년 8월')).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-30')).queryByText(schedule.titleWithIcon)
+    ).not.toBeInTheDocument();
   });
 
   it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된다', (context) => {
