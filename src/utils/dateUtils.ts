@@ -119,10 +119,22 @@ export function getLastDayOfMonth(date: Date) {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0);
 }
 
-// 현재 날짜에서 interval만큼 증가한 다음 달의 마지막 날짜를 반환
-export const getNextMonthLastDate = (currentDate: Date, interval: number): Date => {
+/** 주어진 날짜에서 interval만큼 증가한 날짜의 마지막 날짜를 반환 */
+export const getNextDateLastDay = (
+  currentDate: Date,
+  interval: number,
+  unit: 'month' | 'year'
+): Date => {
   const nextDate = new Date(currentDate);
-  nextDate.setDate(1); // 해당 월의 첫 날로 설정
-  nextDate.setMonth(currentDate.getMonth() + interval);
+  nextDate.setDate(1); // 기준 날짜의 첫 날로 설정
+
+  // 월 또는 연도를 증가시킴
+  if (unit === 'month') {
+    nextDate.setMonth(currentDate.getMonth() + interval);
+  } else if (unit === 'year') {
+    nextDate.setFullYear(currentDate.getFullYear() + interval);
+  }
+
+  // 증가한 날짜의 마지막 날을 반환
   return getLastDayOfMonth(nextDate);
 };
