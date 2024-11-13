@@ -4,6 +4,21 @@ const MAX_END_DATE = '2025-06-30';
 
 export type WeekType = 'none' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
 
+export type MonthType =
+  | 'none'
+  | 'jan'
+  | 'feb'
+  | 'mar'
+  | 'apr'
+  | 'may'
+  | 'jun'
+  | 'jul'
+  | 'aug'
+  | 'sep'
+  | 'oct'
+  | 'nov'
+  | 'dec';
+
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
  */
@@ -206,21 +221,30 @@ export function getRemainingDatesByWeek(
     return dates;
   }
 
-  // 요일이 지정된 경우 지정된 요일을 기준으로 합니다.
+  // 요일를 설정하지 않은 경우 빈 배열을 반환합니다.
   if (weekType === 'none') {
     return dates;
   }
 
-  let current = new Date(currentDate);
-  // 먼저 interval 만큼 이동
-  current.setDate(current.getDate() + 7 * interval);
-
-  // 종료일까지 7일 간격으로 날짜를 추가합니다
-  while (current <= endDate) {
-    dates.push(new Date(current));
-    current.setDate(current.getDate() + 7 * interval);
-  }
-
-  return dates;
+  return getRemainingDatesByDay(currentDate, endDate, 7);
 }
 
+// getRemainingDatesByMonth
+
+// getRemainingDatesByYear
+
+// TODO 반복일정 반복유형 선택 - 매일/매주/매월/매년
+// TODO 날짜 더하기
+// TODO 매월 이벤트 시 말일의 경우
+// TODO 매월-매주 이벤트 시 윤년(2월29일) 이벤트 경우 어떻게 함?
+// TODO 반복일정 - 반복간격
+// TODO 1. 반복간격 - 매일일 시 시간
+// TODO 2. 반복간격 - 매주일 시 요일
+// TODO 3. 반복간격 - 매월일 시 일, 주차-요일
+// TODO 4. 반복간격 - 매년일 시 월-일, 주차-요일
+// TODO 5. 일 - 간격 입력 (예: 2일마다)
+// TODO 6. 주 - 간격 입력 (예: 3주마다)
+// TODO 7. 월 - 간격 입력 (예: 2개월마다)
+// TODO 8. 연 - 가격 입력 (예: 2년마다)
+// TODO 9. 1일, 1주, 1개월, 1년은 매일/매주/메월/매년이 존재하므로 2부터 시작한다.
+// TODO 반복일정 - 반복종료일 2099.12.31
