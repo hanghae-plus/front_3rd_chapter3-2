@@ -505,6 +505,18 @@ describe('getRemainingDatesByWeek', () => {
     expect(result).toHaveLength(1);
     expect(result).toEqual([new Date('2024-11-19')]);
   });
+  it('🟢 현재일자 2024-11-12이고 2024-12-31까지 매주 화요일 간격일 경우 7개의 의 날짜를 가진 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const weekType = 'tue';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(7);
+    expect(result[0]).toEqual(new Date('2024-11-19'));
+    expect(result[1]).toEqual(new Date('2024-11-26'));
+    expect(result[5]).toEqual(new Date('2024-12-24'));
+    expect(result[6]).toEqual(new Date('2024-12-31'));
+  });
   it('🔴 요일를 설정하지 않은 경우 빈 배열을 반환합니다.', () => {
     const currentDate = new Date('2024-11-12');
     const endDate = new Date('2024-12-12');
