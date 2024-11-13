@@ -1,5 +1,5 @@
 import { Event, EventForm, RepeatInfo } from '../types';
-import { formatToISODate } from './dateUtils';
+import { formatDate, getNextMonthLastDate } from './dateUtils';
 
 const DEFAULT_END_DATE = '2025-06-30';
 
@@ -15,7 +15,7 @@ const generateDailyEvents = (
   while (currentDate <= new Date(endDate)) {
     events.push({
       ...eventData,
-      date: formatToISODate(currentDate),
+      date: formatDate(currentDate),
     });
     currentDate.setDate(currentDate.getDate() + interval); // interval만큼 날짜를 증가시킴
   }
@@ -35,7 +35,7 @@ const generateWeeklyEvents = (
   while (currentDate <= new Date(endDate)) {
     events.push({
       ...eventData,
-      date: formatToISODate(currentDate),
+      date: formatDate(currentDate),
     });
     currentDate.setDate(currentDate.getDate() + 7 * interval); // 7일씩 증가 (매주)
   }
@@ -55,9 +55,15 @@ const generateMonthlyEvents = (
   while (currentDate <= new Date(endDate)) {
     events.push({
       ...eventData,
-      date: formatToISODate(currentDate),
+      date: formatDate(currentDate),
     });
-    currentDate.setMonth(currentDate.getMonth() + interval); // interval만큼 월을 증가시킴
+
+    // 반복일정의 날짜가 31일 이라면, 다음 달의 마지막 날짜로 설정
+    if (new Date(eventData.date).getDate() === 31) {
+      currentDate = getNextMonthLastDate(currentDate, interval);
+    } else {
+      currentDate.setMonth(currentDate.getMonth() + interval); // interval만큼 월을 증가
+    }
   }
 
   return events;
@@ -75,7 +81,7 @@ const generateYearlyEvents = (
   while (currentDate <= new Date(endDate)) {
     events.push({
       ...eventData,
-      date: formatToISODate(currentDate),
+      date: formatDate(currentDate),
     });
     currentDate.setFullYear(currentDate.getFullYear() + interval); // interval만큼 연도를 증가시킴
   }
