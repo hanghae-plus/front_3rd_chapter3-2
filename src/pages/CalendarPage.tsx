@@ -126,12 +126,13 @@ const CalendarPage = () => {
         await saveEvent({ ...eventData, repeat: { type: 'none', interval: 1 } });
       } else if (isRepeating && repeatType !== 'none') {
         const dates = generateRecurringEvents(date, repeatInterval, repeatType, finalRepeatEndDate);
+
         const recurringEvents = dates.map((eventDate) => ({
           ...eventData,
           date: eventDate,
         }));
 
-        await saveOrUpdateEventList(recurringEvents, editingEvent !== null); // 여러 이벤트를 한 번에 저장
+        await saveOrUpdateEventList(recurringEvents, editingEvent !== null);
       } else {
         await saveEvent(eventData);
       }

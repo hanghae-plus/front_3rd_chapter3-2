@@ -1,5 +1,6 @@
-import { Event, RepeatType } from '../types';
+import { Event } from '../types';
 import { getWeekDates, isDateInRange } from './dateUtils';
+import { formatDate, isLeapYear } from '../features/calendar/lib/dateUtils.ts';
 
 function filterEventsByDateRange(events: Event[], start: Date, end: Date): Event[] {
   return events.filter((event) => {
@@ -52,29 +53,64 @@ export function getFilteredEvents(
 export function generateRecurringEvents(
   startDate: string,
   interval: number,
-  repeatType: RepeatType,
+  repeatType: string,
   endDate: string
 ): string[] {
   const dates = [];
-  const currentDate = new Date(startDate);
-  const end = endDate ? new Date(endDate) : new Date('2025-06-30');
+  let currentDate = new Date(startDate);
+  const targetEndDate = new Date(endDate);
 
-  while (currentDate <= end) {
-    dates.push(currentDate.toISOString().split('T')[0]);
+  const targetDay = currentDate.getDate();
+
+  const getMonthlyNextEventDate = (date: Date, interval: number): Date => {
+    const originalDay = targetDay;
+    let targetMonth = date.getMonth() + interval;
+    let targetYear = date.getFullYear();
+
+    if (targetMonth > 11) {
+      targetYear += Math.floor(targetMonth / 12);
+      targetMonth %= 12;
+    }
+
+    const lastDayOfTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+    const adjustedDay = Math.min(originalDay, lastDayOfTargetMonth);
+
+    return new Date(targetYear, targetMonth, adjustedDay);
+  };
+
+  const getYearlyNextEventDate = (date: Date, interval: number): Date => {
+    const month = date.getMonth();
+    const day = date.getDate();
+    let targetYear = date.getFullYear() + interval;
+
+    if (month === 1 && day === 29 && !isLeapYear(targetYear)) {
+      return new Date(targetYear, 1, 28);
+    }
+    return new Date(targetYear, month, day);
+  };
+
+  while (currentDate <= targetEndDate) {
+    dates.push(formatDate(currentDate));
 
     switch (repeatType) {
       case 'daily':
         currentDate.setDate(currentDate.getDate() + interval);
         break;
+
       case 'weekly':
         currentDate.setDate(currentDate.getDate() + interval * 7);
         break;
+
       case 'monthly':
-        currentDate.setMonth(currentDate.getMonth() + interval);
+        currentDate = getMonthlyNextEventDate(currentDate, interval);
         break;
+
       case 'yearly':
-        currentDate.setFullYear(currentDate.getFullYear() + interval);
+        currentDate = getYearlyNextEventDate(currentDate, interval);
         break;
+
+      default:
+        return dates;
     }
   }
 

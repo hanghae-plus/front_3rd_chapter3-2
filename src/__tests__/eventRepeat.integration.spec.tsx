@@ -30,6 +30,61 @@ vi.mock('@chakra-ui/react', async () => {
 });
 
 describe('이벤트 > 반복과 관련된 통합테스트', () => {
+  it('반복 유형 > 매달 31일에 이벤트가 있는 경우 31일이 없는 달은 30일로 변경된다.', async () => {
+    vi.setSystemTime('2024-10-01');
+
+    const result = generateRecurringEvents('2024-10-31', 1, 'monthly' as RepeatType, '2025-03-31');
+
+    const eventData: Event = {
+      id: '1',
+      title: '31일 반복 이벤트',
+      date: '2024-10-31',
+      startTime: '21:25',
+      endTime: '23:31',
+      description: '',
+      location: '',
+      category: '',
+      repeat: {
+        type: 'monthly',
+        interval: 1,
+        endDate: '2025-03-31',
+      },
+      notificationTime: 10,
+    };
+
+    const recurringEvents = result.map((eventDate, index) => ({
+      ...eventData,
+      id: index.toString(),
+      date: eventDate,
+    }));
+
+    setupMockHandlerBatchCreation(recurringEvents);
+
+    render(
+      <ChakraProvider>
+        <App />
+      </ChakraProvider>
+    );
+
+    const nextButton = screen.getByLabelText(/Next/);
+    const monthView = await screen.findByTestId('month-view');
+
+    const thirtyFirst = screen.getByTestId('31');
+
+    await waitFor(() => {
+      expect(within(monthView).getByText('2024년 10월')).toBeInTheDocument();
+      expect(within(thirtyFirst).findAllByText('31일 반복 이벤트')).toBeTruthy();
+    });
+
+    await user.click(nextButton);
+    const thirtieth = screen.getByTestId('30');
+
+    await waitFor(() => {
+      expect(within(monthView).getByText('2024년 11월')).toBeInTheDocument();
+      expect(within(thirtieth).findAllByText('31일 반복 이벤트')).toBeTruthy();
+    });
+  });
+
   it('반복 간격 > 반복 간격을 0을 입력할 경우 1로 변경된다.', async () => {
     render(
       <ChakraProvider>

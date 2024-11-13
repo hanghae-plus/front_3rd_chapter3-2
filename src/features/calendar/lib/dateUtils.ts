@@ -102,3 +102,11 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+
+export const isLeapYear = (year: number): boolean => {
+  if (year % 400 === 0) return true;
+
+  if (year % 100 === 0) return false;
+
+  return year % 4 === 0;
+};
