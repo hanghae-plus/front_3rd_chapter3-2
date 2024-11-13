@@ -20,6 +20,17 @@ export type MonthType =
   | 'nov'
   | 'dec';
 
+const dayMap: Record<WeekType, number> = {
+  sun: 0,
+  mon: 1,
+  tue: 2,
+  wed: 3,
+  thu: 4,
+  fri: 5,
+  sat: 6,
+  none: -1,
+};
+
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
  */
@@ -235,6 +246,37 @@ export function getRemainingDatesByWeek(
  */
 export function isValidDate(date: Date): boolean {
   return date instanceof Date && !isNaN(date.getTime());
+}
+
+/**
+ * 특정 월의 N번째 요일의 날짜를 반환합니다.
+ * 해당 월에 N번째 요일이 없는 경우 null을 반환합니다.
+ */
+export function getNthWeekday(date: Date, nth: number, weekType: WeekType): Date | null {
+  if (weekType === 'none') return null;
+
+  const year = date.getFullYear();
+  const month = date.getMonth();
+
+  const targetDayIndex = dayMap[weekType];
+
+  // 해당 월의 1일로 설정
+  const firstDay = new Date(year, month, 1);
+  const firstWeekday = firstDay.getDay();
+
+  // 첫 번째 해당 요일까지의 날짜 차이 계산
+  let dayDiff = targetDayIndex - firstWeekday;
+  if (dayDiff < 0) dayDiff += 7;
+
+  // n번째 해당 요일의 날짜 계산
+  const targetDate = new Date(year, month, 1 + dayDiff + (nth - 1) * 7);
+
+  // 해당 월의 유효한 날짜인지 확인
+  if (targetDate.getMonth() !== month) {
+    return null;
+  }
+
+  return targetDate;
 }
 
 
