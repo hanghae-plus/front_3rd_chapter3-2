@@ -1,5 +1,6 @@
 import { Event } from '../../types';
 import { getFilteredEvents } from '../../utils/eventUtils';
+import { generateRepeatEvents } from '../../utils/eventUtils';
 
 describe('getFilteredEvents', () => {
   const events: Event[] = [
@@ -112,5 +113,146 @@ describe('getFilteredEvents', () => {
   it('빈 이벤트 리스트에 대해 빈 배열을 반환한다', () => {
     const result = getFilteredEvents([], '', new Date('2024-07-01'), 'month');
     expect(result).toHaveLength(0);
+  });
+});
+
+describe('generateRepeatEvents', () => {
+  const baseEvent: Event = {
+    id: '1',
+    title: '반복 이벤트',
+    date: '2024-01-01',
+    startTime: '10:00',
+    endTime: '11:00',
+    description: '',
+    location: '',
+    category: '',
+    notificationTime: 0,
+    repeat: {
+      type: 'none',
+      interval: 1,
+    },
+  };
+
+  it('반복이 없는 이벤트는 원본 이벤트만 반환한다', () => {
+    const event = { ...baseEvent };
+    const result = generateRepeatEvents(event);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual(event);
+  });
+
+  it('일간 반복 이벤트를 생성한다', () => {
+    const event: Event = {
+      ...baseEvent,
+      repeat: {
+        type: 'daily',
+        interval: 1,
+        endDate: '2024-01-05',
+      },
+    };
+    const result = generateRepeatEvents(event);
+    expect(result).toHaveLength(5);
+    expect(result.map((e) => e.date)).toEqual([
+      '2024-01-01',
+      '2024-01-02',
+      '2024-01-03',
+      '2024-01-04',
+      '2024-01-05',
+    ]);
+  });
+
+  it('격일 반복 이벤트를 생성한다', () => {
+    const event: Event = {
+      ...baseEvent,
+      repeat: {
+        type: 'daily',
+        interval: 2,
+        endDate: '2024-01-05',
+      },
+    };
+    const result = generateRepeatEvents(event);
+    expect(result).toHaveLength(3);
+    expect(result.map((e) => e.date)).toEqual(['2024-01-01', '2024-01-03', '2024-01-05']);
+  });
+
+  it('주간 반복 이벤트를 생성한다', () => {
+    const event: Event = {
+      ...baseEvent,
+      repeat: {
+        type: 'weekly',
+        interval: 1,
+        endDate: '2024-01-23',
+      },
+    };
+    const result = generateRepeatEvents(event);
+    expect(result).toHaveLength(4);
+    expect(result.map((e) => e.date)).toEqual([
+      '2024-01-01',
+      '2024-01-08',
+      '2024-01-15',
+      '2024-01-22',
+    ]);
+  });
+
+  it('월간 반복 이벤트를 생성한다', () => {
+    const event: Event = {
+      ...baseEvent,
+      repeat: {
+        type: 'monthly',
+        interval: 1,
+        endDate: '2024-04-01',
+      },
+    };
+    const result = generateRepeatEvents(event);
+    expect(result).toHaveLength(4);
+    expect(result.map((e) => e.date)).toEqual([
+      '2024-01-01',
+      '2024-02-01',
+      '2024-03-01',
+      '2024-04-01',
+    ]);
+  });
+
+  it('연간 반복 이벤트를 생성한다', () => {
+    const event: Event = {
+      ...baseEvent,
+      repeat: {
+        type: 'yearly',
+        interval: 1,
+        endDate: '2026-01-01',
+      },
+    };
+    const result = generateRepeatEvents(event);
+    expect(result).toHaveLength(3);
+    expect(result.map((e) => e.date)).toEqual(['2024-01-01', '2025-01-01', '2026-01-01']);
+  });
+
+  describe('특수한 날짜 케이스 처리', () => {
+    it('윤년의 2월 29일을 처리한다', () => {
+      const event: Event = {
+        ...baseEvent,
+        date: '2024-02-29',
+        repeat: {
+          type: 'yearly',
+          interval: 1,
+          endDate: '2029-03-01',
+        },
+      };
+      const result = generateRepeatEvents(event);
+      expect(result.map((e) => e.date)).toEqual(['2024-02-29', '2028-02-29']);
+    });
+
+    it('월말일(31일)을 다음 달로 반복할 때 올바르게 처리한다', () => {
+      const event: Event = {
+        ...baseEvent,
+        date: '2024-01-31',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2024-04-30',
+        },
+      };
+      const result = generateRepeatEvents(event);
+      expect(result.map((e) => e.date)).toEqual(['2024-01-31', '2024-03-31']);
+    });
   });
 });

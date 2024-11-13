@@ -361,86 +361,32 @@ describe('반복 일정 추가 / 수정 / 삭제', () => {
 
     const { user } = setup(<App />);
 
+    await screen.findByText('일정 로딩 완료!');
+
     await saveRepeatSchedule(user, {
       title: '반복 회의',
-      date: '2024-10-15',
+      date: '2024-10-01',
       startTime: '14:00',
       endTime: '15:00',
       description: '프로젝트 진행 상황 논의',
       location: '회의실 A',
       category: '업무',
-      repeat: { type: 'daily', interval: 1, endDate: '2025-10-20' },
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-03' },
     });
 
-    const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText('반복 회의')).toBeInTheDocument();
-    expect(eventList.getByText('2024-10-15')).toBeInTheDocument();
-    expect(eventList.getByText('14:00 - 15:00')).toBeInTheDocument();
-    expect(eventList.getByText('프로젝트 진행 상황 논의')).toBeInTheDocument();
-    expect(eventList.getByText('회의실 A')).toBeInTheDocument();
-    expect(eventList.getByText('카테고리: 업무')).toBeInTheDocument();
-    expect(eventList.getByText(/반복: 1일마다.+2025-10-20/)).toBeInTheDocument();
-    expect(eventList.getByText(/알림: 10분 전/)).toBeInTheDocument();
-  });
-
-  it('일정 생성 또는 수정 시 반복 유형을 선택할 수 있다 (weekly)', async () => {
-    setupMockHandlerCreation();
-
-    const { user } = setup(<App />);
-
-    await saveRepeatSchedule(user, {
-      title: '반복 회의',
-      date: '2024-10-15',
-      startTime: '14:00',
-      endTime: '15:00',
-      description: '프로젝트 진행 상황 논의',
-      location: '회의실 A',
-      category: '업무',
-      repeat: { type: 'weekly', interval: 1, endDate: '2025-10-20' },
-    });
+    await screen.findByText('일정이 추가되었습니다.');
 
     const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText(/반복: 1주마다.+2025-10-20/)).toBeInTheDocument();
-  });
-
-  it('일정 생성 또는 수정 시 반복 유형을 선택할 수 있다 (monthly)', async () => {
-    setupMockHandlerCreation();
-
-    const { user } = setup(<App />);
-
-    await saveRepeatSchedule(user, {
-      title: '반복 회의',
-      date: '2024-10-15',
-      startTime: '14:00',
-      endTime: '15:00',
-      description: '프로젝트 진행 상황 논의',
-      location: '회의실 A',
-      category: '업무',
-      repeat: { type: 'monthly', interval: 1, endDate: '2025-10-20' },
-    });
-
-    const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText(/반복: 1월마다.+2025-10-20/)).toBeInTheDocument();
-  });
-
-  it('일정 생성 또는 수정 시 반복 유형을 선택할 수 있다 (yearly)', async () => {
-    setupMockHandlerCreation();
-
-    const { user } = setup(<App />);
-
-    await saveRepeatSchedule(user, {
-      title: '반복 회의',
-      date: '2024-10-15',
-      startTime: '14:00',
-      endTime: '15:00',
-      description: '프로젝트 진행 상황 논의',
-      location: '회의실 A',
-      category: '업무',
-      repeat: { type: 'yearly', interval: 1, endDate: '2025-10-20' },
-    });
-
-    const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText(/반복: 1년마다.+2025-10-20/)).toBeInTheDocument();
+    expect(eventList.getAllByText('반복 회의')).toHaveLength(3);
+    expect(eventList.getAllByText('14:00 - 15:00')).toHaveLength(3);
+    expect(eventList.getAllByText('프로젝트 진행 상황 논의')).toHaveLength(3);
+    expect(eventList.getAllByText('회의실 A')).toHaveLength(3);
+    expect(eventList.getAllByText('카테고리: 업무')).toHaveLength(3);
+    expect(eventList.getAllByText(/반복: 1일마다.+2024-10-03/)).toHaveLength(3);
+    expect(eventList.getAllByText(/알림: 10분 전/)).toHaveLength(3);
+    expect(eventList.getByText('2024-10-01')).toBeInTheDocument();
+    expect(eventList.getByText('2024-10-02')).toBeInTheDocument();
+    expect(eventList.getByText('2024-10-03')).toBeInTheDocument();
   });
 
   it('각 반복 유형에 대해 간격을 설정할 수 있다.', async () => {
@@ -499,12 +445,13 @@ describe('반복 일정 추가 / 수정 / 삭제', () => {
       description: '프로젝트 진행 상황 논의',
       location: '회의실 A',
       category: '업무',
-      repeat: { type: 'daily', interval: 1, endDate: '2025-11-11' },
+      repeat: { type: 'weekly', interval: 1, endDate: '2024-10-23' },
     });
 
+    await screen.findByText('일정이 추가되었습니다.');
+
     const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText('반복 회의')).toBeInTheDocument();
-    expect(eventList.getByText(/반복: 1일마다.+2025-11-11/)).toBeInTheDocument();
+    expect(eventList.getAllByText(/반복: 1주마다.+2024-10-23/)).toHaveLength(2);
   });
 
   it('반복 종료 조건을 지정할 수 있다. - 종료 없음', async () => {
@@ -520,12 +467,11 @@ describe('반복 일정 추가 / 수정 / 삭제', () => {
       description: '프로젝트 진행 상황 논의',
       location: '회의실 A',
       category: '업무',
-      repeat: { type: 'daily', interval: 1 },
+      repeat: { type: 'weekly', interval: 1 },
     });
 
     const eventList = within(screen.getByTestId('event-list'));
-    expect(eventList.getByText('반복 회의')).toBeInTheDocument();
-    expect(eventList.getByText('반복: 1일마다')).toBeInTheDocument();
+    expect(eventList.getAllByText('반복 회의')).toHaveLength(3);
   });
 
   it('반복 일정을 단일 일정으로 수정할 수 있다.', async () => {
