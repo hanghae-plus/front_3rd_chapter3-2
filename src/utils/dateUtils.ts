@@ -356,20 +356,14 @@ export function getRemainingDatesByMonth(
   return dates;
 }
 
-// getRemainingDatesByYear
-
-// TODO 반복일정 반복유형 선택 - 매일/매주/매월/매년
-// TODO 날짜 더하기
-// TODO 매월 이벤트 시 말일의 경우
-// TODO 매월-매주 이벤트 시 윤년(2월29일) 이벤트 경우 어떻게 함?
-// TODO 반복일정 - 반복간격
-// TODO 1. 반복간격 - 매일일 시 시간
-// TODO 2. 반복간격 - 매주일 시 요일
-// TODO 3. 반복간격 - 매월일 시 일, 주차-요일
-// TODO 4. 반복간격 - 매년일 시 월-일, 주차-요일
-// TODO 5. 일 - 간격 입력 (예: 2일마다)
-// TODO 6. 주 - 간격 입력 (예: 3주마다)
-// TODO 7. 월 - 간격 입력 (예: 2개월마다)
-// TODO 8. 연 - 가격 입력 (예: 2년마다)
-// TODO 9. 1일, 1주, 1개월, 1년은 매일/매주/메월/매년이 존재하므로 2부터 시작한다.
-// TODO 반복일정 - 반복종료일 2099.12.31
+/**
+ * 주어진 날짜의 월을 MonthType 형태로 반환합니다.
+ */
+export function getMonth(currentDate: Date): MonthType {
+  try {
+    const monthFormat = new Intl.DateTimeFormat('en-US', { month: 'short' });
+    return monthFormat.format(currentDate).toLowerCase() as MonthType;
+  } catch (error) {
+    return 'none';
+  }
+}
