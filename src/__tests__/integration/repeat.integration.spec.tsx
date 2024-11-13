@@ -1,5 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import { OverlayProvider } from 'overlay-kit';
 import { ReactElement } from 'react';
@@ -41,13 +41,18 @@ const saveSchedule = async (user: UserEvent, form: Omit<Event, 'id' | 'notificat
 };
 
 describe('반복일정과 캘린더', () => {
+  beforeEach(() => {
+    vi.setSystemTime(new Date('2024-11-15'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('저장된 반복일정을 캘린더에 반영한다.', async () => {
     setupMockHandlerCreation();
-    vi.setSystemTime(new Date('2024-11-15'));
 
     const { user } = setup(<App />);
-
-    console.log(screen.getByLabelText('반복 간격').textContent);
 
     await saveSchedule(user, {
       title: '마틴 외데고르',
@@ -68,9 +73,26 @@ describe('반복일정과 캘린더', () => {
     expect($calendar.getAllByText(/마틴 외데고르/i)).toHaveLength(1);
   });
 
-  it('캘린더에 표시되는 일정 중 반복일정을 구분한다.', () => {
+  it('캘린더에 표시되는 일정 중 반복일정을 구분한다.', async () => {
     setupMockHandlerCreation();
 
-    setup(<App />);
+    const { user } = setup(<App />);
+
+    await saveSchedule(user, {
+      title: '마틴 외데고르',
+      date: '2024-11-14',
+      startTime: '07:39',
+      endTime: '19:39',
+      description: '아스날',
+      location: '런던',
+      category: '업무',
+      repeat: { type: 'weekly', interval: 1, endDate: '2024-12-07' },
+    });
+
+    const $calendar = within(screen.getByTestId('month-view'));
+    expect($calendar.getAllByText(/마틴 외데고르/i)).toHaveLength(3);
+
+    // 반복일정을 표시하는 유니코드
+    expect($calendar.getAllByText(/🔂/i)).toHaveLength(2);
   });
 });
