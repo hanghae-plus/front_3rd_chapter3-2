@@ -67,7 +67,7 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
   const schedule = {
     title: '반복되는 회의',
     titleWithIcon: '🔁 반복되는 회의',
-  };
+  } as const;
 
   it('매일 반복 일정을 생성할 수 있다', async () => {
     setupMockHandlerCreation();
@@ -505,8 +505,39 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
     ).not.toBeInTheDocument();
   });
 
-  it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된다', (context) => {
-    context.skip();
+  it('반복 일정을 수정하면 해당 일정이 단일 일정으로 변경된다', async () => {
+    setupMockHandlerUpdating([
+      {
+        id: '1',
+        title: schedule.title,
+        date: '2024-11-01',
+        startTime: '14:00',
+        endTime: '15:00',
+        description: '프로젝트 진행 상황 논의',
+        location: '회의실 A',
+        category: '업무',
+        notificationTime: 10,
+
+        repeat: {
+          interval: 1,
+          type: 'daily',
+          endDate: '2024-11-03',
+        },
+      },
+    ]);
+
+    const { user } = setup(<App />);
+
+    await user.click(await screen.findByLabelText('Edit event'));
+
+    await user.clear(screen.getByLabelText('제목'));
+    await user.type(screen.getByLabelText('제목'), '수정된 회의');
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    const calendarView = within(screen.getByTestId('calendar-view'));
+    expect(calendarView.getByText('수정된 회의')).toBeInTheDocument();
+    expect(calendarView.queryByText('🔁 수정된 회의')).not.toBeInTheDocument();
   });
 
   it('반복 일정을 삭제하면 해당 일정만 삭제된다', (context) => {
