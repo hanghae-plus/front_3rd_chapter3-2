@@ -1,6 +1,7 @@
 import { Event } from '../types.ts';
 
 const MAX_END_DATE = '2025-06-30';
+const NUM_OF_WEEK = 7;
 
 export type WeekType = 'none' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
 
@@ -226,10 +227,7 @@ export function getRemainingDatesByWeek(
     return dates;
   }
 
-  return getRemainingDatesByDay(currentDate, endDate, 7);
-}
-
-// getRemainingDatesByMonth
+  return getRemainingDatesByDay(currentDate, endDate, NUM_OF_WEEK);
 
 // getRemainingDatesByYear
 
