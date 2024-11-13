@@ -6,6 +6,7 @@ import {
   formatWeek,
   getDaysInMonth,
   getEventsForDay,
+  getNthWeekday,
   getRemainingDatesByDay,
   getRemainingDatesByWeek,
   getWeekDates,
@@ -598,6 +599,32 @@ describe('isValidDate', () => {
       const testDate = new Date('2025-10-33');
       expect(isValidDate(testDate)).toBe(false);
     });
+  });
+});
+
+describe('getNthWeekday', () => {
+  it('🟢 2024년 1월의 2번째 수요일인 2024-01-10을 반환합니다.', () => {
+    const testDate = new Date('2024-01-31');
+    const testNth = 2;
+    const weekType = 'wed';
+    const result = getNthWeekday(testDate, testNth, weekType);
+    expect(result?.getDay()).toBe(3);
+    expect(result).toEqual(new Date('2024-01-10'));
+  });
+  it('🟢 2024년 3월의 4번째 월요일인 2024-03-25을 반환합니다.', () => {
+    const testDate = new Date('2024-03-31');
+    const testNth = 4;
+    const weekType = 'mon';
+    const result = getNthWeekday(testDate, testNth, weekType);
+    expect(result?.getDay()).toBe(1);
+    expect(result).toEqual(new Date('2024-03-25'));
+  });
+  it('🔴 3월의 5번째 월요일이 없을 시 null을 반환합니다.', () => {
+    const testDate = new Date('2024-03-31');
+    const testNth = 5;
+    const weekType = 'mon';
+    const result = getNthWeekday(testDate, testNth, weekType);
+    expect(result).toBeNull();
   });
 });
 
