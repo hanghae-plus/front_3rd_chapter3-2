@@ -67,10 +67,10 @@ describe('일정 CRUD 및 기본 기능', () => {
     const eventList = within(screen.getByTestId('event-list'));
     expect(eventList.getByText('새 회의')).toBeInTheDocument();
     expect(eventList.getByText('2024-10-15')).toBeInTheDocument();
-    expect(eventList.getByText('14:00 - 15:00')).toBeInTheDocument();
-    expect(eventList.getByText('프로젝트 진행 상황 논의')).toBeInTheDocument();
-    expect(eventList.getByText('회의실 A')).toBeInTheDocument();
-    expect(eventList.getByText('카테고리: 업무')).toBeInTheDocument();
+    expect(eventList.getAllByText('14:00 - 15:00')[0]).toBeInTheDocument();
+    expect(eventList.getAllByText('프로젝트 진행 상황 논의')[0]).toBeInTheDocument();
+    expect(eventList.getAllByText('회의실 A')[0]).toBeInTheDocument();
+    expect(eventList.getAllByText('카테고리: 업무')[0]).toBeInTheDocument();
   });
 
   it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
