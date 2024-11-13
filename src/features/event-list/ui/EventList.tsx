@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { Text } from '@chakra-ui/react';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 
 import { Event } from '../../../entities/event/model/types';
 import { EventCard } from '../../../entities/event/ui/EventCard';
@@ -35,7 +35,12 @@ export const EventList = ({
     <VStack data-testid="event-list" w="500px" h="full" overflowY="auto">
       <FormControl>
         <FormLabel>일정 검색</FormLabel>
-        <Input placeholder="검색어를 입력하세요" value={searchTerm} onChange={handleSearch} />
+        <Input
+          data-testid="search-input"
+          placeholder="검색어를 입력하세요"
+          value={searchTerm}
+          onChange={handleSearch}
+        />
       </FormControl>
 
       {filteredEvents.length === 0 ? (

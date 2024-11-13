@@ -15,7 +15,9 @@ export const useNotifications = (events: Event[]) => {
     const checkNotifications = () => {
       events.forEach((event) => {
         const eventDate = new Date(`${event.date}T${event.startTime}`);
-        const notificationTime = new Date(eventDate.getTime() - event.notificationTime * 60 * 1000);
+        const notificationTime = new Date(
+          eventDate.getTime() - event.notificationTime.value * 60 * 1000
+        );
         const now = new Date();
 
         if (now >= notificationTime && now <= eventDate && !notifiedEvents.includes(event.id)) {

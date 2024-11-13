@@ -56,6 +56,22 @@ export const useEventOverlap = ({
     [toast]
   );
 
+  const showOverlapWarningToast = useCallback(
+    (overlappingEvents: Event[]) => {
+      const overlappingTitles = overlappingEvents.map((event) => `"${event.title}"`).join(', ');
+
+      toast({
+        title: '일정 겹침 경고',
+        description: `다음 일정과 시간이 겹칩니다: ${overlappingTitles}`,
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+        position: 'top',
+      });
+    },
+    [toast]
+  );
+
   // 이벤트 유효성 검증
   const validateEvent = useCallback((eventData: Event): void => {
     if (!eventData.title || !eventData.date || !eventData.startTime || !eventData.endTime) {
@@ -94,6 +110,7 @@ export const useEventOverlap = ({
           setOverlappingEvents(overlapping);
           setPendingSaveEvent(eventData);
           setIsOpen(true);
+          showOverlapWarningToast(overlapping);
           return;
         }
 
