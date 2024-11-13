@@ -52,13 +52,28 @@ describe('반복 유형 선택', () => {
 
     // 03. 체크 -> 있는 거 확인
     await user.click(checkbox);
+    expect(checkbox).toBeChecked();
+    expect(screen.getByLabelText('반복 유형')).toBeInTheDocument();
+    expect(screen.getByLabelText('반복 간격')).toBeInTheDocument();
+    expect(screen.getByLabelText('반복 종료일')).toBeInTheDocument();
   });
+
   it('일정 생성 시 반복 유형을 선택할 수 있다.', async () => {
-    const { user } = setup(<App />);
-    // const isChecked = screen.getByRole('checkbox', { name: '반복 일정' }); // 얘가 체크상태인지 검사하고 싶어
-    // await user.click(screen.getByRole('label', { name: '반복 설정' }));
+    setup(<App />);
+
+    const checkbox = screen.getByRole('checkbox', { name: 'repeat setting' });
+    expect(checkbox).toBeChecked();
+
+    const repeatType = screen.getByLabelText('반복 유형');
+    expect(repeatType).toBeInTheDocument();
+    expect(repeatType).toHaveTextContent('매일');
+    expect(repeatType).toHaveTextContent('매주');
+    expect(repeatType).toHaveTextContent('매월');
+    expect(repeatType).toHaveTextContent('매년');
   });
+
   it('일정 수정 시 반복 유형을 선택할 수 있다.', () => {});
+
   it('반복 유형은 다음과 같다: 매일, 매주, 매월, 매년', () => {});
   // - 만약, 윤년 29일에 또는 31일에 매월 또는 매년 반복일정을 설정한다면 어떻게 처리할까요? 다른 서비스를 참고해보시고 자유롭게 작성해보세요.
 });
