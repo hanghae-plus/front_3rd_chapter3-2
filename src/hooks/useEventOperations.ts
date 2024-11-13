@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
-import { Event, EventForm } from '../types';
+import { Event, EventForm, EventId } from '../types';
 
 export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -66,7 +66,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     }
   };
 
-  const deleteEvent = async (id: string) => {
+  const deleteEvent = async (id: EventId) => {
     try {
       const response = await fetch(`/api/events/${id}`, { method: 'DELETE' });
 

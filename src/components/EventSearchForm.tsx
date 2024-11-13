@@ -12,18 +12,18 @@ import {
 import React from 'react';
 
 import { notificationOptions } from '../constants/notification';
-import { Event } from '../types';
+import { Event, EventId } from '../types';
 
 type Props = {
   filteredEvents: Event[];
   searchTerm: string;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
 
-  notifiedEvents: string[];
+  notifiedEvents: EventId[];
 
   editEvent: (event: Event) => void;
 
-  deleteEvent: (id: string) => Promise<void>;
+  deleteEvent: (id: EventId) => Promise<void>;
 };
 
 export const EventSearchForm = ({

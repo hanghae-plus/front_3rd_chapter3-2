@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 
-import { Event } from '../types';
+import { Event, EventId } from '../types';
 import {
   formatDate,
   formatMonth,
@@ -29,7 +29,7 @@ import {
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
 type Props = {
-  notifiedEvents: string[];
+  notifiedEvents: EventId[];
 
   filteredEvents: Event[];
 
