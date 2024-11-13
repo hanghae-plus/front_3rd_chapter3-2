@@ -157,6 +157,26 @@ describe('반복 일정 생성', () => {
 
     await assertEventExistsOnDateInMonth('2024-01-31', '2024년 1월');
   });
+});
+
+describe('반복 일정 예외 처리', () => {
+  it('반복 간격 설정을 0으로 입력시 오류 팝업이 노출 된다.', async () => {
+    setupMockHandlerGetEvents();
+    const { user } = setup(<App />);
+
+    await saveScheduleRepeat(user, {
+      title: '',
+      date: '2023-12-31',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '설명',
+      location: '위치',
+      category: '업무',
+      repeat: { type: 'monthly', interval: 0, endDate: '2024-02-29' },
+    });
+
+    expect(screen.queryByText('반복 간격을 1이상 설정해 주세요.')).toBeInTheDocument();
+  });
 
   it('윤년 29일에 매년 반복일정 설정 시 평년에서 28일로 설정되어야 한다.', async () => {
     setUpMockHandlerRepeatCreation();
