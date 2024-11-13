@@ -7,7 +7,7 @@ import { formatWeek, getWeekDates } from '../utils/dateUtils';
 interface WeekViewProps {
   currentDate: Date;
   filteredEvents: Event[];
-  repeatEvents: Event[];
+  filteredRepeats: Event[];
   notifiedEvents: string[];
 }
 
@@ -16,7 +16,7 @@ const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 export const WeekView = ({
   currentDate,
   filteredEvents,
-  repeatEvents,
+  filteredRepeats,
   notifiedEvents,
 }: WeekViewProps) => {
   const weekDates = getWeekDates(currentDate);
@@ -51,7 +51,7 @@ export const WeekView = ({
                       />
                     );
                   })}
-                {repeatEvents
+                {filteredRepeats
                   .filter((event) => new Date(event.date).toDateString() === date.toDateString())
                   .map((event) => {
                     return (

@@ -15,7 +15,7 @@ export const useSearch = (
     return getFilteredEvents(events, searchTerm, currentDate, view);
   }, [events, searchTerm, currentDate, view]);
 
-  const filteredRepeat = useMemo(() => {
+  const filteredRepeats = useMemo(() => {
     return getFilteredEvents(repeatEvent, searchTerm, currentDate, view);
   }, [repeatEvent, searchTerm, currentDate, view]);
 
@@ -23,6 +23,6 @@ export const useSearch = (
     searchTerm,
     setSearchTerm,
     filteredEvents,
-    filteredRepeat,
+    filteredRepeats,
   };
 };

@@ -10,7 +10,7 @@ interface MonthViewProps {
   currentDate: Date;
   holidays: { [key: string]: string };
   filteredEvents: Event[];
-  repeatEvents: Event[];
+  filteredRepeats: Event[];
   notifiedEvents: string[];
 }
 
@@ -18,7 +18,7 @@ export const MonthView = ({
   currentDate,
   holidays,
   filteredEvents,
-  repeatEvents,
+  filteredRepeats,
   notifiedEvents,
 }: MonthViewProps) => {
   const weeks = getWeeksAtMonth(currentDate);
@@ -69,7 +69,7 @@ export const MonthView = ({
                             />
                           );
                         })}
-                        {getEventsForDay(repeatEvents, day).map((event) => {
+                        {getEventsForDay(filteredRepeats, day).map((event) => {
                           return (
                             <EventListView
                               event={event}

@@ -37,7 +37,7 @@ function App() {
 
   const { notifications, notifiedEvents, setNotifications } = useNotifications(events);
   const { view, setView, currentDate, holidays, navigate } = useCalendarView();
-  const { searchTerm, filteredEvents, setSearchTerm } = useSearch(
+  const { searchTerm, filteredEvents, filteredRepeats, setSearchTerm } = useSearch(
     events,
     repeatEvent,
     currentDate,
@@ -63,7 +63,7 @@ function App() {
             <WeekView
               currentDate={currentDate}
               filteredEvents={filteredEvents}
-              repeatEvents={repeatEvent}
+              filteredRepeats={filteredRepeats}
               notifiedEvents={notifiedEvents}
             />
           )}
@@ -71,7 +71,7 @@ function App() {
             <MonthView
               currentDate={currentDate}
               filteredEvents={filteredEvents}
-              repeatEvents={repeatEvent}
+              filteredRepeats={filteredRepeats}
               holidays={holidays}
               notifiedEvents={notifiedEvents}
             />
