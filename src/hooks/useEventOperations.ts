@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { eventApi } from '../apis/eventApi';
 import { Event, EventForm, EventId } from '../types';
+import { generateDailyEvents } from '../utils/eventRepeatUtils';
 
 const isEvent = (eventData: Event | EventForm): eventData is Event => {
   return (eventData as Event).id !== undefined;
@@ -26,24 +27,60 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     }
   };
 
-  // 이벤트 저장 (추가, 수정)
+  // 단일 이벤트 저장
+  const saveSingleEvent = async (eventData: Event | EventForm) => {
+    const isEditing = editing && isEvent(eventData);
+
+    if (isEditing) {
+      await eventApi.editEvent(eventData);
+      toast({
+        title: '일정이 수정되었습니다.',
+        status: 'success',
+      });
+    } else {
+      await eventApi.addEvent(eventData);
+      toast({
+        title: '일정이 추가되었습니다.',
+        status: 'success',
+      });
+    }
+  };
+
+  // 반복 이벤트 저장
+  const saveRepeatEvent = async (eventData: Event | EventForm) => {
+    const { repeat } = eventData;
+    const { type, interval, endDate } = repeat;
+
+    let eventList: EventForm[] = [];
+    switch (type) {
+      case 'daily':
+        eventList = generateDailyEvents(eventData, interval, endDate);
+        break;
+
+      default:
+    }
+
+    const isEditing = editing && isEvent(eventData);
+    if (isEditing) {
+      //
+    } else {
+      await eventApi.addEventList(eventList);
+    }
+  };
+
+  // 이벤트 저장
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
-      const isEditing = editing && isEvent(eventData);
+      // (1,2,4) 이벤트 저장할 때, RepeatInfo이 있으면, 그 정보대로 반복 저장
+      // (3) 반복일정 표시할 때는 RepeatInfo가 있으면, title 앞에 반복일정 표시
+      // (5,6) RepeatInfo가 있는 일정을 수정할 때, 그 일정의 RepeatInfo 삭제
 
-      if (isEditing) {
-        await eventApi.editEvent(eventData);
-        toast({
-          title: '일정이 수정되었습니다.',
-          status: 'success',
-        });
+      if (eventData.repeat.type !== 'none') {
+        await saveRepeatEvent(eventData);
       } else {
-        await eventApi.addEvent(eventData);
-        toast({
-          title: '일정이 추가되었습니다.',
-          status: 'success',
-        });
+        await saveSingleEvent(eventData);
       }
+
       await fetchEvents();
       onSave?.();
     } catch (error) {
