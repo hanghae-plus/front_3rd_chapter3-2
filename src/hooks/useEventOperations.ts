@@ -39,6 +39,10 @@ export const useEventOperations = (
     }
   };
 
+  //생각할것
+  // post할 경우 그냥 저장
+  // put할 경우 안에 내용물 다 바꿔서 저장
+  // put으로 반복일정 삭제할경우 반복일정 전체 삭제
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
       let response;
@@ -78,24 +82,30 @@ export const useEventOperations = (
     }
   };
 
-  // 이거 post는 새로저장함. 안에 repeatEvnet가 있을경우에 생각해야함.
   const saveRepeatEvent = async (eventData: Event[] | EventForm[]) => {
-    // try {
-    //   let response;
-    //   const requestBody = eventData
-    //   if (editing) {
-    //   } else {
-    //     response = await axios.post('events-list', { events: '' });
-    //   }
-    // } catch (error) {
-    //   console.error('Error saving event:', error);
-    //   toast({
-    //     title: '반복일정 저장 실패',
-    //     status: 'error',
-    //     duration: 3000,
-    //     isClosable: true,
-    //   });
-    // }
+    try {
+      const requestBody = { events: eventData };
+      const response = await axios.post('/api/events-list', requestBody);
+      if (response.status !== 201) {
+        throw new Error('Failed to save event');
+      }
+      await fetchEvents();
+      onSave?.();
+      toast({
+        title: editing ? '일정이 수정되었습니다.' : '일정이 추가되었습니다.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error saving event:', error);
+      toast({
+        title: '반복일정 저장 실패',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
   };
 
   const deleteEvent = async (id: string) => {
