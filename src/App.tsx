@@ -149,7 +149,7 @@ function App() {
       return;
     }
 
-    if (repeatEndDate && date >= repeatEndDate) {
+    if (repeatEndDate && date > repeatEndDate) {
       toast({
         title: '반복 종료일을 시작 날짜보다 늦게 설정해 주세요.',
         status: 'error',
