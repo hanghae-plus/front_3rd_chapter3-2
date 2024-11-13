@@ -6,7 +6,7 @@ export interface RepeatInfo {
   endDate?: string;
 }
 
-export interface EventForm {
+export type EventForm = {
   title: string;
   date: string;
   startTime: string;
@@ -16,12 +16,12 @@ export interface EventForm {
   category: string;
   repeat: RepeatInfo;
   notificationTime: number; // 분 단위로 저장
-}
+};
 
 export type EventId = string | number;
 
-export interface Event extends EventForm {
+export type Event = EventForm & {
   id: EventId;
-}
+};
 
 export type Notification = { id: EventId; message: string };
