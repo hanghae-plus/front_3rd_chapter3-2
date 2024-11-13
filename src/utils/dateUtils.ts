@@ -279,6 +279,82 @@ export function getNthWeekday(date: Date, nth: number, weekType: WeekType): Date
   return targetDate;
 }
 
+/**
+ * 지정된 월에 해당하는 날짜들을 시작일부터 종료일까지 반환합니다.
+ */
+export function getRemainingDatesByMonth(
+  currentDate: Date = new Date(),
+  endDate: Date = new Date(MAX_END_DATE),
+  interval: number = 1,
+  weekType: WeekType = 'none',
+  day?: number,
+  weekOrder?: number
+): Date[] {
+  const dates: Date[] = [];
+
+  // 종료일자가 시작일자보다 이전인 경우 빈 배열을 반환합니다.
+  if (endDate < currentDate) {
+    return dates;
+  }
+
+  // 간격이 0보다 작은 경우 빈 배열을 반환합니다.
+  if (interval <= 0) {
+    return dates;
+  }
+
+  // 요일를 설정하지 않은 경우 빈 배열을 반환합니다.
+  if (weekType === 'none') {
+    return dates;
+  }
+
+  // day가 0이나 음수인 경우 빈 배열을 반환합니다.
+  if (day !== undefined && day <= 0) {
+    return dates;
+  }
+
+  // 시작일의 년월을 기준으로 처리
+  let current = new Date(currentDate);
+  let year = current.getFullYear();
+  let month = current.getMonth();
+
+  while (current <= endDate) {
+    let dateToAdd: Date | null = null;
+
+    if (weekOrder !== undefined) {
+      // N번째 요일 처리
+      dateToAdd = getNthWeekday(current, weekOrder, weekType);
+    } else if (day !== undefined) {
+      const lastDayOfMonth = getDaysInMonth(year, month + 1);
+
+      // 말일 처리
+      dateToAdd = new Date(year, month, Math.min(day, lastDayOfMonth));
+    } else {
+      day = currentDate.getDate();
+      dateToAdd = new Date(year, month, day);
+    }
+
+    // 유효한 날짜이고 종료일 이전인 경우에만 추가
+    // 현재 날짜와 같은 날짜는 제외
+    if (
+      dateToAdd &&
+      isValidDate(dateToAdd) &&
+      dateToAdd <= endDate &&
+      dateToAdd.getTime() > currentDate.getTime()
+    ) {
+      dates.push(dateToAdd);
+    }
+
+    // 다음 간격으로 이동
+    month += interval;
+    if (month >= 12) {
+      year += Math.floor(month / 12);
+      month = month % 12;
+    }
+    current = new Date(year, month, 1);
+  }
+
+  return dates;
+}
 
 // getRemainingDatesByYear
 
