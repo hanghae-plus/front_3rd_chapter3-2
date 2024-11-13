@@ -348,8 +348,57 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
     ).toBeInTheDocument();
   });
 
-  it('매년 윤년 2월 29일에 반복 일정을 생성할 수 있다', (context) => {
-    context.skip();
+  it('윤년 2월 29일에 연간 반복 일정을 생성할 수 있다', async () => {
+    vi.setSystemTime(new Date('2024-02-01'));
+    setupMockHandlerCreation();
+    const { user } = setup(<App />);
+
+    await saveSchedule(user, {
+      title: schedule.title,
+      date: '2024-02-29', // 윤년 2월 29일에 일정 생성
+      startTime: '14:00',
+      endTime: '15:00',
+      description: '프로젝트 진행 상황 논의',
+      location: '회의실 A',
+      category: '업무',
+
+      // 반복 설정: 1년에 1번씩 반복
+      repeat: {
+        type: 'yearly',
+        interval: 1,
+        endDate: '2025-03-01',
+      },
+    });
+
+    const calendarView = within(screen.getByTestId('calendar-view'));
+    const nextButton = calendarView.getByLabelText('Next');
+
+    // 윤년 2월 29일에 반복 일정 보임 O
+    expect(calendarView.getByText('2024년 2월')).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-29')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+
+    // 다음해 2월 28일에 반복 일정 보임 O
+    expect(calendarView.getByText('2025년 2월')).toBeInTheDocument();
+    expect(
+      within(calendarView.getByTestId('day-28')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
   });
 
   it('반복 종료일이 없으면 기본 종료일인 2025-06-30까지 생성된다', (context) => {
