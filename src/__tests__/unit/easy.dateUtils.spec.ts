@@ -13,6 +13,7 @@ import {
   getWeeksAtMonth,
   isDateInRange,
   isLeapYear,
+  isValidDate,
 } from '../../utils/dateUtils';
 
 describe('getDaysInMonth', () => {
@@ -576,3 +577,27 @@ describe('getRemainingDatesByWeek', () => {
     expect(getRemainingDatesByWeek(currentDate, endDate)).toHaveLength(0);
   });
 });
+
+describe('isValidDate', () => {
+  describe('🟢 유효한 날짜인 경우 true를 반환합니다.', () => {
+    it('2024-11-14', () => {
+      const testDate = new Date('2024-11-14');
+      expect(isValidDate(testDate)).toBe(true);
+    });
+    it('2025-01-01', () => {
+      const testDate = new Date('2025-01-01');
+      expect(isValidDate(testDate)).toBe(true);
+    });
+  });
+  describe('🔴 유효하지 않은 날짜의 경우 false를 반환합니다.', () => {
+    it('2025-99-01', () => {
+      const testDate = new Date('2025-99-01');
+      expect(isValidDate(testDate)).toBe(false);
+    });
+    it('2025-10-33', () => {
+      const testDate = new Date('2025-10-33');
+      expect(isValidDate(testDate)).toBe(false);
+    });
+  });
+});
+
