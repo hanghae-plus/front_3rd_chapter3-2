@@ -1,9 +1,10 @@
+/* eslint-disable cypress/unsafe-to-chain-command */
 describe('캘린더 E2E 테스트', () => {
   beforeEach(() => {
     cy.visit('/');
   });
 
-  it('사용자가 2024-07-01 부터 매주 월요일 오전 10시에 반복 일정를 등록하고 수정,삭제하는 시나리오', () => {
+  it('반복 일정를 등록하고 수정,삭제하는 시나리오', () => {
     // 일정 로딩 확인
     cy.contains('일정 로딩 완료!').should('exist');
 
