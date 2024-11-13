@@ -8,25 +8,18 @@ import {
   Input,
   Select,
   Tooltip,
-  useToast,
   VStack,
 } from '@chakra-ui/react';
 
-import { notificationOptions } from '../constants/notification';
-import { useEventFormStore } from '../store/useEventFormStore';
-import { useEventOverlapStore } from '../store/useEventOverlapStore';
-import { Event, EventForm, RepeatType } from '../types';
-import { findOverlappingEvents } from '../utils/eventOverlap';
-import { getTimeErrorMessage } from '../utils/timeValidation';
+import { useAddOrUpdateEvent, UseAddOrUpdateEventProps } from './useAddOrUpdateEvent';
+import { notificationOptions } from '../../constants/notification';
+import { useEventFormStore } from '../../store/useEventFormStore';
+import { RepeatType } from '../../types';
+import { getTimeErrorMessage } from '../../utils/timeValidation';
 
 const categories = ['업무', '개인', '가족', '기타'];
 
-type Props = {
-  events: Event[];
-  saveEvent: (eventData: Event | EventForm) => Promise<void>;
-};
-
-export const EventInputForm = ({ events, saveEvent }: Props) => {
+export const EventInputForm = (props: UseAddOrUpdateEventProps) => {
   const {
     eventForm: {
       title,
@@ -45,59 +38,9 @@ export const EventInputForm = ({ events, saveEvent }: Props) => {
     editingEvent,
     changeStartTime,
     changeEndTime,
-    resetForm,
   } = useEventFormStore();
 
-  const toast = useToast();
-
-  const { openDialog } = useEventOverlapStore();
-
-  const addOrUpdateEvent = async () => {
-    if (!title || !date || !startTime || !endTime) {
-      toast({
-        title: '필수 정보를 모두 입력해주세요.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    if (startTimeError || endTimeError) {
-      toast({
-        title: '시간 설정을 확인해주세요.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    const eventData: Event | EventForm = {
-      id: editingEvent ? editingEvent.id : undefined,
-      title,
-      date,
-      startTime,
-      endTime,
-      description,
-      location,
-      category,
-      repeat: {
-        type: isRepeating ? repeatType : 'none',
-        interval: repeatInterval,
-        endDate: repeatEndDate || undefined,
-      },
-      notificationTime,
-    };
-
-    const overlapping = findOverlappingEvents(eventData, events);
-    if (overlapping.length > 0) {
-      openDialog(overlapping);
-    } else {
-      await saveEvent(eventData);
-      resetForm();
-    }
-  };
+  const addOrUpdateEvent = useAddOrUpdateEvent(props);
 
   return (
     <VStack w="400px" spacing={5} align="stretch">
