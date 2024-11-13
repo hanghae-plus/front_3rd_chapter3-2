@@ -319,11 +319,11 @@ describe('isLeapYear', () => {
 });
 
 describe('getRemainingDatesByDay', () => {
-  it('🟢 간격에 대한 입력이 1일 경우 종료일자까지 하루 간격으로 모든 날짜가 반환된다.', () => {
-    const startDate = new Date('2024-11-12');
+  it('🟢 간격에 대한 입력이 1일 경우 다음날부터 종료일자까지 하루 간격으로 모든 날짜가 반환된다.', () => {
+    const currentDate = new Date('2024-11-12');
     const endDate = new Date('2024-12-31');
     const interval = 1;
-    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
     expect(result).toHaveLength(49);
     expect(result[0]).toEqual(new Date('2024-11-13'));
     expect(result[1]).toEqual(new Date('2024-11-14'));
@@ -331,30 +331,30 @@ describe('getRemainingDatesByDay', () => {
     expect(result[47]).toEqual(new Date('2024-12-30'));
     expect(result[48]).toEqual(new Date('2024-12-31'));
   });
-  it('🔴 종료일이 시작일보다 이전인 경우 빈 배열을 반환한다.', () => {
-    const startDate = new Date('2024-11-12');
+  it('🔴 종료일자가 현재일자보다 이전인 경우 빈 배열을 반환한다.', () => {
+    const currentDate = new Date('2024-11-12');
     const endDate = new Date('2024-05-13');
-    expect(getRemainingDatesByDay(startDate, endDate)).toHaveLength(0);
+    expect(getRemainingDatesByDay(currentDate, endDate)).toHaveLength(0);
   });
   it('🔴 간격이 0보다 작거나 같을 경우 빈 배열을 반환한다', () => {
-    const startDate = new Date('2024-11-12');
+    const currentDate = new Date('2024-11-12');
     const endDate = new Date('2024-12-31');
     const interval = 0;
-    expect(getRemainingDatesByDay(startDate, endDate, interval)).toHaveLength(0);
+    expect(getRemainingDatesByDay(currentDate, endDate, interval)).toHaveLength(0);
   });
   it('🔴 간격에 대한 입력이 없을 경우 기본값 1로 설정된다.', () => {
-    const startDate = new Date('2024-11-12');
+    const currentDate = new Date('2024-11-12');
     const endDate = new Date('2025-01-01');
-    const result = getRemainingDatesByDay(startDate, endDate);
+    const result = getRemainingDatesByDay(currentDate, endDate);
     expect(result).toHaveLength(50);
     expect(result[0]).toEqual(new Date('2024-11-13'));
     expect(result[1]).toEqual(new Date('2024-11-14'));
   });
   it('🟢 간격에 대한 입력이 2일 경우 종료일자까지 이틀 간격으로 모든 날짜가 반환된다.', () => {
-    const startDate = new Date('2024-11-12');
+    const currentDate = new Date('2024-11-12');
     const endDate = new Date('2024-12-31');
     const interval = 2;
-    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
     expect(result).toHaveLength(24);
     expect(result[0]).toEqual(new Date('2024-11-14'));
     expect(result[1]).toEqual(new Date('2024-11-16'));
@@ -362,10 +362,10 @@ describe('getRemainingDatesByDay', () => {
     expect(result[23]).toEqual(new Date('2024-12-30'));
   });
   it('🟢 간격에 대한 입력이 5일 경우 종료일자까지 닷새 간격으로 모든 날짜가 반환된다.', () => {
-    const startDate = new Date('2024-11-12');
+    const currentDate = new Date('2024-11-12');
     const endDate = new Date('2024-12-31');
     const interval = 5;
-    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
     expect(result).toHaveLength(9);
     expect(result[0]).toEqual(new Date('2024-11-17'));
     expect(result[1]).toEqual(new Date('2024-11-22'));
@@ -373,10 +373,10 @@ describe('getRemainingDatesByDay', () => {
     expect(result[8]).toEqual(new Date('2024-12-27'));
   });
   it('🟢 간격에 대한 입력이 7일 경우 종료일자까지 7일 간격으로 모든 날짜가 반환된다.', () => {
-    const startDate = new Date('2024-11-12');
+    const currentDate = new Date('2024-11-12');
     const endDate = new Date('2024-12-31');
     const interval = 7;
-    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
     expect(result).toHaveLength(7);
     expect(result[0]).toEqual(new Date('2024-11-19'));
     expect(result[1]).toEqual(new Date('2024-11-26'));
@@ -384,58 +384,58 @@ describe('getRemainingDatesByDay', () => {
     expect(result[6]).toEqual(new Date('2024-12-31'));
   });
   it('🟢 간격에 대한 입력이 15일 경우 종료일자까지 15일 간격으로 모든 날짜가 반환된다.', () => {
-    const startDate = new Date('2024-11-12');
+    const currentDate = new Date('2024-11-12');
     const endDate = new Date('2024-12-31');
     const interval = 15;
-    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
     expect(result).toHaveLength(3);
     expect(result[0]).toEqual(new Date('2024-11-27'));
     expect(result[1]).toEqual(new Date('2024-12-12'));
     expect(result[2]).toEqual(new Date('2024-12-27'));
   });
   it('🟢 간격에 대한 입력이 30일 경우 종료일자까지 15일 간격으로 모든 날짜가 반환된다.', () => {
-    const startDate = new Date('2024-11-12');
+    const currentDate = new Date('2024-11-12');
     const endDate = new Date('2025-02-13');
     const interval = 30;
-    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
     expect(result).toHaveLength(3);
     expect(result[0]).toEqual(new Date('2024-12-12'));
     expect(result[1]).toEqual(new Date('2025-01-11'));
     expect(result[2]).toEqual(new Date('2025-02-10'));
   });
-  it('🔴 올바르지 않은 시작일자의 월의 날짜의 경우 빈 배열을 반환한다.', () => {
-    const startDate = new Date('2024-13-12');
+  it('🔴 올바르지 않은 현재일자의 월의 날짜의 경우 빈 배열을 반환한다.', () => {
+    const currentDate = new Date('2024-13-12');
     const endDate = new Date('2025-02-13');
     const interval = 30;
-    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
     expect(result).toHaveLength(0);
   });
-  it('🔴 올바르지 않은 시작일자의 일의 날짜의 경우 빈 배열을 반환한다.', () => {
-    const startDate = new Date('2024-12-56');
+  it('🔴 올바르지 않은 현재일자의 일의 날짜의 경우 빈 배열을 반환한다.', () => {
+    const currentDate = new Date('2024-12-56');
     const endDate = new Date('2025-02-13');
     const interval = 30;
-    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
     expect(result).toHaveLength(0);
   });
   it('🔴 올바르지 않은 종료일자의 월의 날짜의 경우 빈 배열을 반환한다.', () => {
-    const startDate = new Date('2024-11-12');
+    const currentDate = new Date('2024-11-12');
     const endDate = new Date('2025-22-13');
     const interval = 30;
-    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
     expect(result).toHaveLength(0);
   });
   it('🔴 올바르지 않은 종료일자의 일의 날짜의 경우 빈 배열을 반환한다.', () => {
-    const startDate = new Date('2024-11-12');
+    const currentDate = new Date('2024-11-12');
     const endDate = new Date('2025-02-99');
     const interval = 30;
-    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
     expect(result).toHaveLength(0);
   });
   it('🔴 시작일자가 존재하지 않을 경우 현재일자를 기준으로 계산하여 날짜 배열을 반환한다.', () => {
-    const startDate = undefined;
+    const currentDate = undefined;
     const endDate = new Date('2025-02-13');
     const interval = 30;
-    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
     expect(result).toHaveLength(4);
     expect(result[0]).toEqual(new Date('2024-10-31'));
     expect(result[1]).toEqual(new Date('2024-11-30'));
@@ -443,10 +443,10 @@ describe('getRemainingDatesByDay', () => {
     expect(result[3]).toEqual(new Date('2025-01-29'));
   });
   it('🔴 종료일자가 존재하지 않을 경우 최대 종료일자 기준으로 계산하여 날짜 배열을 반환한다.', () => {
-    const startDate = undefined;
+    const currentDate = undefined;
     const endDate = undefined;
     const interval = 30;
-    const result = getRemainingDatesByDay(startDate, endDate, interval);
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
     expect(result).toHaveLength(9);
     expect(result[0]).toEqual(new Date('2024-10-31'));
     expect(result[1]).toEqual(new Date('2024-11-30'));
