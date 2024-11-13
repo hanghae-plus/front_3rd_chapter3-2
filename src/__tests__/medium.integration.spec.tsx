@@ -155,22 +155,26 @@ describe('일정 CRUD 및 기본 기능', () => {
   });
 
   it('기존 반복 일정의 정보를 수정하고 변경사항이 정확히 반영된다.', async () => {
-    const { user } = setup(<App />);
-
     setupMockHandlerUpdating();
 
-    await user.click(await screen.getAllByLabelText('Edit event')[1]);
+    const { user } = setup(<App />);
+
+    const editButton = (await screen.findAllByLabelText('Edit event'))[2];
+    await user.click(editButton);
 
     await user.selectOptions(screen.getByLabelText('반복 유형'), 'weekly');
     await user.clear(screen.getByLabelText('반복 간격'));
     await user.type(screen.getByLabelText('반복 간격'), '1');
-    await user.type(screen.getByLabelText('반복 종료일'), '2024-10-29');
+    await user.clear(screen.getByLabelText('반복 종료일'));
+    await user.type(screen.getByLabelText('반복 종료일'), '2024-10-31');
+    await user.clear(screen.getByLabelText('반복 종료일'));
+    await user.type(screen.getByLabelText('반복 종료일'), '2024-10-31');
 
     await user.click(screen.getByTestId('event-submit-button'));
 
     const eventList = within(screen.getByTestId('event-list'));
 
-    expect(eventList.getAllByText('반복: 1일마다 (종료: 2024-10-15)').length).toBe(2);
+    expect(eventList.getAllByText('반복: 1주마다 (종료: 2024-10-31)').length).toBe(1);
   });
 
   it('반복된 단일 일정을 삭제하면 해당 일정만 더 이상 조회되지 않는지 확인한다.', async () => {

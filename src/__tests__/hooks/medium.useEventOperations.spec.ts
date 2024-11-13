@@ -95,7 +95,7 @@ it("새로 정의된 'title', 'endTime' 기준으로 적절하게 일정이 업�
   expect(result.current.events[0]).toEqual(updatedEvent);
 });
 
-it('존재하는 이벤트 삭제 시 에러없이 아이템이 삭제된다.', async () => {
+it('존재하는 이벤트 삭제 시 에러없이 해당 아이템만 삭제된다.', async () => {
   setupMockHandlerDeletion();
 
   const { result } = renderHook(() => useEventOperations(false));
@@ -106,7 +106,40 @@ it('존재하는 이벤트 삭제 시 에러없이 아이템이 삭제된다.', 
 
   await act(() => Promise.resolve(null));
 
-  expect(result.current.events).toEqual([]);
+  expect(result.current.events).toEqual([
+    {
+      category: '기타',
+      date: '2024-10-16',
+      description: '반복 이벤트입니다',
+      endTime: '10:00',
+      id: '2',
+      location: '어딘가',
+      notificationTime: 10,
+      repeat: {
+        endDate: '2024-10-17',
+        interval: 1,
+        type: 'daily',
+      },
+      startTime: '09:00',
+      title: '반복 이벤트',
+    },
+    {
+      category: '기타',
+      date: '2024-10-17',
+      description: '삭제할 반복 이벤트입니다',
+      endTime: '10:00',
+      id: '3',
+      location: '어딘가',
+      notificationTime: 10,
+      repeat: {
+        endDate: '2024-10-17',
+        interval: 1,
+        type: 'daily',
+      },
+      startTime: '09:00',
+      title: '삭제할 반복 이벤트',
+    },
+  ]);
 });
 
 it("이벤트 로딩 실패 시 '이벤트 로딩 실패'라는 텍스트와 함께 에러 토스트가 표시되어야 한다", async () => {

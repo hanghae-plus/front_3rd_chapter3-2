@@ -65,7 +65,31 @@ export const setupMockHandlerUpdating = () => {
       description: '기존 팀 미팅 2',
       location: '회의실 C',
       category: '업무 회의',
-      repeat: { type: 'daily', interval: 1, endDate: '2024-10-15' },
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 5,
+    },
+    {
+      id: '3',
+      title: '기존 회의3',
+      date: '2024-10-16',
+      startTime: '11:00',
+      endTime: '12:00',
+      description: '기존 팀 미팅 3',
+      location: '회의실 C',
+      category: '업무 회의',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-17' },
+      notificationTime: 5,
+    },
+    {
+      id: '4',
+      title: '기존 회의4',
+      date: '2024-10-17',
+      startTime: '11:00',
+      endTime: '12:00',
+      description: '기존 팀 미팅 4',
+      location: '회의실 C',
+      category: '업무 회의',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-17' },
       notificationTime: 5,
     },
   ];
@@ -81,6 +105,28 @@ export const setupMockHandlerUpdating = () => {
 
       mockEvents[index] = { ...mockEvents[index], ...updatedEvent };
       return HttpResponse.json(mockEvents[index]);
+    }),
+
+    http.put('/api/events-list', async ({ request }) => {
+      const needUpdateEvents = (await request.json()) as Event[];
+
+      const isEventsAllAvaliable = needUpdateEvents.every(({ id }) => {
+        const index = mockEvents.findIndex((event) => event.id === id);
+        return index !== -1;
+      });
+
+      if (!isEventsAllAvaliable) {
+        return new HttpResponse(null, { status: 404 });
+      }
+
+      needUpdateEvents.forEach((updateEvent) => {
+        const { id } = updateEvent;
+        const index = mockEvents.findIndex((event) => event.id === id);
+
+        mockEvents[index] = { ...mockEvents[index], ...updateEvent };
+      });
+
+      return HttpResponse.json({ events: mockEvents }, { status: 200 });
     })
   );
 };

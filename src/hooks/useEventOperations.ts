@@ -31,11 +31,19 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     try {
       let response;
       if (editing) {
-        response = await fetch(`/api/events/${(eventData as Event).id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
+        if (isRepeatEvent(eventData)) {
+          response = await fetch('/api/events-list', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify([eventData]),
+          });
+        } else {
+          response = await fetch(`/api/events/${(eventData as Event).id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(eventData),
+          });
+        }
       } else {
         if (isRepeatEvent(eventData)) {
           response = await fetch('/api/events-list', {
