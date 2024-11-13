@@ -12,6 +12,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 
+import RepeatSelect from './RepeatSelect';
 import { CATEGORIES, NOTIFICATION_OPTIONS } from '../../constants/constants';
 import { useDialog } from '../../hooks/useDialog';
 import { useEventForm } from '../../hooks/useEventForm';
@@ -222,16 +223,10 @@ export const EventManageForm = () => {
         <VStack width="100%">
           <FormControl>
             <FormLabel>반복 유형</FormLabel>
-            <Select
-              value={repeatType}
+            <RepeatSelect
+              repeatType={repeatType}
               onChange={(e) => setRepeatType(e.target.value as RepeatType)}
-              data-testid="repeat-type-select"
-            >
-              <option value="daily">매일</option>
-              <option value="weekly">매주</option>
-              <option value="monthly">매월</option>
-              <option value="yearly">매년</option>
-            </Select>
+            />
           </FormControl>
           <HStack width="100%">
             <FormControl>

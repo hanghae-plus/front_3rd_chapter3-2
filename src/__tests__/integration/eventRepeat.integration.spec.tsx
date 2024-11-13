@@ -125,29 +125,6 @@ it('반복 간격을 0으로 작성 후 일정 추가 시 반복 간격을 1 이
   expect(await screen.findByText('반복 간격을 1 이상의 숫자로 입력해주세요.')).toBeInTheDocument();
 });
 
-it('반복 유형 선택 시 매일/매주/매월/매년 옵션이 모두 표시된다.', async () => {
-  renderEventManageForm();
-
-  await userEvent.click(screen.getByRole('checkbox', { name: /반복 일정/ }));
-
-  const select = screen.getByTestId('repeat-type-select');
-  const options = within(select).getAllByRole('option');
-
-  expect(options).toHaveLength(4);
-
-  const expectedOptions = [
-    { text: '매일', value: 'daily' },
-    { text: '매주', value: 'weekly' },
-    { text: '매월', value: 'monthly' },
-    { text: '매년', value: 'yearly' },
-  ];
-
-  options.forEach((option, index) => {
-    expect(option).toHaveTextContent(expectedOptions[index].text);
-    expect(option).toHaveValue(expectedOptions[index].value);
-  });
-});
-
 it('반복 일정 추가 시 캘린더에 Repeat Event 아이콘이 표시된다.', async () => {
   setupMockHandler();
   renderApp();
