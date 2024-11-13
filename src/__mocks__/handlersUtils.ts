@@ -39,36 +39,40 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
   );
 };
 
-export const setupMockHandlerUpdating = () => {
-  const mockEvents: Event[] = [
-    {
-      id: '2ab06561-10f8-4e7f-8128-4b2dd343c6b9',
-      title: '기존 회의',
-      date: '2024-10-15',
-      startTime: '09:00',
-      endTime: '10:00',
-      description: '기존 팀 미팅',
-      location: '회의실 B',
-      category: '업무',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 10,
-    },
-    {
-      id: 'd39ff583-36bf-40e8-b78f-a8760e708d3a',
-      title: '기존 회의2',
-      date: '2024-10-15',
-      startTime: '11:00',
-      endTime: '12:00',
-      description: '기존 팀 미팅 2',
-      location: '회의실 C',
-      category: '업무 회의',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 5,
-    },
-  ];
+export const setupMockHandlerUpdating = (initEvents = [] as Event[]) => {
+  const mockEvents: Event[] =
+    initEvents.length > 0
+      ? initEvents
+      : [
+          {
+            id: '2ab06561-10f8-4e7f-8128-4b2dd343c6b9',
+            title: '기존 회의',
+            date: '2024-10-15',
+            startTime: '09:00',
+            endTime: '10:00',
+            description: '기존 팀 미팅',
+            location: '회의실 B',
+            category: '업무',
+            repeat: { type: 'none', interval: 0 },
+            notificationTime: 10,
+          },
+          {
+            id: 'd39ff583-36bf-40e8-b78f-a8760e708d3a',
+            title: '기존 회의2',
+            date: '2024-10-15',
+            startTime: '11:00',
+            endTime: '12:00',
+            description: '기존 팀 미팅 2',
+            location: '회의실 C',
+            category: '업무 회의',
+            repeat: { type: 'none', interval: 0 },
+            notificationTime: 5,
+          },
+        ];
 
   server.use(
     http.get('/api/events', () => {
+      console.log(mockEvents);
       return HttpResponse.json({ events: mockEvents });
     }),
     http.put('/api/events/:id', async ({ params, request }) => {

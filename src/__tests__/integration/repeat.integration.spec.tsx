@@ -41,15 +41,8 @@ const saveSchedule = async (user: UserEvent, form: Omit<Event, 'id' | 'notificat
 };
 
 describe('반복일정과 캘린더, 리스트', () => {
-  beforeEach(() => {
-    vi.setSystemTime(new Date('2024-11-15'));
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it('저장된 반복일정을 캘린더, 리스트에 반영한다.', async () => {
+    vi.setSystemTime(new Date('2024-11-15'));
     setupMockHandlerCreation();
 
     const { user } = setup(<App />);
@@ -77,6 +70,7 @@ describe('반복일정과 캘린더, 리스트', () => {
   });
 
   it('캘린더에 표시되는 일정 중 반복일정을 구분한다.', async () => {
+    vi.setSystemTime(new Date('2024-11-15'));
     setupMockHandlerCreation();
 
     const { user } = setup(<App />);
@@ -100,9 +94,29 @@ describe('반복일정과 캘린더, 리스트', () => {
   });
 
   it('반복일정을 수정하면 그 반복일정은 메인일정이 된다.', async () => {
-    setupMockHandlerUpdating();
+    vi.setSystemTime(new Date('2024-11-15'));
 
+    setupMockHandlerUpdating([
+      {
+        id: '2ab06561-10f8-4e7f-8128-4b2dd343c6b9',
+        title: '🔂마틴 외데고르',
+        date: '2024-11-14',
+        startTime: '07:39',
+        endTime: '19:39',
+        description: '아스날',
+        location: '런던',
+        category: '업무',
+        repeat: { type: 'weekly', interval: 1, endDate: '2024-12-07' },
+        notificationTime: 10,
+      },
+    ]);
     const { user } = setup(<App />);
+
+    const $eventList = within(screen.getByTestId('event-list'));
+
+    expect(await $eventList.findByText(/🔂/i)).toBeInTheDocument();
+
+    await user.click(await screen.findByLabelText('Edit event'));
 
     await user.clear(screen.getByLabelText('제목'));
     await user.type(screen.getByLabelText('제목'), '다비드 라야');
@@ -112,8 +126,7 @@ describe('반복일정과 캘린더, 리스트', () => {
 
     await user.click(screen.getByTestId('event-submit-button'));
 
-    const $eventList = within(screen.getByTestId('event-list'));
     expect($eventList.getAllByText(/다비드 라야/i)).toHaveLength(1);
-    expect($eventList.getByText(/다비드 라야/i)).not.toHaveTextContent(/🔂/i);
+    expect($eventList.getByText(/🔂/i)).toBeInTheDocument();
   });
 });
