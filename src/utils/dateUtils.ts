@@ -1,4 +1,4 @@
-import { Event } from '../types.ts';
+import { Event, RepeatType } from '../types.ts';
 
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
@@ -108,3 +108,52 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+
+/**
+ * 해당 날짜가 윤년인지 체크
+ */
+export const isLeapYear = (year: number) => {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+};
+
+/**
+ * 추가할 데이터 반환
+ */
+export const getNextData = (currentDate: Date, type: RepeatType, interval: number) => {
+  const newDate = new Date(currentDate);
+
+  switch (type) {
+    case 'yearly':
+      newDate.setFullYear(currentDate.getFullYear() + interval);
+
+      // 윤년 처리: 2월 29일이 포함된 경우, 윤년이 아닐 경우 2월 28일로 설정
+      if (newDate.getMonth() === 1 && newDate.getDate() === 29) {
+        newDate.setDate(28);
+      }
+      break;
+
+    case 'monthly':
+      newDate.setMonth(currentDate.getMonth() + interval);
+
+      // 월 말 처리: 새로 계산된 날짜가 원래 날짜와 다를 경우
+      if (newDate.getDate() !== currentDate.getDate()) {
+        // 예를 들어, 1월 31일 -> 2월 28일(윤년 고려)
+        newDate.setDate(0); // 이전 월의 마지막 날로 설정
+      }
+      break;
+
+    case 'weekly':
+      newDate.setDate(currentDate.getDate() + interval * 7); // 주 단위로 날짜를 계산 (interval * 7일)
+      break;
+
+    case 'daily':
+      newDate.setDate(currentDate.getDate() + interval); // 일 단위로 날짜를 계산
+      break;
+
+    default:
+      break;
+  }
+
+  // 결과를 'YYYY-MM-DD' 형식으로 반환
+  return newDate.toISOString().split('T')[0];
+};

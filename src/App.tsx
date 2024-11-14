@@ -53,6 +53,7 @@ import {
   getEventsForDay,
   getWeekDates,
   getWeeksAtMonth,
+  getNextData,
 } from './utils/dateUtils';
 import { findOverlappingEvents } from './utils/eventOverlap';
 import { getTimeErrorMessage } from './utils/timeValidation';
@@ -163,6 +164,30 @@ function App() {
       await saveEvent(eventData);
       resetForm();
     }
+  };
+
+  const handleSaveMultipleEvent = (eventData: Event | EventForm) => {
+    console.log('handleSaveMultipleEvent');
+    const eventDatas: Event[] | EventForm[] = []; //최종 eventDate;
+
+    //반복 종료 설정
+    const startDate = eventData.startTime;
+    const endDate = eventData.repeat.endDate || '2025-06-30'; //없을수도 있음 > 없으면  2025-06-30까지까지
+
+    //반복 유형 설정
+    const type = eventData.repeat.type;
+
+    //반복 간격 설정
+    const interval = eventData.repeat.interval;
+
+    //시작날짜 - 종료날짜만큼 반복문 돌면서 넣을 날짜들 eventDates에 넣기
+    let currentDate = new Date(startDate);
+    while (currentDate < new Date(endDate)) {
+      const nextDate = getNextData(currentDate, type, interval);
+      // eventDatas.push({ ...eventData });
+    }
+
+    //반복문으로 saveMultipleEvent 호출
   };
 
   const renderWeekView = () => {
