@@ -1,5 +1,9 @@
 import { Event } from '../../types';
-import { getFilteredEvents, getRecurringEventDisplay } from '../../utils/eventUtils';
+import {
+  getFilteredEvents,
+  getRecurringEventDisplay,
+  isRecurringEventEnded,
+} from '../../utils/eventUtils';
 
 describe('getFilteredEvents', () => {
   const events: Event[] = [
@@ -239,6 +243,144 @@ describe('getRecurringEventDisplay', () => {
         badge: null,
         className: '',
       });
+    });
+  });
+});
+
+describe('isRecurringEventEnded', () => {
+  const baseEvent = {
+    id: '1',
+    title: '테스트 일정',
+    date: '2024-01-01',
+    startTime: '10:00',
+    endTime: '11:00',
+    description: '',
+    location: '',
+    category: '',
+    notificationTime: 0,
+  };
+
+  describe('특정 날짜까지 반복', () => {
+    it('종료 날짜 이전이면 false를 반환한다', () => {
+      const event = {
+        ...baseEvent,
+        repeat: {
+          type: 'daily',
+          interval: 1,
+          endDate: '2024-12-31',
+          endType: 'date' as const,
+        },
+      };
+
+      expect(isRecurringEventEnded(event, new Date('2024-06-15'))).toBeFalsy();
+    });
+
+    it('종료 날짜 이후면 true를 반환한다', () => {
+      const event = {
+        ...baseEvent,
+        repeat: {
+          type: 'daily',
+          interval: 1,
+          endDate: '2024-12-31',
+          endType: 'date' as const,
+        },
+      };
+
+      expect(isRecurringEventEnded(event, new Date('2025-01-01'))).toBeTruthy();
+    });
+  });
+
+  describe('특정 횟수만큼 반복', () => {
+    it('지정된 횟수 이전이면 false를 반환한다', () => {
+      const event = {
+        ...baseEvent,
+        repeat: {
+          type: 'weekly',
+          interval: 1,
+          endType: 'count' as const,
+          endCount: 10,
+          currentCount: 5,
+        },
+      };
+
+      expect(isRecurringEventEnded(event)).toBeFalsy();
+    });
+
+    it('지정된 횟수에 도달하면 true를 반환한다', () => {
+      const event = {
+        ...baseEvent,
+        repeat: {
+          type: 'weekly',
+          interval: 1,
+          endType: 'count' as const,
+          endCount: 10,
+          currentCount: 10,
+        },
+      };
+
+      expect(isRecurringEventEnded(event)).toBeTruthy();
+    });
+  });
+
+  describe('종료 없음', () => {
+    it('종료 타입이 never면 false를 반환한다', () => {
+      const event = {
+        ...baseEvent,
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endType: 'never' as const,
+        },
+      };
+
+      expect(isRecurringEventEnded(event)).toBeFalsy();
+    });
+
+    it('예제 특성상 2025-06-30 이후면 true를 반환한다', () => {
+      const event = {
+        ...baseEvent,
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endType: 'never' as const,
+        },
+      };
+
+      expect(isRecurringEventEnded(event, new Date('2025-07-01'))).toBeTruthy();
+    });
+  });
+
+  describe('예외 케이스', () => {
+    it('반복 설정이 없는 일정은 true를 반환한다', () => {
+      const event = { ...baseEvent };
+      expect(isRecurringEventEnded(event)).toBeTruthy();
+    });
+
+    it('잘못된 종료 타입이면 true를 반환한다', () => {
+      const event = {
+        ...baseEvent,
+        repeat: {
+          type: 'daily',
+          interval: 1,
+          endType: 'invalid' as any,
+        },
+      };
+
+      expect(isRecurringEventEnded(event)).toBeTruthy();
+    });
+
+    it('종료 날짜가 유효하지 않은 형식이면 true를 반환한다', () => {
+      const event = {
+        ...baseEvent,
+        repeat: {
+          type: 'daily',
+          interval: 1,
+          endType: 'date' as const,
+          endDate: 'invalid-date',
+        },
+      };
+
+      expect(isRecurringEventEnded(event)).toBeTruthy();
     });
   });
 });
