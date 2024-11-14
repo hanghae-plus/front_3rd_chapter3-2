@@ -502,6 +502,44 @@ test.describe.serial('통합 테스트', () => {
     })
   });
 
+  test.describe('반복 일정 종료', () => {
+
+    test('1. 반복 종료일이 시작일보다 앞선 날이면 일정이 등록되지 않아야한다.', async ({ page }) => {
+      test.setTimeout(100000);
+      await page.goto('http://localhost:5173/');
+      await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+      await page.reload();
+  
+      {/* 일정 등록하기 시작은 24년 11월 22일 */}
+      await page.getByLabel('제목').fill('종료가 시작보다 앞설때');
+      await page.getByLabel('날짜').press('ArrowUp');
+      await page.getByLabel('날짜').press('ArrowRight');
+      await page.getByLabel('날짜').fill('2024-11-22');
+      await page.getByLabel('시작 시간').click();
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowRight');
+      await page.getByLabel('시작 시간').fill('01:00');
+      await page.getByLabel('종료 시간').click();
+      await page.getByLabel('종료 시간').click();
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowRight');
+      await page.getByLabel('종료 시간').fill('02:00');
+      await page.getByLabel('설명').click();
+      await page.getByLabel('설명').fill('끝내긴 아쉬운걸');
+      await page.getByLabel('위치').click();
+      await page.getByLabel('위치').fill('시작이 반이다!');
+      await page.getByLabel('카테고리').selectOption('업무');
+      await page.locator('span').first().click();
+  
+      {/* 반복 종료일을 24년 8월 8일로 설정하기 */}
+      await page.getByLabel('반복 종료일').fill('2024-08-08');
+      await page.getByTestId('event-submit-button').click();
+  
+      {/* 일정이 등록되지 않았다는 것을 확인하기 */}
+      await page.getByText('검색 결과가 없습니다').click();
+    });
+  });
+
   test.afterAll(() => {
     if (serverProcess) {
       serverProcess.kill();
