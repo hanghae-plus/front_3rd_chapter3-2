@@ -23,18 +23,24 @@ export function getRecurringEventList({
     recurringDates.push(currentDate.toISOString().split('T')[0]);
 
     switch (type) {
-      case 'daily':
+      case 'daily': {
         currentDate.setDate(currentDate.getDate() + interval);
         break;
-      case 'weekly':
+      }
+      case 'weekly': {
         currentDate.setDate(currentDate.getDate() + interval * 7);
         break;
-      case 'monthly':
+      }
+      case 'monthly': {
+        const targetMonth = currentDate.getMonth() + 1;
+
         currentDate.setMonth(currentDate.getMonth() + interval);
         break;
-      case 'yearly':
+      }
+      case 'yearly': {
         currentDate.setFullYear(currentDate.getFullYear() + interval);
         break;
+      }
       default:
     }
   }
