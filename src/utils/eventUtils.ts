@@ -1,5 +1,11 @@
-import { Event } from '../types';
 import { getWeekDates, isDateInRange } from './dateUtils';
+import { Event } from '../types';
+
+interface EventDisplay {
+  icon: string | null;
+  badge: string | null;
+  className: string;
+}
 
 function filterEventsByDateRange(events: Event[], start: Date, end: Date): Event[] {
   return events.filter((event) => {
@@ -47,4 +53,174 @@ export function getFilteredEvents(
   }
 
   return searchedEvents;
+}
+
+export function getRecurringEventDisplay(event: Event): EventDisplay {
+  // 반복 설정이 없는 경우 기본값 반환
+  if (!event.repeat) {
+    return {
+      icon: null,
+      badge: null,
+      className: '',
+    };
+  }
+
+  const { type, interval } = event.repeat;
+
+  // 잘못된 반복 타입 처리
+  if (!['daily', 'weekly', 'monthly'].includes(type)) {
+    return {
+      icon: null,
+      badge: null,
+      className: '',
+    };
+  }
+
+  // 반복 타입별 기본 설정
+  const typeConfig = {
+    daily: {
+      icon: 'repeat-daily',
+      badgeUnit: '일',
+      className: 'recurring-daily',
+    },
+    weekly: {
+      icon: 'repeat-weekly',
+      badgeUnit: '주',
+      className: 'recurring-weekly',
+    },
+    monthly: {
+      icon: 'repeat-monthly',
+      badgeUnit: '월',
+      className: 'recurring-monthly',
+    },
+  };
+
+  // 반복 간격에 따른 뱃지 텍스트 생성
+  let badge: string;
+  if (interval === 1) {
+    badge = `매${typeConfig[type].badgeUnit}`;
+  } else {
+    badge = `${interval}${typeConfig[type].badgeUnit}마다`;
+  }
+
+  // 기본 클래스명
+  let className = `recurring-event ${typeConfig[type].className}`;
+
+  // 무한 반복 일정인 경우 클래스 추가
+  if (event.repeat.endDate === null) {
+    className += ' recurring-infinite';
+  }
+
+  return {
+    icon: typeConfig[type].icon,
+    badge,
+    className: className.trim(),
+  };
+}
+export function isRecurringEventEnded(event: Event, currentDate: Date = new Date()): boolean {
+  // 반복 설정이 없는 경우
+  if (!event.repeat) {
+    return true;
+  }
+
+  const { endType } = event.repeat;
+
+  // 종료 타입에 따른 처리
+  switch (endType) {
+    case 'date': {
+      // 종료 날짜가 없거나 유효하지 않은 형식인 경우
+      if (!event.repeat.endDate || isNaN(new Date(event.repeat.endDate).getTime())) {
+        return true;
+      }
+
+      const endDate = new Date(event.repeat.endDate);
+      return currentDate > endDate;
+    }
+
+    case 'count': {
+      // 종료 횟수나 현재 횟수가 없는 경우
+      if (!event.repeat.endCount || !event.repeat.currentCount) {
+        return true;
+      }
+
+      return event.repeat.currentCount >= event.repeat.endCount;
+    }
+
+    case 'never': {
+      // 예제 특성상 2025-06-30까지만 허용
+      const maxDate = new Date('2025-06-30');
+      return currentDate > maxDate;
+    }
+
+    default:
+      // 잘못된 종료 타입인 경우
+      return true;
+  }
+}
+
+export function convertToSingleEvent(originalEvent: Event, updatedEvent: Event): Event | null {
+  // 원본 이벤트가 없는 경우
+  if (!originalEvent) {
+    return null;
+  }
+
+  // 수정할 이벤트가 없는 경우, 원본에서 repeat만 제거
+  if (!updatedEvent) {
+    const eventWithoutRepeat = { ...originalEvent };
+    delete eventWithoutRepeat.repeat;
+    return eventWithoutRepeat;
+  }
+
+  // ID가 다른 경우
+  if (originalEvent.id !== updatedEvent.id) {
+    return null;
+  }
+
+  // 수정된 내용과 원본 내용을 병합하고 repeat 속성 제거
+  const result: Event = {
+    ...originalEvent, // 원본 데이터를 기본으로
+    ...updatedEvent, // 수정된 데이터로 덮어쓰기
+    repeat: undefined, // repeat 속성 제거
+  };
+
+  return result;
+}
+export function deleteRecurringEventInstance(event: Event, dateToExclude: string): Event | null {
+  // 반복 일정이 아닌 경우
+  if (!event.repeat) {
+    return null;
+  }
+
+  // 날짜 유효성 검사
+  const excludeDate = new Date(dateToExclude);
+  if (isNaN(excludeDate.getTime())) {
+    return null;
+  }
+
+  // 반복 일정의 범위 체크
+  const startDate = new Date(event.date);
+  const endDate = event.repeat.endDate ? new Date(event.repeat.endDate) : new Date('2025-06-30'); // 예제 특성상 최대 날짜
+
+  if (excludeDate < startDate || excludeDate > endDate) {
+    return null;
+  }
+
+  // 새로운 제외 날짜 목록 생성
+  const excludeDates = Array.isArray(event.repeat.excludeDates)
+    ? [...event.repeat.excludeDates]
+    : [];
+
+  // 이미 제외된 날짜가 아닌 경우에만 추가
+  if (!excludeDates.includes(dateToExclude)) {
+    excludeDates.push(dateToExclude);
+  }
+
+  // 새로운 이벤트 객체 생성
+  return {
+    ...event,
+    repeat: {
+      ...event.repeat,
+      excludeDates,
+    },
+  };
 }

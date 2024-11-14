@@ -9,6 +9,8 @@ import {
   getWeekDates,
   getWeeksAtMonth,
   isDateInRange,
+  getRecurringDates,
+  getNextRecurringDate,
 } from '../../utils/dateUtils';
 
 describe('getDaysInMonth', () => {
@@ -296,5 +298,132 @@ describe('formatDate', () => {
   it('일이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {
     const testDate = new Date('2023-12-05');
     expect(formatDate(testDate)).toBe('2023-12-05');
+  });
+});
+
+describe('getRecurringDates', () => {
+  const sampleEvent: Event = {
+    id: '1',
+    title: '주간 팀 회의',
+    date: '2024-07-01',
+    startTime: '10:00',
+    endTime: '11:00',
+    description: '주간 업무 보고 및 계획 수립',
+    location: '회의실 A',
+    category: '',
+    repeat: {
+      type: 'weekly',
+      interval: 1,
+      endDate: '2024-12-31',
+    },
+    notificationTime: 10,
+  };
+
+  it('매주 월요일 반복 일정을 올바르게 생성한다', () => {
+    const dates = getRecurringDates(sampleEvent);
+
+    // 2024년 7월 1일부터 12월 30일까지의 모든 월요일
+    expect(dates).toContainEqual(new Date('2024-07-01'));
+    expect(dates).toContainEqual(new Date('2024-07-08'));
+    expect(dates).toContainEqual(new Date('2024-12-23'));
+    expect(dates).toContainEqual(new Date('2024-12-30'));
+    expect(dates).toHaveLength(27); // 7월부터 12월까지의 월요일 수
+  });
+
+  it('특정 날짜를 제외한 반복 일정을 생성한다', () => {
+    const eventWithExclusion = {
+      ...sampleEvent,
+      excludeDates: ['2024-09-16'], // 추석
+    };
+
+    const dates = getRecurringDates(eventWithExclusion);
+    expect(dates).not.toContainEqual(new Date('2024-09-16'));
+    expect(dates).toHaveLength(26); // 전체 27개 중 1개 제외
+  });
+
+  it('반복 종료일 이후의 일정은 생성하지 않는다', () => {
+    const dates = getRecurringDates(sampleEvent);
+    const lastDate = new Date('2024-12-30');
+
+    dates.forEach((date) => {
+      expect(date.getTime()).toBeLessThanOrEqual(lastDate.getTime());
+    });
+  });
+
+  describe('엣지 케이스 처리', () => {
+    it('윤년의 2월 29일에 설정된 매월 반복을 올바르게 처리한다', () => {
+      const leapYearEvent = {
+        ...sampleEvent,
+        date: '2024-02-29',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2025-03-31',
+        },
+      };
+
+      const dates = getRecurringDates(leapYearEvent);
+      expect(dates).toContainEqual(new Date('2024-02-29'));
+      expect(dates).toContainEqual(new Date('2024-03-29'));
+      // 2025년 2월은 28일까지만 있으므로 28일로 조정
+      expect(dates).toContainEqual(new Date('2025-02-28'));
+    });
+
+    it('31일에 설정된 매월 반복을 올바르게 처리한다', () => {
+      const monthEndEvent = {
+        ...sampleEvent,
+        date: '2024-01-31',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2024-04-30',
+        },
+      };
+
+      const dates = getRecurringDates(monthEndEvent);
+      expect(dates).toContainEqual(new Date('2024-01-31'));
+      expect(dates).toContainEqual(new Date('2024-02-29')); // 윤년 2월
+      expect(dates).toContainEqual(new Date('2024-03-31'));
+      expect(dates).toContainEqual(new Date('2024-04-30'));
+    });
+  });
+});
+
+describe('getNextRecurringDate', () => {
+  const baseDate = new Date('2024-01-01');
+
+  it('일간 반복에서 다음 날짜를 계산한다', () => {
+    expect(getNextRecurringDate(baseDate, 'daily', 1)).toEqual(new Date('2024-01-02'));
+    expect(getNextRecurringDate(baseDate, 'daily', 2)).toEqual(new Date('2024-01-03'));
+    expect(getNextRecurringDate(baseDate, 'daily', 5)).toEqual(new Date('2024-01-06'));
+  });
+
+  it('주간 반복에서 다음 날짜를 계산한다', () => {
+    expect(getNextRecurringDate(baseDate, 'weekly', 1)).toEqual(new Date('2024-01-08'));
+    expect(getNextRecurringDate(baseDate, 'weekly', 2)).toEqual(new Date('2024-01-15'));
+    expect(getNextRecurringDate(baseDate, 'weekly', 3)).toEqual(new Date('2024-01-22'));
+  });
+
+  it('월간 반복에서 다음 날짜를 계산한다', () => {
+    expect(getNextRecurringDate(baseDate, 'monthly', 1)).toEqual(new Date('2024-02-01'));
+    expect(getNextRecurringDate(baseDate, 'monthly', 2)).toEqual(new Date('2024-03-01'));
+    expect(getNextRecurringDate(baseDate, 'monthly', 6)).toEqual(new Date('2024-07-01'));
+  });
+
+  describe('엣지 케이스 처리', () => {
+    it('월말 날짜에 대한 월간 반복을 처리한다', () => {
+      const endOfMonth = new Date('2024-01-31');
+      expect(getNextRecurringDate(endOfMonth, 'monthly', 1)).toEqual(new Date('2024-02-29')); // 윤년
+      expect(getNextRecurringDate(endOfMonth, 'monthly', 2)).toEqual(new Date('2024-03-31'));
+    });
+
+    it('잘못된 간격에 대해 null을 반환한다', () => {
+      expect(getNextRecurringDate(baseDate, 'daily', 0)).toBeNull();
+      expect(getNextRecurringDate(baseDate, 'daily', -1)).toBeNull();
+    });
+
+    it('잘못된 반복 타입에 대해 null을 반환한다', () => {
+      expect(getNextRecurringDate(baseDate, 'invalid' as any, 1)).toBeNull();
+    });
   });
 });
