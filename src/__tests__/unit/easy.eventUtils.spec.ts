@@ -1,5 +1,9 @@
-import { Event } from '../../types';
-import { generateRepeatedEvents, getFilteredEvents } from '../../utils/eventUtils';
+import { Event, RepeatInfo } from '../../types';
+import {
+  generateRepeatedEvents,
+  getFilteredEvents,
+  hasChangeInRepeatInfo,
+} from '../../utils/eventUtils';
 
 describe('getFilteredEvents', () => {
   const events: Event[] = [
@@ -870,5 +874,63 @@ describe('generateRepeatedEvents', () => {
         notificationTime: 0,
       });
     });
+  });
+});
+
+describe('hasChangeInRepeatInfo', () => {
+  it('🟢 비교하려는 두 반복 일정 정보의 key가 같고 value도 같다면 false 반환한다.', () => {
+    const repeatInfo1: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2024-12-31',
+      weekType: 'wed',
+      weekOrder: 3,
+    };
+    const repeatInfo2: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2024-12-31',
+      weekType: 'wed',
+      weekOrder: 3,
+    };
+    const result = hasChangeInRepeatInfo(repeatInfo1, repeatInfo2);
+    expect(result).toBe(false);
+  });
+  it('🟢 비교하려는 두 반복 일정 정보의 key가 같고 value는 다르다면 false 반환한다.', () => {
+    const repeatInfo1: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2024-12-31',
+      weekType: 'wed',
+      weekOrder: 3,
+    };
+    const repeatInfo2: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2025-12-31',
+      weekType: 'wed',
+      weekOrder: 3,
+    };
+    const result = hasChangeInRepeatInfo(repeatInfo1, repeatInfo2);
+    expect(result).toBe(true);
+  });
+  it('🟢 비교하려는 두 반복 일정 정보의 key가 다르다면 true 반환한다.', () => {
+    const repeatInfo1: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2024-12-31',
+      weekType: 'wed',
+      weekOrder: 3,
+    };
+    const repeatInfo2: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2024-12-31',
+      weekType: 'wed',
+      weekOrder: 3,
+      day: 11,
+    };
+    const result = hasChangeInRepeatInfo(repeatInfo1, repeatInfo2);
+    expect(result).toBe(true);
   });
 });
