@@ -64,62 +64,75 @@ const assertEventExistsOnDateInMonth = async (date: string, expectedMonth: strin
 };
 
 describe('반복 일정 생성', () => {
-  it('매일 반복 일정이 정상적으로 생성되어야 한다', async () => {
-    setUpMockHandlerRepeatCreation();
-    const { user } = setup(<App />);
-
-    await saveScheduleRepeat(user, {
+  const REPEAT_TEST_CASES = [
+    {
       title: '매일 회의',
-      date: '2024-01-01',
-      startTime: '10:00',
-      endTime: '11:00',
-      description: '설명',
-      location: '위치',
-      category: '업무',
-      repeat: { type: 'daily', interval: 1, endDate: '2024-01-05' },
-    });
-
-    await assertEventExistsOnDateInMonth('2024-01-01', '2024년 1월');
-    await assertEventExistsOnDateInMonth('2024-01-03', '2024년 1월');
-  });
-
-  it('매주 반복 일정이 정상적으로 생성되어야 한다', async () => {
-    setUpMockHandlerRepeatCreation();
-    const { user } = setup(<App />);
-
-    await saveScheduleRepeat(user, {
+      type: 'daily' as const,
+      startDate: '2024-01-01',
+      endDate: '2024-01-05',
+      checkDates: [
+        { date: '2024-01-01', month: '2024년 1월' },
+        { date: '2024-01-03', month: '2024년 1월' },
+      ],
+    },
+    {
       title: '주간 회의',
-      date: '2024-01-01',
-      startTime: '10:00',
-      endTime: '11:00',
-      description: '설명',
-      location: '위치',
-      category: '업무',
-      repeat: { type: 'weekly', interval: 1, endDate: '2024-02-01' },
-    });
+      type: 'weekly' as const,
+      startDate: '2024-01-01',
+      endDate: '2024-02-01',
+      checkDates: [
+        { date: '2024-01-15', month: '2024년 1월' },
+        { date: '2024-01-29', month: '2024년 1월' },
+      ],
+    },
+    {
+      title: '월간 회의',
+      type: 'monthly' as const,
+      startDate: '2024-01-01',
+      endDate: '2024-03-01',
+      checkDates: [
+        { date: '2024-02-01', month: '2024년 2월' },
+        { date: '2024-03-01', month: '2024년 3월' },
+      ],
+    },
+    {
+      title: '연간 회의',
+      type: 'yearly' as const,
+      startDate: '2020-01-15',
+      endDate: '2024-01-15',
+      checkDates: [
+        { date: '2022-01-15', month: '2022년 1월' },
+        { date: '2024-01-15', month: '2024년 1월' },
+      ],
+    },
+  ];
 
-    await assertEventExistsOnDateInMonth('2024-01-15', '2024년 1월');
-    await assertEventExistsOnDateInMonth('2024-01-29', '2024년 1월');
-  });
+  const DEFAULT_EVENT = {
+    startTime: '10:00',
+    endTime: '11:00',
+    description: '설명',
+    location: '위치',
+    category: '업무',
+  } as const;
 
-  it('매달 반복 일정이 정상적으로 생성되어야 한다', async () => {
-    setUpMockHandlerRepeatCreation();
-    const { user } = setup(<App />);
+  it.each(REPEAT_TEST_CASES)(
+    '$type 반복 일정이 정상적으로 생성되어야 한다',
+    async ({ title, type, startDate, endDate, checkDates }) => {
+      setUpMockHandlerRepeatCreation();
+      const { user } = setup(<App />);
 
-    await saveScheduleRepeat(user, {
-      title: '주간 회의',
-      date: '2024-01-01',
-      startTime: '10:00',
-      endTime: '11:00',
-      description: '설명',
-      location: '위치',
-      category: '업무',
-      repeat: { type: 'monthly', interval: 1, endDate: '2024-03-01' },
-    });
+      await saveScheduleRepeat(user, {
+        ...DEFAULT_EVENT,
+        title,
+        date: startDate,
+        repeat: { type, interval: 1, endDate },
+      });
 
-    await assertEventExistsOnDateInMonth('2024-02-01', '2024년 2월');
-    await assertEventExistsOnDateInMonth('2024-03-01', '2024년 3월');
-  });
+      for (const { date, month } of checkDates) {
+        await assertEventExistsOnDateInMonth(date, month);
+      }
+    }
+  );
 
   it('월말에서 다음달 초로 넘어가는 일일 반복이 정상 동작해야 한다', async () => {
     setUpMockHandlerRepeatCreation();
