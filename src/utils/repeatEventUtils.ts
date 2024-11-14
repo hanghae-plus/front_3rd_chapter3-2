@@ -8,7 +8,7 @@ export const generateRepeatingEvents = (eventData: EventForm): Event[] => {
 
   const startDate = new Date(eventData.date);
   let endDate: Date;
-  
+
   if (repeat.endDate) {
     endDate = new Date(repeat.endDate);
   } else {
@@ -40,7 +40,7 @@ const getNextRepeatDate = (currentDate: Date, repeatType: RepeatType, interval: 
       nextDate.setDate(nextDate.getDate() + interval);
       break;
     case 'weekly':
-      nextDate.setDate(nextDate.getDate() + (7 * interval));
+      nextDate.setDate(nextDate.getDate() + 7 * interval);
       break;
     case 'monthly':
       nextDate.setMonth(nextDate.getMonth() + interval);

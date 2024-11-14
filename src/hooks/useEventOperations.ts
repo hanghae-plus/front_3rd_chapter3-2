@@ -32,24 +32,24 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     try {
       const repeatingEvents = generateRepeatingEvents(eventData);
 
-    const response = await fetch('/api/events-list', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ events: repeatingEvents }),
-    });
+      const response = await fetch('/api/events-list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ events: repeatingEvents }),
+      });
 
-    if (!response.ok) {
-      throw new Error('Failed to create repeating events');
-    }
+      if (!response.ok) {
+        throw new Error('Failed to create repeating events');
+      }
 
-    await fetchEvents();
-    onSave?.();
-    toast({
-      title: '반복 일정이 추가되었습니다.',
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
+      await fetchEvents();
+      onSave?.();
+      toast({
+        title: '반복 일정이 추가되었습니다.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error('Error creating repeating events:', error);
       toast({
@@ -183,7 +183,6 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
         if (!response.ok) {
           throw new Error('Failed to delete event');
         }
-  
         await fetchEvents();
         toast({
           title: '일정이 삭제되었습니다.',
@@ -191,7 +190,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
           duration: 3000,
           isClosable: true,
         });
-      }     
+      }
     } catch (error) {
       console.error('Error deleting event:', error);
       toast({

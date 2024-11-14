@@ -294,7 +294,6 @@ function App() {
     );
   };
 
-
   return (
     <Box w="full" h="100vh" m="auto" p={5}>
       <Flex gap={6} h="full">
@@ -470,9 +469,7 @@ function App() {
                   <VStack align="start">
                     <HStack>
                       {notifiedEvents.includes(event.id) && <BellIcon color="red.500" />}
-                      {event.repeat.type !== 'none' && (
-                          <RepeatIcon data-testid="repeat-icon" />
-                        )}
+                      {event.repeat.type !== 'none' && <RepeatIcon data-testid="repeat-icon" />}
                       <Text
                         fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
                         color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
@@ -554,7 +551,6 @@ function App() {
               <Button
                 colorScheme="red"
                 onClick={() => {
-                  
                   setIsOverlapDialogOpen(false);
                   saveEvent({
                     id: editingEvent ? editingEvent.id : undefined,

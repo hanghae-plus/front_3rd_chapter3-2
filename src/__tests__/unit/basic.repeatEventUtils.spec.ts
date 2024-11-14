@@ -1,5 +1,5 @@
-import { generateRepeatingEvents } from '../../utils/repeatEventUtils';
 import { EventForm, RepeatType } from '../../types';
+import { generateRepeatingEvents } from '../../utils/repeatEventUtils';
 
 describe('generateRepeatingEvents', () => {
   const baseEvent: EventForm = {
@@ -14,7 +14,7 @@ describe('generateRepeatingEvents', () => {
     repeat: {
       type: 'daily' as RepeatType,
       interval: 1,
-      endDate: '2023-01-05', 
+      endDate: '2023-01-05',
     },
   };
 
@@ -26,14 +26,14 @@ describe('generateRepeatingEvents', () => {
   });
 
   it('주간 반복 이벤트를 생성한다', () => {
-    const weeklyEvent: EventForm = { 
-      ...baseEvent, 
-      repeat: { 
-        ...baseEvent.repeat, 
-        type: 'weekly' as RepeatType, 
-        interval: 1, 
-        endDate: '2023-01-29' 
-      } 
+    const weeklyEvent: EventForm = {
+      ...baseEvent,
+      repeat: {
+        ...baseEvent.repeat,
+        type: 'weekly' as RepeatType,
+        interval: 1,
+        endDate: '2023-01-29',
+      },
     };
     const events = generateRepeatingEvents(weeklyEvent);
     expect(events.length).toBe(5);
@@ -42,14 +42,14 @@ describe('generateRepeatingEvents', () => {
   });
 
   it('월간 반복 이벤트를 생성한다', () => {
-    const monthlyEvent: EventForm = { 
-      ...baseEvent, 
-      repeat: { 
-        ...baseEvent.repeat, 
+    const monthlyEvent: EventForm = {
+      ...baseEvent,
+      repeat: {
+        ...baseEvent.repeat,
         type: 'monthly' as RepeatType, // 여기도 'as RepeatType'를 추가
-        interval: 1, 
-        endDate: '2023-05-01' 
-      } 
+        interval: 1,
+        endDate: '2023-05-01',
+      },
     };
     const events = generateRepeatingEvents(monthlyEvent);
     expect(events.length).toBe(5);
@@ -58,14 +58,14 @@ describe('generateRepeatingEvents', () => {
   });
 
   it('연간 반복 이벤트를 생성한다', () => {
-    const yearlyEvent: EventForm = { 
-      ...baseEvent, 
-      repeat: { 
-        ...baseEvent.repeat, 
-        type: 'yearly' as RepeatType, 
-        interval: 1, 
-        endDate: '2027-01-01' 
-      } 
+    const yearlyEvent: EventForm = {
+      ...baseEvent,
+      repeat: {
+        ...baseEvent.repeat,
+        type: 'yearly' as RepeatType,
+        interval: 1,
+        endDate: '2027-01-01',
+      },
     };
     const events = generateRepeatingEvents(yearlyEvent);
     expect(events.length).toBe(5);
@@ -74,12 +74,12 @@ describe('generateRepeatingEvents', () => {
   });
 
   it('반복 종료일이 없는 경우 1년 후까지 이벤트를 생성한다', () => {
-    const noEndDateEvent: EventForm = { 
-      ...baseEvent, 
-      repeat: { 
-        ...baseEvent.repeat, 
-        endDate: undefined 
-      } 
+    const noEndDateEvent: EventForm = {
+      ...baseEvent,
+      repeat: {
+        ...baseEvent.repeat,
+        endDate: undefined,
+      },
     };
     const events = generateRepeatingEvents(noEndDateEvent);
     expect(events.length).toBe(365);
@@ -88,13 +88,13 @@ describe('generateRepeatingEvents', () => {
   });
 
   it('잘못된 반복 설정으로 에러를 발생시킨다', () => {
-    const invalidEvent: EventForm = { 
-      ...baseEvent, 
-      repeat: { 
+    const invalidEvent: EventForm = {
+      ...baseEvent,
+      repeat: {
         type: 'none' as RepeatType,
         interval: 1,
-        endDate: undefined
-      } 
+        endDate: undefined,
+      },
     };
     expect(() => generateRepeatingEvents(invalidEvent)).toThrow('Invalid repeat configuration');
   });
