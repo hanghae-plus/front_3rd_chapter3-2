@@ -47,7 +47,6 @@ import { useNotifications } from './hooks/useNotifications.ts';
 import { useSearch } from './hooks/useSearch.ts';
 import { Event, EventForm, RepeatType } from './types';
 import {
-  adjustDateForLeapYear,
   formatDate,
   formatMonth,
   formatWeek,
@@ -139,12 +138,10 @@ function App() {
       return;
     }
 
-    const adjustedDate = adjustDateForLeapYear(new Date(date), repeatType);
-
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
       title,
-      date: adjustedDate.toISOString().split('T')[0],
+      date,
       startTime,
       endTime,
       description,

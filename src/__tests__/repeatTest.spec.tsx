@@ -20,11 +20,14 @@
 **/
 
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
 
+import { setupMockHandlerCreation } from '../__mocks__/handlersUtils';
 import App from '../App';
+import { server } from '../setupTests';
 
 const setup = (element: ReactElement) => {
   const user = userEvent.setup();
@@ -36,6 +39,14 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.resetAllMocks();
 });
+
+const repeatEventMock = {
+  id: 1,
+  title: '반복 일정',
+  date: '2024-11-01',
+  repeat: 'weekly',
+  endDate: '2024-12-31',
+};
 
 describe('반복 유형 선택', () => {
   it('반복 일정 클릭 시 하위 메뉴가 출력된다.', async () => {
@@ -132,41 +143,40 @@ describe('반복 간격 설정', () => {
 });
 
 describe('반복 일정 표시', () => {
-  it('캘린더 뷰에서 반복 일정을 시각적(태그)으로 구분하여 표시하고 종료 날짜를 정확히 확인한다.', async () => {
+  it('캘린더 뷰에서 반복 일정을 시각적으로 구분하고 종료 날짜를 정확히 확인한다.', async () => {
+    setupMockHandlerCreation();
+
     const { user } = setup(<App />);
 
-    // 반복 설정 체크박스 클릭
-    const checkbox = screen.getByRole('checkbox', { name: /repeat setting/i });
-    await user.click(checkbox);
+    // 반복 일정 추가
+    await user.click(screen.getByText('일정 추가'));
 
-    // 반복 유형 선택
-    const repeatType = screen.getByLabelText(/반복 유형/i);
-    await user.selectOptions(repeatType, ['weekly']);
+    await user.type(screen.getByLabelText('제목'), '반복 일정');
+    await user.type(screen.getByLabelText('날짜'), '2024-11-01');
+    await user.selectOptions(screen.getByLabelText('반복 유형'), 'weekly');
+    await user.type(screen.getByLabelText('반복 종료일'), '2024-12-31');
 
-    // 종료 날짜 입력
-    const endDateInput = screen.getByLabelText(/종료 날짜/i);
-    const repeatEndDate = '2024-12-31'; // 테스트용 종료 날짜
-    await user.type(endDateInput, repeatEndDate);
+    await user.click(screen.getByTestId('event-submit-button'));
 
-    // 일정 제출 버튼 클릭
-    const submitButton = screen.getByTestId('event-submit-button');
-    await user.click(submitButton);
-
-    // 반복 일정 태그 확인
+    // 반복 일정 확인
     await waitFor(() => {
-      const repeatTag = screen.getByTestId('repeat-tag');
-      expect(repeatTag).toBeInTheDocument();
-      expect(repeatTag).toHaveTextContent('반복: 1주마다 (종료: 2024-12-31)');
+      const eventList = within(screen.getByTestId('event-list'));
+      expect(eventList.getByText('반복 일정')).toBeInTheDocument();
+      expect(eventList.getByText('반복: 1주마다 (종료: 2024-12-31)')).toBeInTheDocument();
     });
-
-    // 정확한 종료 날짜가 있는지 확인
-    const eventWithEndDate = screen.getByText(`(종료: ${repeatEndDate})`);
-    expect(eventWithEndDate).toBeInTheDocument();
   });
 });
 
 describe('반복 종료', () => {
   // 옵션: 특정 날짜까지, 특정 횟수만큼, 또는 종료 없음 (예제 특성상, 2025-06-30까지)
+  beforeAll(() => {
+    server.use(
+      http.post('/api/events', () => {
+        return HttpResponse.json(repeatEventMock);
+      })
+    );
+  });
+
   it('반복 종료 조건을 지정할 수 있다.', async () => {
     const { user } = setup(<App />);
 
@@ -186,10 +196,22 @@ describe('반복 종료', () => {
 });
 
 describe('반복 일정 단일 수정', () => {
+  beforeAll(() => {
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json([repeatEventMock]);
+      }),
+      http.put('/api/events/:id', () => {
+        const updatedEvent = { ...repeatEventMock, title: '수정된 일정', repeat: null };
+        return HttpResponse.json(updatedEvent);
+      })
+    );
+  });
+
   it('반복일정을 수정하면 단일 일정으로 변경됩니다.', async () => {
     const { user } = setup(<App />);
 
-    const eventToEdit = screen.getByText(/반복 일정/);
+    const eventToEdit = await screen.findByText(/반복 일정/);
     await user.click(eventToEdit);
 
     const titleInput = screen.getByLabelText('제목');
@@ -226,10 +248,20 @@ describe('반복 일정 단일 수정', () => {
 });
 
 describe('반복 일정 단일 삭제', () => {
+  beforeAll(() => {
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json([repeatEventMock]);
+      }),
+      http.delete('/api/events/:id', () => {
+        return HttpResponse.json({ status: 204 });
+      })
+    );
+  });
   it('반복일정을 삭제하면 해당 일정만 삭제합니다.', async () => {
     const { user } = setup(<App />);
 
-    const eventToDelete = screen.getByText(/반복 일정/);
+    const eventToDelete = await screen.findByText(/반복 일정/);
     await user.click(eventToDelete);
 
     const deleteButton = screen.getByLabelText('Delete event');
