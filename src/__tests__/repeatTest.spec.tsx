@@ -133,7 +133,24 @@ describe('반복 간격 설정', () => {
 
 describe('반복 일정 표시', () => {
   // 아이콘을 넣든 태그를 넣든 자유롭게 해보세요!
-  it('캘린더 뷰에서 반복 일정을 시각적으로 구분하여 표시한다.', () => {});
+  it('캘린더 뷰에서 반복 일정을 시각적(태그)으로 구분하여 표시한다.', async () => {
+    const { user } = setup(<App />);
+
+    const checkbox = screen.getByRole('checkbox', { name: 'repeat setting' });
+    await user.click(checkbox);
+
+    const repeatType = screen.getByLabelText('반복 유형');
+    await user.selectOptions(repeatType, ['weekly']);
+
+    const submitButton = screen.getByTestId('event-submit-button');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      const repeatTag = screen.getByTestId('repeat-tag');
+      expect(repeatTag).toBeInTheDocument();
+      expect(repeatTag).toHaveTextContent('반복: 1주마다');
+    });
+  });
 });
 
 describe('반복 종료', () => {
@@ -143,7 +160,7 @@ describe('반복 종료', () => {
 
 describe('반복 일정 단일 수정', () => {
   it('반복일정을 수정하면 단일 일정으로 변경됩니다.', () => {});
-  it('반복일정 아이콘도 사라집니다.', () => {});
+  it('반복일정 태그도 사라집니다.', () => {});
 });
 
 describe('반복 일정 단일 삭제', () => {
