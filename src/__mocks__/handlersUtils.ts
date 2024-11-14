@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw';
 
 import { server } from '../setupTests';
 import { Event } from '../types';
+import { getNextDate } from '../utils/dateUtils';
 
 // ! Hard 여기 제공 안함
 export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
@@ -16,6 +17,31 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
       newEvent.id = String(mockEvents.length + 1); // 간단한 ID 생성
       mockEvents.push(newEvent);
       return HttpResponse.json(newEvent, { status: 201 });
+    }),
+    http.post('/api/events/repeat', async ({ request }) => {
+      const baseEvent = (await request.json()) as Event;
+      const { repeat } = baseEvent;
+      const { type, interval, endDate } = repeat;
+
+      let currentDate = new Date(baseEvent.date);
+
+      const end = new Date(endDate || '2025-06-30');
+
+      while (currentDate <= end) {
+        // currentDate = adjustForLeapYear(currentDate);
+        const newRepeatedEvent = {
+          ...baseEvent,
+          id: String(mockEvents.length + 1),
+          date: currentDate.toISOString().split('T')[0],
+        };
+
+        mockEvents.push(newRepeatedEvent);
+
+        // 다음 반복 날짜로 이동
+        currentDate = getNextDate(currentDate, type, interval);
+      }
+
+      return HttpResponse.json({ events: mockEvents }, { status: 201 });
     })
   );
 };
