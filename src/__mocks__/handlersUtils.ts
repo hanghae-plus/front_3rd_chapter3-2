@@ -16,6 +16,12 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
       newEvent.id = String(mockEvents.length + 1); // 간단한 ID 생성
       mockEvents.push(newEvent);
       return HttpResponse.json(newEvent, { status: 201 });
+    }),
+    http.post('/api/events-list', async ({ request }) => {
+      const requestBody = (await request.json()) as { events: Event[] };
+      const newEvents = requestBody.events;
+      mockEvents.push(...newEvents);
+      return HttpResponse.json(newEvents, { status: 201 });
     })
   );
 };
@@ -63,6 +69,49 @@ export const setupMockHandlerUpdating = () => {
   );
 };
 
+export const setupMockHandlerUpdatingRepeat = () => {
+  const mockEvents: Event[] = [
+    {
+      id: '1',
+      title: '반복 회의',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '반복 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-16' },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '반복 회의',
+      date: '2024-10-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '반복 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-16' },
+      notificationTime: 10,
+    },
+  ];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+    http.put('/api/events/:id', async ({ params, request }) => {
+      const { id } = params;
+      const updatedEvent = (await request.json()) as Event;
+      const index = mockEvents.findIndex((event) => event.id === id);
+
+      mockEvents[index] = { ...mockEvents[index], ...updatedEvent };
+      return HttpResponse.json(mockEvents[index]);
+    })
+  );
+};
+
 export const setupMockHandlerDeletion = () => {
   const mockEvents: Event[] = [
     {
@@ -75,6 +124,48 @@ export const setupMockHandlerDeletion = () => {
       location: '어딘가',
       category: '기타',
       repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+  ];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+    http.delete('/api/events/:id', ({ params }) => {
+      const { id } = params;
+      const index = mockEvents.findIndex((event) => event.id === id);
+
+      mockEvents.splice(index, 1);
+      return new HttpResponse(null, { status: 204 });
+    })
+  );
+};
+
+export const setupMockHandlerDeletionRepeat = () => {
+  const mockEvents: Event[] = [
+    {
+      id: '1',
+      title: '반복 회의',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '반복 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-16' },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '반복 회의',
+      date: '2024-10-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '반복 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-16' },
       notificationTime: 10,
     },
   ];
