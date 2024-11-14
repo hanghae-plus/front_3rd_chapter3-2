@@ -5,7 +5,7 @@ import { Event } from '../../types.ts';
 
 const mockEvents: Event[] = [
   {
-    id: '1',
+    id: 1,
     title: '회의',
     date: '2024-10-01',
     startTime: '10:00',
@@ -17,7 +17,7 @@ const mockEvents: Event[] = [
     notificationTime: 10,
   },
   {
-    id: '2',
+    id: 2,
     title: '점심 약속',
     date: '2024-10-02',
     startTime: '12:00',
@@ -29,7 +29,7 @@ const mockEvents: Event[] = [
     notificationTime: 10,
   },
   {
-    id: '3',
+    id: 3,
     title: '운동',
     date: '2024-10-11',
     startTime: '18:00',
