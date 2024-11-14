@@ -303,21 +303,11 @@ describe('formatDate', () => {
 
 describe('isLeapYear', () => {
   it('해당 년도가 윤년이면 true를 반환한다.', () => {
-    expect(isLeapYear('2024-2-29')).toBe(true);
+    expect(isLeapYear(2024)).toBe(true);
   });
 
   it('해당 년도가 윤년이 아니면 false를 반환한다.', () => {
-    expect(isLeapYear('2023-2-28')).toBe(false);
-  });
-});
-
-describe('handleSaveMultipleEvent', () => {
-  it('해당 년도가 윤년이면 true를 반환한다.', () => {
-    expect(isLeapYear('2024-2-29')).toBe(true);
-  });
-
-  it('해당 년도가 윤년이 아니면 false를 반환한다.', () => {
-    expect(isLeapYear('2023-2-28')).toBe(false);
+    expect(isLeapYear(2023)).toBe(false);
   });
 });
 
@@ -337,8 +327,8 @@ describe('getNextDate', () => {
     expect(getNextData(testDate, 'yearly', 1)).toBe('2025-02-28');
   });
 
-  it('이벤트의 type이 yearly이고 currentDate가 2월29일이면 4년 후 2월29일을 반환한다.', () => {
-    const testDate = new Date('2020-02-29');
+  it('이벤트의 type이 yearly이고 startDate가 2월29일이면 4년 후 2월29일을 반환한다.', () => {
+    const testDate = new Date('2023-02-28');
     expect(getNextData(testDate, 'yearly', 1)).toBe('2024-02-29');
   });
 
@@ -362,13 +352,19 @@ describe('getNextDate', () => {
     expect(getNextData(testDate, 'monthly', 1)).toBe('2024-02-28');
   });
 
-  it('이벤트의 type이 monthly이고 currentDate가 2월29면 2월28일을 반환한다.', () => {
-    const testDate = new Date('2024-02-14');
-    expect(getNextData(testDate, 'monthly', 1)).toBe('2024-12-14');
+  it('이벤트의 type이 monthly이고 startDate가 1월29일, currentDate가 2월28일면 3월29일을 반환한다.', () => {
+    const testDate = new Date('2023-02-28');
+    expect(getNextData(testDate, 'monthly', 1)).toBe('2023-03-29');
   });
-  it('이벤트의 type이 monthly이고 currentDate가 2월29면 2월28일을 반환한다.', () => {
-    const testDate = new Date('2024-02-14');
-    expect(getNextData(testDate, 'monthly', 1)).toBe('2024-12-14');
+
+  it('이벤트의 type이 monthly이고 currentDate가 3월31일이면 4월30일을 반환한다.', () => {
+    const testDate = new Date('2024-03-31');
+    expect(getNextData(testDate, 'monthly', 1)).toBe('2024-4-30');
+  });
+
+  it('이벤트의 type이 monthly이고 startDate가 3월31일, currentDate가 4월30일이면 5월31일을 반환한다.', () => {
+    const testDate = new Date('2024-03-31');
+    expect(getNextData(testDate, 'monthly', 1)).toBe('2024-5-31');
   });
 
   it('이벤트의 type이 weekly이고 interval가 1이라면 다음주를 반환한다.', () => {
@@ -391,3 +387,5 @@ describe('getNextDate', () => {
     expect(getNextData(testDate, 'daily', 2)).toBe('2024-11-16');
   });
 });
+
+// describe('handleSaveMultipleEvent', () => {});
