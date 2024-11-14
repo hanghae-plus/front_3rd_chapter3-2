@@ -6,6 +6,8 @@ export interface RepeatInfo {
   endDate?: string;
 }
 
+export const DEFAULT_REPEAT_INFO: RepeatInfo = { type: 'none', interval: 0, endDate: undefined };
+
 export type EventForm = {
   title: string;
   date: string;

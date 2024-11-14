@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { Event, EventForm, RepeatInfo } from '../types';
+import { DEFAULT_REPEAT_INFO, Event, EventForm, RepeatInfo } from '../types';
 import { getTimeErrorMessage } from '../utils/timeValidation';
 
 type TimeErrorRecord = Record<'startTimeError' | 'endTimeError', string | null>;
@@ -37,11 +37,7 @@ const initialEventForm: StoreEventForm = {
   category: '',
 
   isRepeating: false,
-  repeat: {
-    type: 'none',
-    interval: 0,
-    endDate: '',
-  },
+  repeat: DEFAULT_REPEAT_INFO,
   notificationTime: 10,
 };
 
