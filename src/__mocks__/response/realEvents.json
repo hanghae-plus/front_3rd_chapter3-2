@@ -57,8 +57,122 @@
       "description": "주간 운동",
       "location": "헬스장",
       "category": "개인",
-      "repeat": { "type": "none", "interval": 0 },
+      "repeat": { "type": "none", "endDate": "2024-11-26" },
       "notificationTime": 1
+    },
+    {
+      "id": "",
+      "title": "매월테스트",
+      "date": "2024-11-15",
+      "startTime": "02:55",
+      "endTime": "14:56",
+      "description": "동료와 점심 식사",
+      "location": "회사 근처 식당",
+      "category": "업무",
+      "repeat": { "type": "yearly", "interval": 1, "endDate": "2025-02-22" },
+      "notificationTime": 10
+    },
+    {
+      "id": "",
+      "title": "매주테스트",
+      "date": "2024-11-22",
+      "startTime": "14:54",
+      "endTime": "15:54",
+      "description": "주간 운동",
+      "location": "헬스장",
+      "category": "업무",
+      "repeat": {
+        "type": "weekly",
+        "interval": 1,
+        "endDate": "2024-11-30",
+        "id": "19d2f496-58c8-4de6-ab6e-9b79db847a7e"
+      },
+      "notificationTime": 10
+    },
+    {
+      "id": "",
+      "title": "매주테스트",
+      "date": "2024-11-29",
+      "startTime": "14:54",
+      "endTime": "15:54",
+      "description": "주간 운동",
+      "location": "헬스장",
+      "category": "업무",
+      "repeat": {
+        "type": "weekly",
+        "interval": 1,
+        "endDate": "2024-11-30",
+        "id": "19d2f496-58c8-4de6-ab6e-9b79db847a7e"
+      },
+      "notificationTime": 10
+    },
+    {
+      "id": "",
+      "title": "매월테스트",
+      "date": "2024-11-15",
+      "startTime": "02:55",
+      "endTime": "14:56",
+      "description": "동료와 점심 식사",
+      "location": "회사 근처 식당",
+      "category": "업무",
+      "repeat": {
+        "type": "monthly",
+        "interval": 1,
+        "endDate": "2025-02-22",
+        "id": "a4d7b563-f977-4a38-bf3e-402db06c1e4c"
+      },
+      "notificationTime": 10
+    },
+    {
+      "id": "",
+      "title": "매월테스트",
+      "date": "2024-12-15",
+      "startTime": "02:55",
+      "endTime": "14:56",
+      "description": "동료와 점심 식사",
+      "location": "회사 근처 식당",
+      "category": "업무",
+      "repeat": {
+        "type": "monthly",
+        "interval": 1,
+        "endDate": "2025-02-22",
+        "id": "a4d7b563-f977-4a38-bf3e-402db06c1e4c"
+      },
+      "notificationTime": 10
+    },
+    {
+      "id": "",
+      "title": "매월테스트",
+      "date": "2025-01-15",
+      "startTime": "02:55",
+      "endTime": "14:56",
+      "description": "동료와 점심 식사",
+      "location": "회사 근처 식당",
+      "category": "업무",
+      "repeat": {
+        "type": "monthly",
+        "interval": 1,
+        "endDate": "2025-02-22",
+        "id": "a4d7b563-f977-4a38-bf3e-402db06c1e4c"
+      },
+      "notificationTime": 10
+    },
+    {
+      "id": "",
+      "title": "매월테스트",
+      "date": "2025-02-15",
+      "startTime": "02:55",
+      "endTime": "14:56",
+      "description": "동료와 점심 식사",
+      "location": "회사 근처 식당",
+      "category": "업무",
+      "repeat": {
+        "type": "monthly",
+        "interval": 1,
+        "endDate": "2025-02-22",
+        "id": "a4d7b563-f977-4a38-bf3e-402db06c1e4c"
+      },
+      "notificationTime": 10
     }
   ]
 }
