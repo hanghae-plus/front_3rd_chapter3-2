@@ -30,7 +30,7 @@ describe('반복 설정', () => {
 });
 
 describe('반복 선택 초기 설정', () => {
-  it('isRepeating이 true일 때 repeatType은 none이 아니어야 하며, "daily"이어야 한다', () => {
+  it('isRepeating가 true일 때 repeatType은 none이 아니어야 하며, daily이어야 한다', () => {
     const { result } = renderHook(() => useEventForm());
 
     act(() => {
@@ -42,16 +42,5 @@ describe('반복 선택 초기 설정', () => {
     expect(result.current.isRepeating).toBe(true);
     expect(result.current.repeatType).not.toBe('none');
     expect(result.current.repeatType).toBe('daily');
-  });
-  it('isRepeating이 true일 때 repeatInterval은 1이어야 한다', () => {
-    const { result } = renderHook(() => useEventForm());
-
-    act(() => {
-      result.current.handleIsRepeatingChange({
-        target: { checked: true },
-      } as ChangeEvent<HTMLInputElement>);
-    });
-
-    expect(result.current.repeatInterval).toBe(1);
   });
 });

@@ -44,6 +44,13 @@ export const useEventForm = (initialEvent?: Event) => {
     setTimeError(getTimeErrorMessage(startTime, newEndTime));
   };
 
+  function handleIsRepeatingChange(e: ChangeEvent<HTMLInputElement>) {
+    setIsRepeating(e.target.checked);
+    if (!e.target.checked) return setRepeatType('none');
+
+    setRepeatType(repeatTypeOptions[1]);
+  }
+
   const resetForm = () => {
     setTitle('');
     setDate('');
@@ -78,12 +85,6 @@ export const useEventForm = (initialEvent?: Event) => {
   function cancelEdit() {
     setEditingEvent(null);
     resetForm();
-  }
-  function handleIsRepeatingChange(e: ChangeEvent<HTMLInputElement>) {
-    setIsRepeating(e.target.checked);
-    if (!e.target.checked) return setRepeatType('none');
-
-    setRepeatType(repeatTypeOptions[1]);
   }
 
   return {
