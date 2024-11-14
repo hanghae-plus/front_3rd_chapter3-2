@@ -4,6 +4,7 @@ import {
   ChevronRightIcon,
   DeleteIcon,
   EditIcon,
+  RepeatIcon, //반복일정 아이콘
 } from '@chakra-ui/icons';
 import {
   Alert,
@@ -117,6 +118,27 @@ function App() {
 
   const toast = useToast();
 
+  const renderEvent = (event: Event) => (
+    <Box
+      key={event.id}
+      p={1}
+      my={1}
+      bg={notifiedEvents.includes(event.id) ? 'red.100' : 'gray.100'}
+      borderRadius="md"
+      position="relative"
+    >
+      <HStack spacing={1}>
+        {(event.repeat.type !== 'none' || event.repeat.id) && (
+          <RepeatIcon data-testid="repeat-icon" color="blue.500" boxSize={3} />
+        )}
+        {notifiedEvents.includes(event.id) && <BellIcon color="red.500" boxSize={3} />}
+        <Text fontSize="sm" noOfLines={1}>
+          {event.title}
+        </Text>
+      </HStack>
+    </Box>
+  );
+
   const addOrUpdateEvent = async () => {
     if (!title || !date || !startTime || !endTime) {
       toast({
@@ -187,27 +209,7 @@ function App() {
                   <Text fontWeight="bold">{date.getDate()}</Text>
                   {filteredEvents
                     .filter((event) => new Date(event.date).toDateString() === date.toDateString())
-                    .map((event) => {
-                      const isNotified = notifiedEvents.includes(event.id);
-                      return (
-                        <Box
-                          key={event.id}
-                          p={1}
-                          my={1}
-                          bg={isNotified ? 'red.100' : 'gray.100'}
-                          borderRadius="md"
-                          fontWeight={isNotified ? 'bold' : 'normal'}
-                          color={isNotified ? 'red.500' : 'inherit'}
-                        >
-                          <HStack spacing={1}>
-                            {isNotified && <BellIcon />}
-                            <Text fontSize="sm" noOfLines={1}>
-                              {event.title}
-                            </Text>
-                          </HStack>
-                        </Box>
-                      );
-                    })}
+                    .map(renderEvent)}
                 </Td>
               ))}
             </Tr>
@@ -256,27 +258,7 @@ function App() {
                               {holiday}
                             </Text>
                           )}
-                          {getEventsForDay(filteredEvents, day).map((event) => {
-                            const isNotified = notifiedEvents.includes(event.id);
-                            return (
-                              <Box
-                                key={event.id}
-                                p={1}
-                                my={1}
-                                bg={isNotified ? 'red.100' : 'gray.100'}
-                                borderRadius="md"
-                                fontWeight={isNotified ? 'bold' : 'normal'}
-                                color={isNotified ? 'red.500' : 'inherit'}
-                              >
-                                <HStack spacing={1}>
-                                  {isNotified && <BellIcon />}
-                                  <Text fontSize="sm" noOfLines={1}>
-                                    {event.title}
-                                  </Text>
-                                </HStack>
-                              </Box>
-                            );
-                          })}
+                          {getEventsForDay(filteredEvents, day).map(renderEvent)}
                         </>
                       )}
                     </Td>
@@ -463,6 +445,9 @@ function App() {
                 <HStack justifyContent="space-between">
                   <VStack align="start">
                     <HStack>
+                      {event.isRecurring && (
+                        <RepeatIcon data-testid="repeat-icon" color="blue.500" />
+                      )}
                       {notifiedEvents.includes(event.id) && <BellIcon color="red.500" />}
                       <Text
                         fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
@@ -503,11 +488,13 @@ function App() {
                       aria-label="Edit event"
                       icon={<EditIcon />}
                       onClick={() => editEvent(event)}
+                      data-testid="edit-button"
                     />
                     <IconButton
                       aria-label="Delete event"
                       icon={<DeleteIcon />}
                       onClick={() => deleteEvent(event.id)}
+                      data-testid="delete-button"
                     />
                   </HStack>
                 </HStack>
