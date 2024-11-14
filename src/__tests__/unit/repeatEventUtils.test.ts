@@ -2,7 +2,7 @@ import { RepeatInfo } from '../../types';
 import { generateRepeatEventDates } from '../../utils/repeatEventUtils';
 
 describe('generateRepeatEventDates', () => {
-  it('주간 반복 일정의 날짜들을 생성해야 한다', () => {
+  it('주간 반복 일정의 날짜들을 생성한다', () => {
     const baseDate = '2024-10-15';
     const repeat = {
       type: 'weekly',
@@ -15,7 +15,7 @@ describe('generateRepeatEventDates', () => {
     expect(dates).toEqual(['2024-10-15', '2024-10-22', '2024-10-29']);
   });
 
-  it('격주 반복 일정을 생성해야 한다', () => {
+  it('격주 반복 일정을 생성한다', () => {
     const baseDate = '2024-11-01';
     const repeat: RepeatInfo = {
       type: 'weekly',
@@ -26,6 +26,22 @@ describe('generateRepeatEventDates', () => {
       '2024-11-01',
       '2024-11-15',
       '2024-11-29',
+    ]);
+  });
+
+  it('일간 반복 일정을 생성한다', () => {
+    const baseDate = '2024-11-01';
+    const repeat: RepeatInfo = {
+      type: 'daily',
+      interval: 1,
+      endDate: '2024-11-05',
+    };
+    expect(generateRepeatEventDates(baseDate, repeat)).toEqual([
+      '2024-11-01',
+      '2024-11-02',
+      '2024-11-03',
+      '2024-11-04',
+      '2024-11-05',
     ]);
   });
 });
