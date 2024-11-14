@@ -53,7 +53,6 @@ import {
   getEventsForDay,
   getWeekDates,
   getWeeksAtMonth,
-  getRecurringDates,
 } from './utils/dateUtils';
 import { findOverlappingEvents } from './utils/eventOverlap';
 import { getTimeErrorMessage } from './utils/timeValidation';
@@ -104,9 +103,8 @@ function App() {
     editEvent,
   } = useEventForm();
 
-  const { events, saveEvent, deleteEvent, setEvents } = useEventOperations(
-    Boolean(editingEvent),
-    () => setEditingEvent(null)
+  const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
+    setEditingEvent(null)
   );
 
   const { notifications, notifiedEvents, setNotifications } = useNotifications(events);
@@ -165,29 +163,6 @@ function App() {
       await saveEvent(eventData);
       resetForm();
     }
-  };
-
-  const handleRecurringEvent = (
-    startDate: Date,
-    endDate: Date,
-    recurringType: 'daily' | 'weekly' | 'monthly' | 'yearly',
-    modifyAfterDate?: Date
-  ) => {
-    const recurringDates = getRecurringDates({
-      startDate,
-      endDate,
-      recurringType,
-      modifyAfterDate,
-    });
-
-    setEvents((prev) => [
-      ...prev,
-      ...recurringDates.map((date) => ({
-        date,
-        time: getEventTime(date),
-        // 다른 필요한 이벤트 속성들...
-      })),
-    ]);
   };
 
   const renderWeekView = () => {
@@ -612,18 +587,6 @@ function App() {
           ))}
         </VStack>
       )}
-
-      <button
-        onClick={() =>
-          handleRecurringEvent(
-            new Date(),
-            new Date(new Date().setMonth(new Date().getMonth() + 1)),
-            'weekly'
-          )
-        }
-      >
-        반복 일정 생성
-      </button>
     </Box>
   );
 }

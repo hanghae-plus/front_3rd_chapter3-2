@@ -109,7 +109,7 @@ export function formatDate(currentDate: Date, day?: number) {
   ].join('-');
 }
 
-interface Event {
+interface CalendarEvent {
   id: string;
   title: string;
   date: string;
@@ -127,7 +127,7 @@ interface Event {
   modifyFrom?: string;
 }
 
-export function getRecurringDates(event: Event): Date[] {
+export function getRecurringDates(event: CalendarEvent): Date[] {
   if (!event.repeat) return [new Date(event.date)];
 
   const startDate = new Date(event.date);
@@ -146,7 +146,7 @@ export function getRecurringDates(event: Event): Date[] {
   };
 
   switch (event.repeat.type) {
-    case 'daily':
+    case 'daily': {
       for (
         let d = new Date(startDate);
         d <= endDate;
@@ -155,8 +155,8 @@ export function getRecurringDates(event: Event): Date[] {
         addDate(d);
       }
       break;
-
-    case 'weekly':
+    }
+    case 'weekly': {
       const selectedDays = event.repeat.selectedDays || [getDayCode(startDate.getDay())];
       for (let d = new Date(startDate); d <= endDate; ) {
         // 선택된 요일마다 확인
@@ -175,8 +175,8 @@ export function getRecurringDates(event: Event): Date[] {
         d.setDate(d.getDate() + 7 * event.repeat.interval);
       }
       break;
-
-    case 'monthly':
+    }
+    case 'monthly': {
       const dayOfMonth = startDate.getDate();
       let currentDate = new Date(startDate);
 
@@ -203,8 +203,8 @@ export function getRecurringDates(event: Event): Date[] {
         currentDate = new Date(nextYear, normalizedMonth, targetDay);
       }
       break;
-
-    case 'yearly':
+    }
+    case 'yearly': {
       const month = startDate.getMonth();
       const day = startDate.getDate();
 
@@ -224,6 +224,7 @@ export function getRecurringDates(event: Event): Date[] {
         }
       }
       break;
+    }
   }
 
   // 수정 시작일 이후의 일정 처리
