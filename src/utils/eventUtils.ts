@@ -54,7 +54,7 @@ export function getFilteredEvents(
   return searchedEvents;
 }
 
-export function generateRepeatedEvents(event: Event): EventForm[] {
+export function generateRepeatedEvents(event: Event | EventForm): EventForm[] {
   const dates: Date[] = getRemainingDatesOfRepeatedEvent(event.date, event.repeat);
   const { title, startTime, endTime, description, location, category, repeat, notificationTime } =
     event;
