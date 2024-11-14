@@ -1,15 +1,12 @@
-import { Event } from '../../types';
 import {
-  fillZero,
-  formatDate,
-  formatMonth,
-  formatWeek,
   getDaysInMonth,
   getEventsForDay,
   getWeekDates,
   getWeeksAtMonth,
   isDateInRange,
-} from '../../utils/dateUtils';
+} from '../../entities/calendar/lib/calendarUtils';
+import { Event } from '../../entities/event/model/types';
+import { fillZero, formatDate, formatMonth, formatWeek } from '../../shared/lib/date';
 
 describe('getDaysInMonth', () => {
   it('1월은 31일 수를 반환한다', () => {
@@ -113,8 +110,9 @@ describe('getEventsForDay', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 0,
+      isRepeating: false,
+      repeat: { type: 'none', interval: 0, endCondition: 'never' },
+      notificationTime: { value: 0, label: '0분 전' },
     },
     {
       id: '2',
@@ -125,8 +123,9 @@ describe('getEventsForDay', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 0,
+      isRepeating: false,
+      repeat: { type: 'none', interval: 0, endCondition: 'never' },
+      notificationTime: { value: 0, label: '0분 전' },
     },
     {
       id: '3',
@@ -137,8 +136,9 @@ describe('getEventsForDay', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 0,
+      isRepeating: false,
+      repeat: { type: 'none', interval: 0, endCondition: 'never' },
+      notificationTime: { value: 0, label: '0분 전' },
     },
   ];
 
