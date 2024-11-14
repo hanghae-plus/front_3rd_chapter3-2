@@ -158,6 +158,8 @@ export function isRecurringEventEnded(event: Event, currentDate: Date = new Date
   }
 }
 
+import { Event } from '../types';
+
 export function convertToSingleEvent(originalEvent: Event, updatedEvent: Event): Event | null {
   // 원본 이벤트가 없는 경우
   if (!originalEvent) {
@@ -166,8 +168,8 @@ export function convertToSingleEvent(originalEvent: Event, updatedEvent: Event):
 
   // 수정할 이벤트가 없는 경우, 원본에서 repeat만 제거
   if (!updatedEvent) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { repeat: _, ...eventWithoutRepeat } = originalEvent;
+    const eventWithoutRepeat = { ...originalEvent };
+    delete eventWithoutRepeat.repeat;
     return eventWithoutRepeat;
   }
 
