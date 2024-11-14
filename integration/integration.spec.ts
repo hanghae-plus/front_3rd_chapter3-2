@@ -351,6 +351,76 @@ test.describe.serial('통합 테스트', () => {
     await page.getByRole('cell', { name: '15' }).click();
       await page.getByRole('cell', { name: '16 매일매일 코드리뷰' }).click();
     });
+
+    test('2. 반복 일정을 포함한 여러 일정들이 존재할 때, 모든 일정을 삭제할 수 있어야 한다.', async ({ page }) => {
+      await page.goto('http://localhost:5173/');
+      await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+      await page.reload();
+  
+      {
+        /* 첫 번째 해리와 과제하기 일정 추가 */
+      }
+      await page.getByLabel('제목').click();
+      await page.getByLabel('제목').fill('해리와 과제하기');
+      await page.getByLabel('날짜').fill('2024-11-14');
+      await page.getByLabel('시작 시간').click();
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowRight');
+      await page.getByLabel('시작 시간').fill('11:00');
+      await page.getByLabel('종료 시간').click();
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').click();
+      await page.getByLabel('종료 시간').press('ArrowLeft');
+      await page.getByLabel('종료 시간').fill('13:00');
+      await page.getByLabel('설명').click();
+      await page.getByLabel('설명').fill('해리와 항해 과제하기');
+      await page.getByLabel('위치').click();
+      await page.getByLabel('위치').fill('스파크플러스');
+      await page.getByLabel('카테고리').selectOption('개인');
+      await page.getByText('반복 일정').click();
+      await page.getByLabel('반복 종료일').fill('2024-11-15');
+      await page.getByTestId('event-submit-button').click();
+  
+      {
+        /* 두 번째 해리와 점심 일정 추가 */
+      }
+      await page.getByLabel('제목').click();
+      await page.getByLabel('제목').fill('해리와 점심');
+      await page.getByLabel('날짜').fill('2024-11-14');
+      await page.getByLabel('시작 시간').click();
+      await page.getByLabel('시작 시간').click();
+      await page.getByLabel('시작 시간').press('ArrowLeft');
+      await page.getByLabel('시작 시간').press('ArrowLeft');
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowRight');
+      await page.getByLabel('시작 시간').fill('13:00');
+      await page.getByLabel('종료 시간').click();
+      await page.getByLabel('종료 시간').press('ArrowLeft');
+      await page.getByLabel('종료 시간').press('ArrowLeft');
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowRight');
+      await page.getByLabel('종료 시간').fill('14:00');
+      await page.getByLabel('설명').click();
+      await page.getByLabel('설명').fill('아웃백가기');
+      await page.getByLabel('위치').click();
+      await page.getByLabel('위치').fill('코엑스');
+      await page.getByLabel('카테고리').selectOption('개인');
+      await page.getByTestId('event-submit-button').click();
+  
+      {
+        /* 모든 일정 삭제하기 버튼 클릭 */
+      }
+      await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+      await page.reload();
+  
+      {
+        /* 정상적으로 삭제되어 검색 결과가 없습니다 텍스트가 노출됨 */
+      }
+      await page.getByText('검색 결과가 없습니다').click();
+    });
   });
 
   test.afterAll(() => {
