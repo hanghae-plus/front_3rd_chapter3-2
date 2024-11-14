@@ -112,7 +112,11 @@ export function formatDate(currentDate: Date, day?: number) {
 /**
  * 해당 날짜가 윤년인지 체크
  */
-export const isLeapYear = (date: string) => console.log('윤년');
+export const isLeapYear = (date: string) => {
+  const year = Number(date.split('-')[0]);
+
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+};
 
 /**
  * 추가할 데이터 반환
