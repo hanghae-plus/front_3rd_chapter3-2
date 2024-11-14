@@ -19,8 +19,27 @@ type Props = {
 };
 
 export const DialogEventOverlapAlert = ({ saveEvent }: Props) => {
+  const { eventForm, editingEvent } = useEventFormStore();
   const {
-    eventForm: {
+    title,
+    date,
+    startTime,
+    endTime,
+    description,
+    location,
+    category,
+    isRepeating,
+    repeat: { type: repeatType, interval: repeatInterval, endDate: repeatEndDate },
+    notificationTime,
+  } = eventForm;
+
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const { isOverlapDialogOpen, overlappingEvents, closeDialog } = useEventOverlapStore();
+
+  const handleSaveEvent = () => {
+    closeDialog();
+    saveEvent({
+      id: editingEvent?.id,
       title,
       date,
       startTime,
@@ -28,16 +47,14 @@ export const DialogEventOverlapAlert = ({ saveEvent }: Props) => {
       description,
       location,
       category,
-      isRepeating,
-      repeat: { type: repeatType, interval: repeatInterval, endDate: repeatEndDate },
+      repeat: {
+        type: isRepeating ? repeatType : 'none',
+        interval: repeatInterval,
+        endDate: repeatEndDate || undefined,
+      },
       notificationTime,
-    },
-    editingEvent,
-  } = useEventFormStore();
-
-  const cancelRef = useRef<HTMLButtonElement>(null);
-
-  const { isOverlapDialogOpen, overlappingEvents, closeDialog } = useEventOverlapStore();
+    });
+  };
 
   return (
     <AlertDialog isOpen={isOverlapDialogOpen} leastDestructiveRef={cancelRef} onClose={closeDialog}>
@@ -61,29 +78,7 @@ export const DialogEventOverlapAlert = ({ saveEvent }: Props) => {
             <Button ref={cancelRef} onClick={closeDialog}>
               취소
             </Button>
-            <Button
-              colorScheme="red"
-              onClick={() => {
-                closeDialog();
-                saveEvent({
-                  id: editingEvent ? editingEvent.id : undefined,
-                  title,
-                  date,
-                  startTime,
-                  endTime,
-                  description,
-                  location,
-                  category,
-                  repeat: {
-                    type: isRepeating ? repeatType : 'none',
-                    interval: repeatInterval,
-                    endDate: repeatEndDate || undefined,
-                  },
-                  notificationTime,
-                });
-              }}
-              ml={3}
-            >
+            <Button colorScheme="red" onClick={handleSaveEvent} ml={3}>
               계속 진행
             </Button>
           </AlertDialogFooter>
