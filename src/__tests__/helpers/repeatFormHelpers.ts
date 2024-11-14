@@ -26,11 +26,12 @@ export const activateAndCheckRepeatFields = async (user: ReturnType<typeof userE
   expect(repeatCheckbox).toBeChecked();
 
   const repeatTypeSelect = screen.getByLabelText('반복 유형');
-  const repeatIntervalInput = screen.getByLabelText('반복 간격');
-  const repeatEndDateInput = screen.getByLabelText('반복 종료일');
-
   expect(repeatTypeSelect).toHaveValue('daily');
+
+  const repeatIntervalInput = screen.getByLabelText('반복 간격');
   expect(repeatIntervalInput).toHaveValue('1');
+
+  const repeatEndDateInput = screen.getByLabelText('반복 종료일');
   expect(repeatEndDateInput).toHaveValue('');
 };
 

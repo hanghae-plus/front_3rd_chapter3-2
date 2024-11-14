@@ -205,7 +205,12 @@ function App() {
                           color={isNotified ? 'red.500' : 'inherit'}
                         >
                           <HStack spacing={1}>
+                            {event.repeat.type !== 'none' && (
+                              <span data-testid="repeat-icon">🔁</span>
+                            )}
+
                             {isNotified && <BellIcon />}
+
                             <Text fontSize="sm" noOfLines={1}>
                               {event.title}
                             </Text>
@@ -274,7 +279,11 @@ function App() {
                                 color={isNotified ? 'red.500' : 'inherit'}
                               >
                                 <HStack spacing={1}>
+                                  {event.repeat.type !== 'none' && (
+                                    <span data-testid="repeat-icon">🔁</span>
+                                  )}
                                   {isNotified && <BellIcon />}
+
                                   <Text fontSize="sm" noOfLines={1}>
                                     {event.title}
                                   </Text>
@@ -474,7 +483,9 @@ function App() {
                 <HStack justifyContent="space-between">
                   <VStack align="start">
                     <HStack>
+                      {event.repeat.type !== 'none' && <span data-testid="repeat-icon">🔁</span>}
                       {notifiedEvents.includes(event.id) && <BellIcon color="red.500" />}
+
                       <Text
                         fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
                         color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
