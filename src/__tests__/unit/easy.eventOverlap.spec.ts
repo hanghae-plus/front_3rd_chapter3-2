@@ -31,7 +31,7 @@ describe('parseDateTime', () => {
 describe('convertEventToDateRange', () => {
   it('일반적인 이벤트를 올바른 시작 및 종료 시간을 가진 객체로 변환한다', () => {
     const event: Event = {
-      id: '1',
+      id: 1,
       date: '2024-07-01',
       startTime: '14:30',
       endTime: '15:30',
@@ -49,7 +49,7 @@ describe('convertEventToDateRange', () => {
 
   it('잘못된 날짜 형식의 이벤트에 대해 Invalid Date를 반환한다', () => {
     const event: Event = {
-      id: '5',
+      id: 5,
       date: '2024/07/01', // 잘못된 형식
       startTime: '14:30',
       endTime: '15:30',
@@ -99,7 +99,7 @@ describe('isOverlapping', () => {
       notificationTime: 0,
     };
     const event2: Event = {
-      id: '2',
+      id: 2,
       date: '2024-07-01',
       startTime: '15:00',
       endTime: '17:00',
@@ -115,7 +115,7 @@ describe('isOverlapping', () => {
 
   it('두 이벤트가 겹치지 않는 경우 false를 반환한다', () => {
     const event1: Event = {
-      id: '1',
+      id: 1,
       date: '2024-07-01',
       startTime: '14:00',
       endTime: '16:00',
@@ -127,7 +127,7 @@ describe('isOverlapping', () => {
       notificationTime: 0,
     };
     const event2: Event = {
-      id: '2',
+      id: 2,
       date: '2024-07-01',
       startTime: '16:00',
       endTime: '18:00',
@@ -145,7 +145,7 @@ describe('isOverlapping', () => {
 describe('findOverlappingEvents', () => {
   const baseEvents: Event[] = [
     {
-      id: '1',
+      id: 1,
       date: '2024-07-01',
       startTime: '10:00',
       endTime: '12:00',
@@ -157,7 +157,7 @@ describe('findOverlappingEvents', () => {
       notificationTime: 0,
     },
     {
-      id: '2',
+      id: 2,
       date: '2024-07-01',
       startTime: '11:00',
       endTime: '13:00',
@@ -169,7 +169,7 @@ describe('findOverlappingEvents', () => {
       notificationTime: 0,
     },
     {
-      id: '3',
+      id: 3,
       date: '2024-07-01',
       startTime: '15:00',
       endTime: '16:00',
@@ -184,7 +184,7 @@ describe('findOverlappingEvents', () => {
 
   it('새 이벤트와 겹치는 모든 이벤트를 반환한다', () => {
     const newEvent: Event = {
-      id: '4',
+      id: 4,
       date: '2024-07-01',
       startTime: '11:30',
       endTime: '14:30',
@@ -201,7 +201,7 @@ describe('findOverlappingEvents', () => {
 
   it('겹치는 이벤트가 없으면 빈 배열을 반환한다', () => {
     const newEvent: Event = {
-      id: '4',
+      id: 4,
       date: '2024-07-01',
       startTime: '13:00',
       endTime: '15:00',
