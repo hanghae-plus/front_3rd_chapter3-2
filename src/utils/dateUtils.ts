@@ -256,14 +256,19 @@ export function getRemainingDatesByWeek(
   const currentDayIndex = current.getDay();
   const targetDayIndex = dayMap[targetWeekType];
 
-  // 지정된 요일까지의 날짜 차이 계산
+  // 다음 해당 요일까지의 날짜 차이 계산
   let daysToAdd = targetDayIndex - currentDayIndex;
   if (daysToAdd <= 0) {
-    daysToAdd += NUM_OF_WEEK; // 다음 주로 이동
+    daysToAdd += NUM_OF_WEEK;
   }
 
-  // 첫 번째 해당 요일로 이동
+  // 바로 다음 해당 요일로 이동
   current.setDate(current.getDate() + daysToAdd);
+
+  // 시작일이 지정된 요일과 같은 경우, 다음주로 이동
+  if (daysToAdd === NUM_OF_WEEK) {
+    current.setDate(current.getDate() - NUM_OF_WEEK);
+  }
 
   // interval 주 간격으로 날짜 추가
   while (current <= endDate) {
