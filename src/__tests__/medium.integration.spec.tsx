@@ -454,7 +454,7 @@ describe('반복 일정 추가 / 수정 / 삭제', () => {
     expect(eventList.getAllByText(/반복: 1주마다.+2024-10-23/)).toHaveLength(2);
   });
 
-  it('반복 종료 조건을 지정할 수 있다. - 종료 없음', async () => {
+  it('반복 종료 조건을 지정할 수 있다. - 종료일이 없을 경우 2025-06-30까지 생성된다.', async () => {
     setupMockHandlerCreation();
 
     const { user } = setup(<App />);

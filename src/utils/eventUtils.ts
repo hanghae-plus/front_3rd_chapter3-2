@@ -52,9 +52,9 @@ export function getFilteredEvents(
 export function generateRepeatEvents(event: Event | EventForm): (Event | EventForm)[] {
   const repeatEvents: (Event | EventForm)[] = [event];
   const { repeat } = event;
-  const { type, interval = 1, endDate } = repeat;
+  const { type, interval, endDate } = repeat;
 
-  if (type === 'none') return repeatEvents;
+  if (type === 'none' || interval <= 0) return repeatEvents;
 
   const startDate = new Date(`${event.date}T${event.startTime}`);
   const endDateTime = endDate ? new Date(`${endDate}T${event.startTime}`) : new Date(2025, 5, 30);

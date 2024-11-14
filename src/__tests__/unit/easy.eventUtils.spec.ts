@@ -254,5 +254,36 @@ describe('generateRepeatEvents', () => {
       const result = generateRepeatEvents(event);
       expect(result.map((e) => e.date)).toEqual(['2024-01-31', '2024-03-31']);
     });
+
+    it('30일에 시작하는 월간 반복 일정을 올바르게 처리한다(2월 처리)', () => {
+      const event: Event = {
+        ...baseEvent,
+        date: '2024-01-30',
+        repeat: { type: 'monthly', interval: 1, endDate: '2024-04-30' },
+      };
+      const result = generateRepeatEvents(event);
+      expect(result.map((e) => e.date)).toEqual(['2024-01-30', '2024-03-30', '2024-04-30']);
+    });
+  });
+
+  describe('예외 케이스 처리', () => {
+    it('interval이 0 이하일 경우 원본 이벤트만 반환한다', () => {
+      const event: Event = {
+        ...baseEvent,
+        repeat: { type: 'daily', interval: 0, endDate: '2024-01-05' },
+      };
+      const result = generateRepeatEvents(event);
+      expect(result).toHaveLength(1);
+    });
+
+    it('종료일이 시작일보다 이전인 경우 원본 이벤트만 반환한다', () => {
+      const event: Event = {
+        ...baseEvent,
+        date: '2024-01-05',
+        repeat: { type: 'daily', interval: 1, endDate: '2024-01-01' },
+      };
+      const result = generateRepeatEvents(event);
+      expect(result).toHaveLength(1);
+    });
   });
 });
