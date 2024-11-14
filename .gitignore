@@ -3,3 +3,7 @@
 node_modules
 .coverage
 src/__mocks__/response/realEvents.json
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
