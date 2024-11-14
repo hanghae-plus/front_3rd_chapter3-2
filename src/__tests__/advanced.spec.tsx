@@ -4,8 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
 
-import App from '../../App';
-import { server } from '../../setupTests';
+import App from '../App';
+import { server } from '../setupTests';
 
 const setup = (element: ReactElement) => {
   const user = userEvent.setup();
