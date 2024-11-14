@@ -110,16 +110,31 @@ export function formatDate(currentDate: Date, day?: number) {
 }
 
 export function getNextDate(currentDate: Date, type: RepeatType, interval: number) {
+  const newDate = new Date(currentDate);
   switch (type) {
     case 'daily': {
-      return new Date(currentDate.setDate(currentDate.getDate() + interval));
+      newDate.setDate(newDate.getDate() + interval);
+      break;
     }
     case 'weekly': {
-      return new Date(currentDate.setDate(currentDate.getDate() + 7 * interval));
+      newDate.setDate(newDate.getDate() + 7 * interval);
+      break;
     }
     case 'monthly': {
-      return new Date(currentDate.setMonth(currentDate.getMonth() + interval));
+      newDate.setMonth(newDate.getMonth() + interval);
+      if (newDate.getDate() !== currentDate.getDate()) {
+        //다음달로 안넘어가게 처리 (윤년)
+        newDate.setDate(0);
+      }
+      break;
+    }
+    case 'yearly': {
+      newDate.setFullYear(newDate.getFullYear() + interval);
+      if (newDate.getDate() !== currentDate.getDate()) {
+        newDate.setDate(0); //다음달로 안넘어가게 처리 (윤년)
+      }
+      break;
     }
   }
-  return currentDate;
+  return newDate;
 }

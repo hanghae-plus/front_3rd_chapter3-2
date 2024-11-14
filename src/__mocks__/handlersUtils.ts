@@ -24,16 +24,20 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
       const { type, interval, endDate } = repeat;
 
       let currentDate = new Date(baseEvent.date);
+
       const end = new Date(endDate || '2025-06-30');
 
       while (currentDate <= end) {
+        // currentDate = adjustForLeapYear(currentDate);
         const newRepeatedEvent = {
           ...baseEvent,
           id: String(mockEvents.length + 1),
           date: currentDate.toISOString().split('T')[0],
         };
+
         mockEvents.push(newRepeatedEvent);
 
+        // 다음 반복 날짜로 이동
         currentDate = getNextDate(currentDate, type, interval);
       }
 
