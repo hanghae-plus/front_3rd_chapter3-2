@@ -4,7 +4,6 @@ import { createRepeatEvent } from '../../utils/createRepeatEvent';
 describe('createRepeatEvent', () => {
   it('반복 날짜가 1일마다 반복되어야 하고, 입력한 시작 날짜와 종료 날짜를 모두 포함해야 한다.', () => {
     const event: Event = {
-      id: '1',
       title: '기존 일정',
       date: '2024-11-04',
       startTime: '13:00',
@@ -17,8 +16,9 @@ describe('createRepeatEvent', () => {
     };
 
     const result = createRepeatEvent(event);
+    const resultDates = result.map(e => e.date);
 
-    expect(result).toEqual([
+    expect(resultDates).toEqual([
       '2024-11-04',
       '2024-11-05',
       '2024-11-06',
@@ -29,7 +29,6 @@ describe('createRepeatEvent', () => {
 
   it('반복 날짜가 1주마다 반복되어야 하고, 입력한 시작 날짜와 종료 날짜를 모두 포함해야 한다.', () => {
     const event: Event = {
-      id: '2',
       title: '해리와 과제하기',
       date: '2024-11-11',
       startTime: '18:00',
@@ -42,8 +41,9 @@ describe('createRepeatEvent', () => {
     };
 
     const result = createRepeatEvent(event);
+    const resultDates = result.map(e => e.date);
 
-    expect(result).toEqual([
+    expect(resultDates).toEqual([
       '2024-11-11',
       '2024-11-18',
       '2024-11-25',
@@ -54,7 +54,6 @@ describe('createRepeatEvent', () => {
 
   it('반복 날짜가 1개월마다 반복되어야 하고, 입력한 시작 날짜와 종료 날짜를 모두 포함해야 한다.', () => {
     const event: Event = {
-      id: '1',
       title: '기존 일정',
       date: '2024-11-04',
       startTime: '13:00',
@@ -67,8 +66,9 @@ describe('createRepeatEvent', () => {
     };
 
     const result = createRepeatEvent(event);
+    const resultDates = result.map(e => e.date);
 
-    expect(result).toEqual([
+    expect(resultDates).toEqual([
       '2024-11-04',
       '2024-12-04',
       '2025-01-04',
@@ -80,7 +80,6 @@ describe('createRepeatEvent', () => {
 
   it('반복 날짜가 1년마다 반복되어야 하고, 입력한 시작 날짜와 종료 날짜를 모두 포함해야 한다.', () => {
     const event: Event = {
-      id: '2',
       title: '해리와 과제하기',
       date: '2024-11-11',
       startTime: '18:00',
@@ -93,8 +92,9 @@ describe('createRepeatEvent', () => {
     };
 
     const result = createRepeatEvent(event);
+    const resultDates = result.map(e => e.date);
 
-    expect(result).toEqual([
+    expect(resultDates).toEqual([
       '2024-11-11',
       '2025-11-11',
       '2026-11-11',
@@ -118,8 +118,9 @@ describe('createRepeatEvent', () => {
     };
 
     const result = createRepeatEvent(event);
+    const resultDates = result.map(e => e.date);
 
-    expect(result).toEqual([
+    expect(resultDates).toEqual([
       '2024-11-04',
       '2024-11-06',
       '2024-11-08',
@@ -130,7 +131,6 @@ describe('createRepeatEvent', () => {
 
   it('반복 날짜가 3주마다 반복되어야 하고, 종료 날짜를 초과하지 않는 범위 내에서 반복되어야 한다.', () => {
     const event: Event = {
-      id: '2',
       title: '해리와 과제하기',
       date: '2024-11-11',
       startTime: '18:00',
@@ -143,8 +143,9 @@ describe('createRepeatEvent', () => {
     };
 
     const result = createRepeatEvent(event);
+    const resultDates = result.map(e => e.date);
 
-    expect(result).toEqual([
+    expect(resultDates).toEqual([
       '2024-11-11',
       '2024-12-02',
       '2024-12-23',
@@ -154,7 +155,6 @@ describe('createRepeatEvent', () => {
 
   it('반복 날짜가 3개월마다 반복되어야 하고, 종료 날짜를 초과하지 않는 범위 내에서 반복되어야 한다.', () => {
     const event: Event = {
-      id: '1',
       title: '기존 일정',
       date: '2024-11-04',
       startTime: '13:00',
@@ -167,8 +167,9 @@ describe('createRepeatEvent', () => {
     };
 
     const result = createRepeatEvent(event);
+    const resultDates = result.map(e => e.date);
 
-    expect(result).toEqual([
+    expect(resultDates).toEqual([
       '2024-11-04',
       '2025-02-04',
       '2025-05-04',
@@ -179,7 +180,6 @@ describe('createRepeatEvent', () => {
 
   it('반복 일정이 종료 날짜 이전까지 정확하게 생성되어야 한다.', () => {
     const event: Event = {
-      id: '2',
       title: '해리와 과제하기',
       date: '2024-11-11',
       startTime: '18:00',
@@ -192,16 +192,17 @@ describe('createRepeatEvent', () => {
     };
 
     const result = createRepeatEvent(event);
+    const resultDates = result.map(e => e.date);
 
-    expect(result).toEqual([
+    expect(resultDates).toEqual([
       '2024-11-11',
       '2024-11-18',
       '2024-11-25',
     ]);
   });
+
   it('종료 날짜가 없으면 반복 일정이 2025-06-30까지 생성된다.', () => {
     const event: Event = {
-      id: '1',
       title: '중요 회의',
       date: '2023-05-10',
       startTime: '10:00',
@@ -214,14 +215,13 @@ describe('createRepeatEvent', () => {
     };
 
     const result = createRepeatEvent(event);
-    const lastEvent = result[result.length - 1];
+    const lastEventDate = result[result.length - 1].date;
 
-    expect(lastEvent).toEqual('2025-06-30');
+    expect(lastEventDate).toEqual('2025-06-30');
   });
 
   it('사용자가 지정한 특정 횟수만큼 일정이 반복되어야 한다', () => {
     const event: Event = {
-      id: '2',
       title: '주간 회의',
       date: '2024-01-01',
       startTime: '09:00',
@@ -235,8 +235,9 @@ describe('createRepeatEvent', () => {
 
     const maxOccurrences = 5;
     const result = createRepeatEvent(event, maxOccurrences);
+    const resultDates = result.map(e => e.date);
 
-    expect(result).toEqual([
+    expect(resultDates).toEqual([
       '2024-01-01',
       '2024-01-08',
       '2024-01-15',
