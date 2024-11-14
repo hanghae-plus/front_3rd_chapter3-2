@@ -31,38 +31,50 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     try {
       let response;
 
-      if (eventData.repeat.type !== 'none') {
-        if (editing) {
-          response = await fetch(`/api/events-list`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ events: generateRepeatingEvents(eventData) }),
-          });
-        } else {
+      if (editing) {
+        const originEvent = events.find((event) => event.id === (eventData as Event).id);
+
+        const hasEventChangedToRepeat =
+          originEvent?.repeat.type === 'none' && (eventData as Event).repeat.type !== 'none';
+
+        if (hasEventChangedToRepeat) {
+          const repeatEvents = generateRepeatingEvents(eventData as Event);
+          const newEvents = Array.isArray(repeatEvents)
+            ? repeatEvents.filter((event) => event.date !== (eventData as Event).date)
+            : [];
+
           response = await fetch('/api/events-list', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ events: generateRepeatingEvents(eventData) }),
-          });
-        }
-      } else {
-        if (editing) {
-          response = await fetch(`/api/events/${(eventData as Event).id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(eventData),
+            body: JSON.stringify({ events: newEvents }),
           });
         } else {
-          response = await fetch('/api/events', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(eventData),
-          });
+          eventData = { ...eventData, repeat: { type: 'none', interval: 0 } };
         }
 
-        if (!response.ok) {
-          throw new Error('Failed to save event');
-        }
+        response = await fetch(`/api/events/${(eventData as Event).id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(eventData),
+        });
+      } else if (eventData.repeat.type === 'none') {
+        response = await fetch('/api/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(eventData),
+        });
+      } else {
+        const events = generateRepeatingEvents(eventData as Event);
+
+        response = await fetch('/api/events-list', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ events }),
+        });
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to save event');
       }
 
       await fetchEvents();
