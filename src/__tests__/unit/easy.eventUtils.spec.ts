@@ -1,5 +1,7 @@
-import { Event } from '../../types';
-import { getFilteredEvents } from '../../utils/eventUtils';
+import { describe } from 'vitest';
+
+import { Event, EventForm } from '../../types';
+import { addRepeatEvents, getFilteredEvents } from '../../utils/eventUtils';
 
 describe('getFilteredEvents', () => {
   const events: Event[] = [
@@ -112,5 +114,91 @@ describe('getFilteredEvents', () => {
   it('빈 이벤트 리스트에 대해 빈 배열을 반환한다', () => {
     const result = getFilteredEvents([], '', new Date('2024-07-01'), 'month');
     expect(result).toHaveLength(0);
+  });
+});
+
+describe('addRepeatEvents', () => {
+  it('반복 설정이 없는 이벤트는 빈 값을 반환한다.', () => {
+    const event: EventForm = {
+      title: '반복 없는 이벤트',
+      date: '2024-07-01',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '',
+      location: '',
+      category: '',
+      repeat: { type: 'none', interval: 0, endDate: '' },
+      notificationTime: 0,
+    };
+    const result = addRepeatEvents(event);
+    expect(result).toHaveLength(0);
+  });
+
+  it('매일 반복 설정을 올바르게 처리한다', () => {
+    const event: EventForm = {
+      title: '매일 반복 이벤트',
+      date: '2024-07-01',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '',
+      location: '',
+      category: '',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-07-03' },
+      notificationTime: 0,
+    };
+    const result = addRepeatEvents(event);
+    expect(result).toHaveLength(3);
+    expect(result.map((e) => e.date)).toEqual(['2024-07-01', '2024-07-02', '2024-07-03']);
+  });
+
+  it('매주 반복 설정을 올바르게 처리한다', () => {
+    const event: EventForm = {
+      title: '매주 반복 이벤트',
+      date: '2024-07-01',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '',
+      location: '',
+      category: '',
+      repeat: { type: 'weekly', interval: 1, endDate: '2024-07-15' },
+      notificationTime: 0,
+    };
+    const result = addRepeatEvents(event);
+    expect(result).toHaveLength(3);
+    expect(result.map((e) => e.date)).toEqual(['2024-07-01', '2024-07-08', '2024-07-15']);
+  });
+
+  it('매월 반복 설정을 올바르게 처리한다', () => {
+    const event: EventForm = {
+      title: '매월 반복 이벤트',
+      date: '2024-07-01',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '',
+      location: '',
+      category: '',
+      repeat: { type: 'monthly', interval: 1, endDate: '2024-09-01' },
+      notificationTime: 0,
+    };
+    const result = addRepeatEvents(event);
+    expect(result).toHaveLength(3);
+    expect(result.map((e) => e.date)).toEqual(['2024-07-01', '2024-08-01', '2024-09-01']);
+  });
+
+  it('매년 반복 설정을 올바르게 처리한다', () => {
+    const event: EventForm = {
+      title: '매년 반복 이벤트',
+      date: '2024-07-01',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '',
+      location: '',
+      category: '',
+      repeat: { type: 'yearly', interval: 1, endDate: '2026-07-01' },
+      notificationTime: 0,
+    };
+    const result = addRepeatEvents(event);
+    expect(result).toHaveLength(3);
+    expect(result.map((e) => e.date)).toEqual(['2024-07-01', '2025-07-01', '2026-07-01']);
   });
 });
