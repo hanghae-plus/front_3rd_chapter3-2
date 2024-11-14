@@ -357,10 +357,10 @@ export const EventForm = memo(
               size="md"
               min="0"
               style={{
-                width: '85%',
+                width: '50%',
               }}
             />
-            <Text>분 전</Text>
+            <Text>분 전에 알람이 시작됩니다.</Text>
           </HStack>
         </FormControl>
         <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={cancelRef}>

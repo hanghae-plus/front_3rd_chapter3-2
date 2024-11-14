@@ -12,7 +12,6 @@ interface UseEventOverlapProps {
   editingEvent: Event | null;
 }
 
-// 커스텀 에러 타입 정의
 class EventValidationError extends Error {
   constructor(message: string) {
     super(message);
@@ -31,8 +30,6 @@ export const useEventOverlap = ({
   const [pendingSaveEvent, setPendingSaveEvent] = useState<Event | null>(null);
 
   const toast = useToast();
-
-  // Toast 헬퍼 함수들
   const showSuccessToast = useCallback(() => {
     toast({
       title: '일정이 저장되었습니다.',
@@ -59,7 +56,6 @@ export const useEventOverlap = ({
   const showOverlapWarningToast = useCallback(
     (overlappingEvents: Event[]) => {
       const overlappingTitles = overlappingEvents.map((event) => `"${event.title}"`).join(', ');
-
       toast({
         title: '일정 겹침 경고',
         description: `다음 일정과 시간이 겹칩니다: ${overlappingTitles}`,
@@ -72,14 +68,12 @@ export const useEventOverlap = ({
     [toast]
   );
 
-  // 이벤트 유효성 검증
   const validateEvent = useCallback((eventData: Event): void => {
     if (!eventData.title || !eventData.date || !eventData.startTime || !eventData.endTime) {
       throw new EventValidationError('필수 정보를 모두 입력해주세요.');
     }
   }, []);
 
-  // 이벤트 저장 로직
   const saveEventWithValidation = useCallback(
     async (eventData: Event): Promise<void> => {
       try {

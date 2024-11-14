@@ -1,21 +1,45 @@
 import { REPEAT_TYPE_LABELS } from '../config/constants';
 import { Event, EventFormErrors, EventFormState, RepeatType } from '../model/types';
 
-export const findOverlappingEvents = (existingEvents: Event[], newEvet: Event): Event[] => {
-  return existingEvents.filter((event) => {
-    if (event.date !== newEvet.date) return false;
+export const findOverlappingEvents = (existingEvents: Event[], newEvent: Event): Event[] => {
+  if (!existingEvents?.length || !newEvent) return [];
 
-    const newEventsStart = new Date(newEvet.startTime).getTime();
-    const newEventsEnd = new Date(newEvet.endTime).getTime();
-    const existingEventsStart = new Date(event.startTime).getTime();
-    const existingEventsEnd = new Date(event.endTime).getTime();
+  return existingEvents
+    .filter((event) => {
+      if (event.id === newEvent.id) return false;
+      if (event.date !== newEvent.date) return false;
+      try {
+        const standardizeTime = (timeStr: string) => {
+          if (!timeStr.includes(':')) {
+            const hour = timeStr.slice(0, 2);
+            const minute = timeStr.slice(2);
+            return `${hour}:${minute}`;
+          }
+          return timeStr;
+        };
 
-    return (
-      (newEventsStart >= existingEventsStart && newEventsStart <= existingEventsEnd) ||
-      (newEventsEnd >= existingEventsStart && newEventsEnd <= existingEventsEnd) ||
-      (newEventsStart <= existingEventsStart && newEventsEnd >= existingEventsEnd)
-    );
-  });
+        const newEventStartTime = `${newEvent.date}T${standardizeTime(newEvent.startTime)}`;
+        const newEventEndTime = `${newEvent.date}T${standardizeTime(newEvent.endTime)}`;
+        const existingEventStartTime = `${event.date}T${standardizeTime(event.startTime)}`;
+        const existingEventEndTime = `${event.date}T${standardizeTime(event.endTime)}`;
+
+        const newStart = new Date(newEventStartTime).getTime();
+        const newEnd = new Date(newEventEndTime).getTime();
+        const existingStart = new Date(existingEventStartTime).getTime();
+        const existingEnd = new Date(existingEventEndTime).getTime();
+
+        const isOverlapping =
+          (newStart >= existingStart && newStart < existingEnd) ||
+          (newEnd > existingStart && newEnd <= existingEnd) ||
+          (newStart <= existingStart && newEnd >= existingEnd);
+
+        return isOverlapping;
+      } catch (error) {
+        console.error('Error comparing event times:', error);
+        return false;
+      }
+    })
+    .filter(Boolean);
 };
 
 export const getDate = (date: string) => {
