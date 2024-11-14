@@ -1,14 +1,18 @@
+import { describe } from 'vitest';
+
 import { Event } from '../../types';
 import {
   fillZero,
   formatDate,
   formatMonth,
+  formatTimeToString,
   formatWeek,
   getDaysInMonth,
   getEventsForDay,
   getWeekDates,
   getWeeksAtMonth,
   isDateInRange,
+  setRepeatDates,
 } from '../../utils/dateUtils';
 
 describe('getDaysInMonth', () => {
@@ -296,5 +300,43 @@ describe('formatDate', () => {
   it('일이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {
     const testDate = new Date('2023-12-05');
     expect(formatDate(testDate)).toBe('2023-12-05');
+  });
+});
+
+describe('formatTimeToString', () => {
+  it('시간 정보를 제외한 날짜 정보만 포맷팅한다', () => {
+    const testDate = new Date('2023-05-10T12:34:56');
+    expect(formatTimeToString(testDate)).toBe('2023-05-10');
+  });
+
+  it('시간 정보가 없는 경우도 정상적으로 동작한다', () => {
+    const testDate = new Date('2023-05-10');
+    expect(formatTimeToString(testDate)).toBe('2023-05-10');
+  });
+});
+
+describe('setRepeatDates', () => {
+  it('일별 반복에 대해 올바른 날짜를 반환한다', () => {
+    const date = new Date('2023-05-10');
+    const newDate = setRepeatDates(date, 'daily', 3);
+    expect(newDate.toISOString().split('T')[0]).toBe('2023-05-13');
+  });
+
+  it('주별 반복에 대해 올바른 날짜를 반환한다', () => {
+    const date = new Date('2023-05-10');
+    const newDate = setRepeatDates(date, 'weekly', 2);
+    expect(newDate.toISOString().split('T')[0]).toBe('2023-05-24');
+  });
+
+  it('월별 반복에 대해 올바른 날짜를 반환한다', () => {
+    const date = new Date('2023-05-10');
+    const newDate = setRepeatDates(date, 'monthly', 2);
+    expect(newDate.toISOString().split('T')[0]).toBe('2023-07-10');
+  });
+
+  it('년별 반복에 대해 올바른 날짜를 반환한다', () => {
+    const date = new Date('2023-05-10');
+    const newDate = setRepeatDates(date, 'yearly', 2);
+    expect(newDate.toISOString().split('T')[0]).toBe('2025-05-10');
   });
 });

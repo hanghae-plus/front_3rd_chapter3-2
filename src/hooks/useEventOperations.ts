@@ -2,6 +2,7 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import { Event, EventForm } from '../types';
+import { addRepeatEvents } from '../utils/eventUtils.ts';
 
 export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -36,11 +37,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
           body: JSON.stringify(eventData),
         });
       } else {
-        response = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
+        response = await postEvent(eventData);
       }
 
       if (!response.ok) {
@@ -62,6 +59,23 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
         status: 'error',
         duration: 3000,
         isClosable: true,
+      });
+    }
+  };
+
+  const postEvent = async (eventData: Event | EventForm) => {
+    if (eventData.repeat.type !== 'none') {
+      const events = addRepeatEvents(eventData);
+      return await fetch('/api/events-list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ events }),
+      });
+    } else {
+      return await fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventData),
       });
     }
   };

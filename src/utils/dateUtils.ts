@@ -108,3 +108,26 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+
+export function formatTimeToString(dateTime: Date) {
+  return dateTime.toISOString().split('T')[0];
+}
+
+export function setRepeatDates(date: Date, type: string, interval: number): Date {
+  const newDate = new Date(date);
+  switch (type) {
+    case 'daily':
+      newDate.setDate(newDate.getDate() + interval);
+      break;
+    case 'weekly':
+      newDate.setDate(newDate.getDate() + interval * 7);
+      break;
+    case 'monthly':
+      newDate.setMonth(newDate.getMonth() + interval);
+      break;
+    case 'yearly':
+      newDate.setFullYear(newDate.getFullYear() + interval);
+      break;
+  }
+  return newDate;
+}
