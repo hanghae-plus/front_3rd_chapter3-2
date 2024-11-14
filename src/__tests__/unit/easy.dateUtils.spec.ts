@@ -523,19 +523,19 @@ describe('getRemainingDatesByWeek', () => {
     expect(result[5]).toEqual(new Date('2024-12-24'));
     expect(result[6]).toEqual(new Date('2024-12-31'));
   });
-  it('🔴 요일를 설정하지 않은 경우 빈 배열을 반환합니다.', () => {
+  it('🔴 요일를 설정하지 않은 경우 현재일자의 요일을 기준으로 배열을 반환합니다.', () => {
     const currentDate = new Date('2024-11-12');
-    const endDate = new Date('2024-12-12');
+    const endDate = new Date('2024-12-31');
     const interval = 1;
     const weekType = 'none';
     const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
-    expect(result).toHaveLength(0);
+    expect(result).toHaveLength(7);
   });
   it('🔴 간격이 0인 경우 빈 배열을 반환합니다.', () => {
     const currentDate = new Date('2024-11-12');
     const endDate = new Date('2024-12-21');
     const interval = 0;
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
     expect(result).toHaveLength(0);
   });
@@ -543,7 +543,7 @@ describe('getRemainingDatesByWeek', () => {
     const currentDate = new Date('2024-11-12');
     const endDate = new Date('2024-12-21');
     const interval = -1;
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
     expect(result).toHaveLength(0);
   });
@@ -551,7 +551,7 @@ describe('getRemainingDatesByWeek', () => {
     const currentDate = new Date('2024-11-12');
     const endDate = new Date('2024-11-21');
     const interval = undefined;
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
     expect(result).toHaveLength(1);
     expect(result).toEqual([new Date('2024-11-19')]);
@@ -651,7 +651,7 @@ describe('getRemainingDatesByMonth', () => {
     const currentDate = new Date('2024-08-13');
     const endDate = new Date('2024-12-31');
     const interval = 1;
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType);
     expect(result).toHaveLength(4);
     expect(result).toEqual([
@@ -665,7 +665,7 @@ describe('getRemainingDatesByMonth', () => {
     const currentDate = new Date('2024-08-13');
     const endDate = new Date('2024-12-31');
     const interval = 2;
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType);
     expect(result).toHaveLength(2);
     expect(result).toEqual([new Date('2024-10-13'), new Date('2024-12-13')]);
@@ -674,7 +674,7 @@ describe('getRemainingDatesByMonth', () => {
     const currentDate = new Date('2024-08-13');
     const endDate = new Date('2024-09-31');
     const interval = 3;
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType);
     expect(result).toHaveLength(0);
   });
@@ -682,7 +682,7 @@ describe('getRemainingDatesByMonth', () => {
     const currentDate = new Date('2024-08-13');
     const endDate = new Date('2024-12-31');
     const interval = 1;
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const day = 31;
     const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
     expect(result).toHaveLength(5);
@@ -698,7 +698,7 @@ describe('getRemainingDatesByMonth', () => {
     const currentDate = new Date('2024-01-13');
     const endDate = new Date('2024-05-31');
     const interval = 1;
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const day = 30;
     const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
     expect(result).toHaveLength(5);
@@ -714,7 +714,7 @@ describe('getRemainingDatesByMonth', () => {
     const currentDate = new Date('2023-01-13');
     const endDate = new Date('2023-05-31');
     const interval = 1;
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const day = 30;
     const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
     expect(result).toHaveLength(5);
@@ -730,7 +730,7 @@ describe('getRemainingDatesByMonth', () => {
     const currentDate = new Date('2023-01-29');
     const endDate = new Date('2023-05-31');
     const interval = 1;
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const day = 27;
     const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
     expect(result).toHaveLength(4);
@@ -745,7 +745,7 @@ describe('getRemainingDatesByMonth', () => {
     const currentDate = new Date('2023-01-29');
     const endDate = new Date('2023-05-31');
     const interval = 2;
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const day = 27;
     const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
     expect(result).toHaveLength(2);
@@ -755,7 +755,7 @@ describe('getRemainingDatesByMonth', () => {
     const currentDate = new Date('2024-06-15');
     const endDate = new Date('2024-07-01');
     const interval = 1;
-    const weekType = 'tue';
+    const weekType = 'none';
     const day = 4;
     const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
     expect(result).toHaveLength(0);
@@ -764,7 +764,7 @@ describe('getRemainingDatesByMonth', () => {
     const currentDate = new Date('2023-01-29');
     const endDate = new Date('2023-05-31');
     const interval = 1;
-    const weekType = 'tue';
+    const weekType = 'none';
     const day = 0;
     const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
     expect(result).toHaveLength(0);
@@ -773,7 +773,7 @@ describe('getRemainingDatesByMonth', () => {
     const currentDate = new Date('2023-01-29');
     const endDate = new Date('2023-05-31');
     const interval = 1;
-    const weekType = 'tue';
+    const weekType = 'none';
     const day = -1;
     const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
     expect(result).toHaveLength(0);
@@ -976,8 +976,8 @@ describe('getRemainingDatesByYear', () => {
     const currentDate = new Date('2024-11-13');
     const endDate = new Date('2026-12-31');
     const interval = 1;
-    const monthType = getMonth(currentDate);
-    const weekType = getWeekday(currentDate);
+    const monthType = 'none';
+    const weekType = 'none';
     const result = getRemainingDatesByYear(currentDate, endDate, interval, monthType, weekType);
     expect(result).toHaveLength(2);
     expect(result).toEqual([new Date('2025-11-13'), new Date('2026-11-13')]);
@@ -986,8 +986,8 @@ describe('getRemainingDatesByYear', () => {
     const currentDate = new Date('2024-11-13');
     const endDate = new Date('2028-12-31');
     const interval = 2;
-    const monthType = getMonth(currentDate);
-    const weekType = getWeekday(currentDate);
+    const monthType = 'none';
+    const weekType = 'none';
     const result = getRemainingDatesByYear(currentDate, endDate, interval, monthType, weekType);
     expect(result).toHaveLength(2);
     expect(result).toEqual([new Date('2026-11-13'), new Date('2028-11-13')]);
@@ -996,8 +996,8 @@ describe('getRemainingDatesByYear', () => {
     const currentDate = new Date('2024-11-13');
     const endDate = new Date('2024-12-31');
     const interval = 1;
-    const monthType = getMonth(currentDate);
-    const weekType = getWeekday(currentDate);
+    const monthType = 'none';
+    const weekType = 'none';
     const result = getRemainingDatesByYear(currentDate, endDate, interval, monthType, weekType);
     expect(result).toHaveLength(0);
   });
@@ -1006,7 +1006,7 @@ describe('getRemainingDatesByYear', () => {
     const endDate = new Date('2026-12-31');
     const interval = 1;
     const monthType = 'jun';
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const day = 27;
     const result = getRemainingDatesByYear(
       currentDate,
@@ -1028,7 +1028,7 @@ describe('getRemainingDatesByYear', () => {
     const endDate = new Date('2030-12-31');
     const interval = 3;
     const monthType = 'jun';
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const day = 27;
     const result = getRemainingDatesByYear(
       currentDate,
@@ -1050,7 +1050,7 @@ describe('getRemainingDatesByYear', () => {
     const endDate = new Date('2024-12-31');
     const interval = 1;
     const monthType = 'jun';
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const day = 27;
     const result = getRemainingDatesByYear(
       currentDate,
@@ -1068,7 +1068,7 @@ describe('getRemainingDatesByYear', () => {
     const endDate = new Date('2024-12-31');
     const interval = 1;
     const monthType = 'jun';
-    const weekType = getWeekday(currentDate);
+    const weekType = 'none';
     const day = 27;
     const result = getRemainingDatesByYear(
       currentDate,
@@ -1084,8 +1084,8 @@ describe('getRemainingDatesByYear', () => {
     const currentDate = new Date('2024-06-01');
     const endDate = new Date('2024-12-31');
     const interval = 1;
-    const monthType = 'jun';
-    const weekType = getWeekday(currentDate);
+    const monthType = 'none';
+    const weekType = 'none';
     const day = 0;
     const result = getRemainingDatesByYear(
       currentDate,
@@ -1101,8 +1101,8 @@ describe('getRemainingDatesByYear', () => {
     const currentDate = new Date('2024-06-01');
     const endDate = new Date('2024-12-31');
     const interval = 1;
-    const monthType = 'jun';
-    const weekType = getWeekday(currentDate);
+    const monthType = 'none';
+    const weekType = 'none';
     const day = -5;
     const result = getRemainingDatesByYear(
       currentDate,
@@ -1206,8 +1206,8 @@ describe('getRemainingDatesByYear', () => {
     const currentDate = new Date('2023-12-01');
     const endDate = new Date('2030-12-31');
     const interval = 3;
-    const monthType = 'nov';
-    const weekType = 'thu';
+    const monthType = 'none';
+    const weekType = 'none';
     const day = undefined;
     const weekOrder = 0;
     const result = getRemainingDatesByYear(
@@ -1225,8 +1225,8 @@ describe('getRemainingDatesByYear', () => {
     const currentDate = new Date('2023-12-01');
     const endDate = new Date('2030-12-31');
     const interval = 3;
-    const monthType = 'nov';
-    const weekType = 'thu';
+    const monthType = 'none';
+    const weekType = 'none';
     const day = undefined;
     const weekOrder = -11;
     const result = getRemainingDatesByYear(
