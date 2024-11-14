@@ -1,4 +1,4 @@
-import { BellIcon } from '@chakra-ui/icons';
+import { BellIcon, RepeatIcon } from '@chakra-ui/icons';
 import {
   Box,
   Heading,
@@ -78,6 +78,9 @@ const MonthView: React.FC<Props> = ({ currentDate, holidays, notifiedEvents, fil
                             >
                               <HStack spacing={1}>
                                 {isNotified && <BellIcon />}
+                                {event.repeat.type !== 'none' && (
+                                  <RepeatIcon data-testid={`repeat-icon-${event.id}`} />
+                                )}
                                 <Text fontSize="sm" noOfLines={1}>
                                   {event.title}
                                 </Text>

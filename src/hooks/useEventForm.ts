@@ -76,7 +76,7 @@ export const useEventForm = (initialEvent?: Event) => {
     setCategory(event.category);
     setIsRepeating(event.repeat.type !== 'none');
     setRepeatType(event.repeat.type);
-    setRepeatInterval(event.repeat.interval);
+    setRepeatInterval(event.repeat.interval || 1);
     setRepeatEndDate(event.repeat.endDate || '');
     setNotificationTime(event.notificationTime);
   };
