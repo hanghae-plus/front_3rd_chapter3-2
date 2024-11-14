@@ -18,6 +18,7 @@ import { useEventForm } from '../../hooks/useEventForm.ts';
 import { Dialog_e } from '../../providers/DialogProvider.tsx';
 import { Event, EventForm, RepeatType } from '../../types.ts';
 import { findOverlappingEvents } from '../../utils/eventOverlap.ts';
+import { generateFutureRepeatEvents } from '../../utils/eventRepeat.ts';
 import { getTimeErrorMessage } from '../../utils/timeValidation.ts';
 
 type CalendarFormProps = {
@@ -25,9 +26,16 @@ type CalendarFormProps = {
   editingEvent: Event | null;
   // eslint-disable-next-line no-unused-vars
   saveEvent: (event: Event | EventForm) => Promise<void>;
+  // eslint-disable-next-line no-unused-vars
+  saveEventsList: (events: Event[] | EventForm[]) => Promise<void>;
 };
 
-export const CalendarForm = ({ events, editingEvent, saveEvent }: CalendarFormProps) => {
+export const CalendarForm = ({
+  events,
+  editingEvent,
+  saveEvent,
+  saveEventsList,
+}: CalendarFormProps) => {
   const categories = ['업무', '개인', '가족', '기타'];
 
   const { openDialog } = useDialog();
@@ -83,6 +91,18 @@ export const CalendarForm = ({ events, editingEvent, saveEvent }: CalendarFormPr
       return;
     }
 
+    const _eventDate = new Date(date);
+    const _repeatEndDate = new Date(repeatEndDate);
+    if (_repeatEndDate.getTime() < _eventDate.getTime()) {
+      toast({
+        title: '반복 종료일은 해당 이벤트 날짜 이후여야 해요.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
       title,
@@ -93,21 +113,28 @@ export const CalendarForm = ({ events, editingEvent, saveEvent }: CalendarFormPr
       location,
       category,
       repeat: {
-        type: isRepeating ? repeatType : 'none',
-        interval: repeatInterval,
-        endDate: repeatEndDate || undefined,
+        type: editingEvent ? 'none' : isRepeating ? repeatType : 'none',
+        interval: editingEvent ? 0 : repeatInterval,
+        endDate: editingEvent ? undefined : repeatEndDate,
       },
       notificationTime,
     };
 
     const overlapping = findOverlappingEvents(eventData, events);
+
+    resetForm();
     if (overlapping.length > 0) {
       openDialog(Dialog_e.ScheduleOverlap, {
         overlappingEvents: overlapping,
         saveEvent: () => saveEvent(eventData),
       });
     } else {
-      await saveEvent(eventData);
+      if (!editingEvent && isRepeating) {
+        const repeatEvents = [eventData, ...generateFutureRepeatEvents(eventData)];
+        await saveEventsList(repeatEvents);
+      } else {
+        await saveEvent(eventData);
+      }
       resetForm();
     }
   };

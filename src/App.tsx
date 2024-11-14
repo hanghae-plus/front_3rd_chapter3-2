@@ -12,8 +12,9 @@ import { DialogProvider } from './providers/DialogProvider.tsx';
 function App() {
   const { editingEvent, setEditingEvent, editEvent } = useEventForm();
 
-  const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
-    setEditingEvent(null)
+  const { events, saveEvent, saveEventsList, deleteEvent } = useEventOperations(
+    Boolean(editingEvent),
+    () => setEditingEvent(null)
   );
 
   return (
@@ -21,7 +22,12 @@ function App() {
       <CalendarViewHookProvider>
         <Box w="full" h="100vh" m="auto" p={5}>
           <Flex gap={6} h="full">
-            <CalendarForm events={events} editingEvent={editingEvent} saveEvent={saveEvent} />
+            <CalendarForm
+              events={events}
+              editingEvent={editingEvent}
+              saveEvent={saveEvent}
+              saveEventsList={saveEventsList}
+            />
 
             <CalendarView events={events} />
 
