@@ -3,6 +3,7 @@ import {
   getFilteredEvents,
   getRecurringEventDisplay,
   isRecurringEventEnded,
+  convertToSingleEvent,
 } from '../../utils/eventUtils';
 
 describe('getFilteredEvents', () => {
@@ -381,6 +382,102 @@ describe('isRecurringEventEnded', () => {
       };
 
       expect(isRecurringEventEnded(event)).toBeTruthy();
+    });
+  });
+});
+
+describe('convertToSingleEvent', () => {
+  const baseEvent = {
+    id: '1',
+    title: '테스트 일정',
+    date: '2024-01-01',
+    startTime: '10:00',
+    endTime: '11:00',
+    description: '',
+    location: '',
+    category: '',
+    notificationTime: 0,
+    repeat: {
+      type: 'daily',
+      interval: 1,
+      endDate: '2024-12-31',
+      endType: 'date' as const,
+    },
+  };
+
+  it('반복 일정을 단일 일정으로 변경한다', () => {
+    const updatedEvent = {
+      ...baseEvent,
+      title: '수정된 일정',
+      description: '설명 추가',
+    };
+
+    const result = convertToSingleEvent(baseEvent, updatedEvent);
+
+    // repeat 속성이 제거되었는지 확인
+    expect(result.repeat).toBeUndefined();
+
+    // 수정된 내용이 반영되었는지 확인
+    expect(result.title).toBe('수정된 일정');
+    expect(result.description).toBe('설명 추가');
+
+    // 기존 속성이 유지되는지 확인
+    expect(result.date).toBe(baseEvent.date);
+    expect(result.startTime).toBe(baseEvent.startTime);
+    expect(result.endTime).toBe(baseEvent.endTime);
+  });
+
+  it('이미 단일 일정인 경우 그대로 수정 사항만 반영한다', () => {
+    const singleEvent = {
+      ...baseEvent,
+      repeat: undefined,
+    };
+
+    const updatedEvent = {
+      ...singleEvent,
+      title: '수정된 일정',
+    };
+
+    const result = convertToSingleEvent(singleEvent, updatedEvent);
+
+    expect(result.repeat).toBeUndefined();
+    expect(result.title).toBe('수정된 일정');
+  });
+
+  it('수정 내용이 없는 경우 repeat 속성만 제거한다', () => {
+    const result = convertToSingleEvent(baseEvent, baseEvent);
+
+    expect(result.repeat).toBeUndefined();
+    expect(result).toEqual({
+      ...baseEvent,
+      repeat: undefined,
+    });
+  });
+
+  describe('예외 처리', () => {
+    it('원본 이벤트가 없는 경우 null을 반환한다', () => {
+      const result = convertToSingleEvent(null as any, baseEvent);
+      expect(result).toBeNull();
+    });
+
+    it('수정할 이벤트가 없는 경우 원본에서 repeat만 제거하여 반환한다', () => {
+      const result = convertToSingleEvent(baseEvent, null as any);
+
+      expect(result.repeat).toBeUndefined();
+      expect(result).toEqual({
+        ...baseEvent,
+        repeat: undefined,
+      });
+    });
+
+    it('ID가 다른 이벤트인 경우 null을 반환한다', () => {
+      const differentEvent = {
+        ...baseEvent,
+        id: '2',
+      };
+
+      const result = convertToSingleEvent(baseEvent, differentEvent);
+      expect(result).toBeNull();
     });
   });
 });
