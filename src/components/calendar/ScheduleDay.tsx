@@ -1,4 +1,4 @@
-import { BellIcon } from '@chakra-ui/icons';
+import { BellIcon, RepeatIcon } from '@chakra-ui/icons';
 import { Box, HStack, Text } from '@chakra-ui/react';
 
 import { Event } from '../../types';
@@ -20,6 +20,7 @@ export const ScheduleDay = ({ event, isNotified }: DayEventProps) => {
     >
       <HStack spacing={1}>
         {isNotified && <BellIcon />}
+        {event.repeat.type !== 'none' && <RepeatIcon data-testid="repeat-icon" />}
         <Text fontSize="sm" noOfLines={1}>
           {event.title}
         </Text>
