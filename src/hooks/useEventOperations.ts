@@ -66,6 +66,11 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     }
   };
 
+  //반복 일정 추가
+  const saveMultipleEvent = async (eventData: Event | EventForm) => {
+    console.log('saveMultipleEvent');
+  };
+
   const deleteEvent = async (id: string) => {
     try {
       const response = await fetch(`/api/events/${id}`, { method: 'DELETE' });

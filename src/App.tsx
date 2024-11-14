@@ -165,6 +165,22 @@ function App() {
     }
   };
 
+  const handleSaveMultipleEvent = (eventData: Event | EventForm) => {
+    console.log('handleSaveMultipleEvent');
+    //반복 유형 설정
+
+    //타입 = 매년 or 매월 이면서, 시작 일정이 윤년 29일인지 체크
+    //윤년이 맞다면 for문 돌 때 윤년이 아닐 때, 28일로 날짜 지정
+
+    //타입 = 매월이면서, 시작 일정이 31일 이라면 > for문 돌 때 해당 달의 마지막 날자로 지정
+
+    //반복 간격 설정
+
+    //반복 종료 설정
+
+    //반복문으로 saveMultipleEvent 호출
+  };
+
   const renderWeekView = () => {
     const weekDates = getWeekDates(currentDate);
     return (

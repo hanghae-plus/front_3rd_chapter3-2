@@ -108,3 +108,9 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+
+/**
+ * 해당 날짜가 윤년인지 체크
+ */
+
+export const isLeapYear = (date: Date) => console.log('윤년');
