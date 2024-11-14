@@ -3,6 +3,7 @@ import { render, screen, within, act, fireEvent } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
+import { Mock } from 'vitest';
 
 import {
   setupMockHandlerCreation,
@@ -13,6 +14,7 @@ import App from '../App';
 import { server } from '../setupTests';
 import { Event } from '../types';
 import { desc } from 'framer-motion/client';
+import { useEventForm } from '../hooks/useEventForm';
 
 // ! Hard 여기 제공 안함
 const setup = (element: ReactElement) => {
@@ -94,5 +96,35 @@ describe('반복 유형 선택', () => {
     await userEvent.selectOptions(repeatTypeSelect, 'yearly');
 
     expect(yearlyOption.selected).toBeTruthy();
+  });
+});
+describe('반복 간격 설정', () => {
+  //각 반복 유형에 대해 간격을 설정할 수 있다.
+  //예: 2일마다, 3주마다, 2개월마다 등
+
+  it('매일 반복 시 간격을 설정할 수 있다.', async () => {
+    const { user } = setup(<App />);
+    user.click(screen.getByText('반복 일정'));
+
+    const intervalInput = screen.getByLabelText('반복 간격');
+    await user.type(intervalInput, '3');
+
+    expect(intervalInput).toHaveValue(3);
+  });
+  it('간격 입력이 정수가 아니면 에러를 표시해야 한다', async () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    const { user } = setup(<App />);
+
+    const repeatCheckbox = screen.getByLabelText('반복 일정');
+    user.click(repeatCheckbox);
+
+    const repeatIntervalInput = screen.getByLabelText('반복 간격');
+    await user.type(repeatIntervalInput, '5.5');
+
+    // 에러 메시지가 화면에 나타나는지 확인
+    expect(screen.getByText('반복 주기는 정수로 입력해주세요.')).toBeInTheDocument();
   });
 });
