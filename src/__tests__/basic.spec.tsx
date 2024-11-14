@@ -1,5 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act, cleanup } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
@@ -51,9 +51,10 @@ describe('일정 CRUD 및 기본 기능', () => {
 });
 
 describe('반복 간격 설정', () => {
-  it('각 반복 유형에 대해 간격을 설정할 수 있다.', async () => {
+  it('반복 간격을 숫자로 입력할 수 있다', async () => {
     const { user } = setup(<App />);
     const repeatCheckbox = screen.getByLabelText('반복 일정');
+
     user.click(repeatCheckbox);
 
     const repeatIntervalInput = screen.getByLabelText('반복 간격');
@@ -97,6 +98,10 @@ describe('반복 종료', () => {
 });
 
 describe('반복 일정 단일 수정', () => {
+  beforeEach(() => {
+    setupMockHandlerUpdating();
+  });
+
   it('반복 일정을 수정하면 단일 일정으로 변경되고 아이콘이 사라져야 한다', async () => {
     const mockEvents: Event[] = [
       {
@@ -162,9 +167,6 @@ describe('반복 일정 단일 수정', () => {
     expect(within(eventList).getByText('설명 수정')).toBeInTheDocument();
 
     expect(repeatIcon).not.toBeInTheDocument();
-  });
-  beforeEach(() => {
-    setupMockHandlerUpdating();
   });
 
   test('반복 일정을 수정할 수 있고 수정하면 단일 일정으로 변경된다', async () => {
