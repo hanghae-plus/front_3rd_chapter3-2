@@ -1,21 +1,40 @@
 import { Event } from '../types.ts';
+import { formatDate } from './dateUtils.ts';
 
-function adjustEndOfMonthDate(date: Date) {
-  if (date.getDate() <= 29) {
-    const lastDateOfMonth = new Date(date.getFullYear(), date.getMonth(), 0).getDate();
-    const isInValidDate = date.getDate() < lastDateOfMonth;
+function addIntervalToDate(type: 'monthly' | 'yearly', currentDate: Date, interval: number) {
+  const date = currentDate.getDate();
+  let nextMonth = currentDate.getMonth();
+  let nextYear = currentDate.getFullYear();
 
-    return isInValidDate
-      ? new Date(date.getFullYear(), date.getMonth() - 1, lastDateOfMonth)
-      : date;
+  if (type === 'monthly') {
+    nextMonth += interval;
+    if (nextMonth > 11) {
+      nextYear += Math.floor(nextMonth / 12);
+      nextMonth %= 12;
+    }
+  } else if (type === 'yearly') {
+    nextYear += interval;
   }
 
-  return date;
+  return {
+    nextYear,
+    nextMonth,
+    date,
+  };
 }
 
-function getNextEventDate(event: Event) {
-  const currentDate = new Date(event.date);
+function getLastDayOfMonth(year: number, month: number) {
+  return new Date(year, month + 1, 0).getDate();
+}
 
+function calculateNextDate(type: 'monthly' | 'yearly', currentDate: Date, interval: number) {
+  const { nextYear, nextMonth, date } = addIntervalToDate(type, currentDate, interval);
+  const endDateOfMonth = getLastDayOfMonth(nextYear, nextMonth);
+
+  return new Date(nextYear, nextMonth, Math.min(date, endDateOfMonth));
+}
+
+function getNextEventDate(event: Event, currentDate: Date) {
   const { repeat } = event;
 
   switch (repeat.type) {
@@ -28,18 +47,28 @@ function getNextEventDate(event: Event) {
       return currentDate;
 
     case 'monthly':
-      currentDate.setMonth(currentDate.getMonth() + repeat.interval);
-      return adjustEndOfMonthDate(currentDate);
+      return calculateNextDate('monthly', currentDate, repeat.interval);
 
     case 'yearly':
-      currentDate.setFullYear(currentDate.getFullYear() + repeat.interval);
-      return adjustEndOfMonthDate(currentDate);
+      return calculateNextDate('yearly', currentDate, repeat.interval);
 
     default:
       return null;
   }
 }
 
+const END_DATE = '2025-06-30';
+
 export function generateRepeatedEvents(event: Event) {
-  return getNextEventDate(event);
+  const events: Event[] = [];
+  const endDate = new Date(event.repeat.endDate || END_DATE);
+  let currentDate: Date | null = new Date(event.date);
+
+  while (currentDate && currentDate <= endDate) {
+    events.push({ ...event, date: formatDate(currentDate) });
+
+    currentDate = getNextEventDate(event, currentDate);
+  }
+
+  return events;
 }
