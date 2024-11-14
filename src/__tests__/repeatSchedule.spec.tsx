@@ -1,5 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
@@ -165,7 +165,6 @@ describe('반복 종료 조건 설정', () => {
     expect(endConditionCountInput).toBeInTheDocument();
   });
 });
-
 // 5. 반복 일정 단일 수정
 describe('반복 일정 단일 수정', () => {
   it('반복 일정을 수정하면 단일 일정으로 변경되고 아이콘이 사라져야 한다', async () => {
@@ -210,10 +209,11 @@ describe('반복 일정 단일 수정', () => {
         return HttpResponse.json(mockEvents[index]);
       })
     );
-
     const { user } = setup(<App />);
     // ! 일정 로딩 완료 후 테스트
-    await screen.findByText('일정 로딩 완료!');
+    await waitFor(() => {
+      expect(screen.findByText('일정 로딩 완료!'));
+    });
     const eventList = screen.getByTestId('event-list');
     // 반복일정인지 확인
     const repeatIcon = within(eventList).getByTestId('repeat-icon-1');
@@ -239,7 +239,6 @@ describe('반복 일정 단일 수정', () => {
     expect(repeatIcon2).toBeInTheDocument();
   });
 });
-
 // 6. 반복 일정 단일 삭제
 describe('반복 일정 단일 삭제', () => {
   it('반복 일정을 단일 삭제하면 해당 일정만 삭제되어야 한다', async () => {

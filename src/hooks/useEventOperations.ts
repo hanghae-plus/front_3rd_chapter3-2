@@ -30,47 +30,34 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
       let response;
-
       if (editing) {
-        const originEvent = events.find((event) => event.id === (eventData as Event).id);
-
-        const hasEventChangedToRepeat =
-          originEvent?.repeat.type === 'none' && (eventData as Event).repeat.type !== 'none';
-
-        if (hasEventChangedToRepeat) {
-          const repeatEvents = generateRepeatingEvents(eventData as Event);
-          const newEvents = Array.isArray(repeatEvents)
-            ? repeatEvents.filter((event) => event.date !== (eventData as Event).date)
-            : [];
-
+        // 일정 수정 시 , 단일로 수정 (반복일정->일반일정)
+        const editEvent: EventForm = {
+          ...eventData,
+          repeat: {
+            ...eventData.repeat,
+            type: 'none',
+          },
+        };
+        response = await fetch(`/api/events/${(editEvent as Event).id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(editEvent),
+        });
+      } else {
+        if (eventData.repeat.type !== 'none') {
           response = await fetch('/api/events-list', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ events: newEvents }),
+            body: JSON.stringify({ events: generateRepeatingEvents(eventData) }),
           });
         } else {
-          eventData = { ...eventData, repeat: { type: 'none', interval: 0 } };
+          response = await fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(eventData),
+          });
         }
-
-        response = await fetch(`/api/events/${(eventData as Event).id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
-      } else if (eventData.repeat.type === 'none') {
-        response = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
-      } else {
-        const events = generateRepeatingEvents(eventData as Event);
-
-        response = await fetch('/api/events-list', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ events }),
-        });
       }
 
       if (!response.ok) {
