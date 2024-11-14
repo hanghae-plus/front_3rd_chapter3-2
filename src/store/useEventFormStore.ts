@@ -14,14 +14,17 @@ type PartialEventForm = Omit<Partial<StoreEventForm>, 'repeat'> & {
 };
 
 interface EventFormState {
+  /** 이벤트 폼 데이터 */
   eventForm: StoreEventForm;
   setEventForm: (eventForm: PartialEventForm) => void;
   resetForm: () => void;
 
+  /** 현재 수정 중인 이벤트 (null이면 새 이벤트) */
   editingEvent: Event | null;
   resetEditingEvent: () => void;
   setEditingEvent: (event: Event) => void;
 
+  /** 시간 오류 메시지 */
   timeErrorRecord: TimeErrorRecord;
   changeStartTime: (startTime: string) => void;
   changeEndTime: (endTime: string) => void;
