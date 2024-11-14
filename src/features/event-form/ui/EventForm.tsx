@@ -350,7 +350,7 @@ export const EventForm = memo(
             <Input
               type="number"
               name="notificationTime"
-              value={formState?.notificationTime.value}
+              value={formState?.notificationTime.value > 0 ? formState?.notificationTime.value : ''}
               placeholder="숫자만 입력"
               inputMode="numeric"
               onChange={handleInputChange}
