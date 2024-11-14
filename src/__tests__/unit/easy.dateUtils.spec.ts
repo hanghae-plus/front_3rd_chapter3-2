@@ -387,5 +387,3 @@ describe('getNextDate', () => {
     expect(getNextData(testDate, 'daily', 2)).toBe('2024-11-16');
   });
 });
-
-// describe('handleSaveMultipleEvent', () => {});
