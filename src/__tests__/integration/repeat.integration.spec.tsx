@@ -169,11 +169,13 @@ describe('반복 일정 표시', () => {
   });
 });
 describe('반복 종료', () => {
-  it('반복 종료일을 설정하면 해당 날짜까지 반복 일정이 생성된다.', async () => {
+  beforeEach(() => {
     vi.setSystemTime(new Date('2024-11-15'));
     setupMockHandlerBulkCreation();
     renderApp();
+  });
 
+  it('반복 종료일을 설정하면 해당 날짜까지 반복 일정이 생성된다.', async () => {
     await userEvent.type(screen.getByLabelText(/제목/), '반복 종료일 테스트');
     await userEvent.type(screen.getByLabelText(/날짜/), '2024-11-15');
     await userEvent.type(screen.getByLabelText(/시작 시간/), '09:00');
@@ -195,10 +197,6 @@ describe('반복 종료', () => {
   });
 
   it('반복 종료일이 설정되지 않으면 무한 반복 일정이 생성된다.', async () => {
-    vi.setSystemTime(new Date('2024-11-15'));
-    setupMockHandlerBulkCreation();
-    renderApp();
-
     await userEvent.type(screen.getByLabelText(/제목/), '무한 반복 일정');
     await userEvent.type(screen.getByLabelText(/날짜/), '2024-11-15');
     await userEvent.type(screen.getByLabelText(/시작 시간/), '14:00');
