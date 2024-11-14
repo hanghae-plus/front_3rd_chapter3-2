@@ -31,6 +31,7 @@ export const EventCard = ({
           <HStack>
             {notifiedEvents.includes(event.id) && <BellIcon color="red.500" />}
             <Text
+              aria-label="event-card-title"
               fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
               color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
             >

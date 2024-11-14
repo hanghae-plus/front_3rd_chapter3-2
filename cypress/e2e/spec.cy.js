@@ -15,7 +15,7 @@ describe('일정관리 앱 기본', () => {
   });
 });
 
-describe('일정 추가', () => {
+describe('일정 CRUD', () => {
   it('일정을 추가하면 반복일정도 함께 추가된다.', () => {
     cy.get('[id="field-:r1:"]').as('form-title');
     cy.get('[id="field-:r3:"]').as('form-date');
@@ -103,5 +103,35 @@ describe('일정 추가', () => {
       .find('p')
       .filter('*:contains("🔂 카이 하베르츠")')
       .should('have.length', 4);
+  });
+});
+
+describe('리스트 검색', () => {
+  it('저장돼있는 리스트에서 "덕배"를 검색하면 리스트중 1건의 카드가 노출된다.', () => {
+    cy.get('[aria-label="event-card-title"]').should('have.length', 6);
+
+    cy.get('[id="field-:r11:"]').as('event-card-title');
+    cy.get('@event-card-title').clear();
+    cy.get('@event-card-title').type('덕배');
+
+    cy.get('[aria-label="event-card-title"]').should('have.length', 1);
+    cy.get('[aria-label="event-card-title"]').contains('덕배');
+  });
+});
+
+describe('캘린더 제어', () => {
+  it('캘린더 view를 주간으로 바꾸면 해당하는 이벤트가 나타난다.', () => {
+    cy.get('[aria-label="calendar-wrap"]').get('[data-testid="week-view"]').should('not.exist');
+
+    cy.get('[aria-label="calendar-wrap"]').get('[aria-label="view"]').select('week');
+
+    cy.get('[aria-label="calendar-wrap"]').get('[data-testid="week-view"]').should('exist');
+  });
+  it('캘린더 view를 다시 month로 변경한 뒤 다음 월을 검색하면 크리스마스가 표시된다.', () => {
+    cy.get('[aria-label="calendar-wrap"]').get('[aria-label="view"]').select('month');
+
+    cy.get('[aria-label="calendar-wrap"]').get('[aria-label="Next"]').click();
+
+    cy.get('[aria-label="calendar-wrap"]').get('[data-testid="month-view"]').contains('크리스마스');
   });
 });

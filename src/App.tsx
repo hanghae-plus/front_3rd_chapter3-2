@@ -54,7 +54,7 @@ function App() {
           eventFormState={eventFormState}
         />
 
-        <VStack flex={1} spacing={5} align="stretch">
+        <VStack flex={1} spacing={5} align="stretch" aria-label="calendar-wrap">
           <Heading>일정 보기</Heading>
 
           <EventHandleNavigate view={view} setView={setView} navigate={navigate} />
