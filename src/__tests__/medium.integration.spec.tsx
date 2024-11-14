@@ -8,6 +8,7 @@ import {
   setupMockHandlerCreation,
   setupMockHandlerDeletion,
   setupMockHandlerUpdating,
+  setupMockHandlerUpdatingRepeat,
 } from '../__mocks__/handlersUtils';
 import App from '../App';
 import { server } from '../setupTests';
@@ -483,3 +484,57 @@ describe('반복 일정 표시', () => {
     expect(within(date17Td).getByTestId('repeat-icon')).toBeInTheDocument();
   });
 });
+
+describe('반복 종료', () => {
+  // 반복 종료 조건을 지정할 수 있다.
+  // 옵션: 특정 날짜까지, 특정 횟수만큼, 또는 종료 없음 (예제 특성상, 2025-06-30까지) - 년반복으로 2025-10-16까지 작성
+  it('종료일을 지정하면 종료일 이후 일정이 생성되지 않는다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+    await saveScheduleWithRepeat(user, {
+      title: '매일 반복 일정',
+      date: '2024-10-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '매일 반복되는 일정을 설정합니다.',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-17' },
+    });
+    const eventList = within(screen.getByTestId('event-list'));
+    expect(eventList.getAllByText('매일 반복 일정')).toHaveLength(2);
+  });
+});
+
+describe('반복 일정 단일 수정', () => {
+  // 반복일정을 수정하면 단일 일정으로 변경됩니다.
+  // 반복일정 아이콘도 사라집니다.
+  it('반복 일정을 수정하면 단일 일정으로 변경된다', async () => {
+    const { user } = setup(<App />);
+
+    setupMockHandlerUpdatingRepeat();
+
+    await user.click(await screen.findByLabelText('Edit event'));
+
+    await user.clear(screen.getByLabelText('제목'));
+    await user.type(screen.getByLabelText('제목'), '반복 일정 해제');
+    await user.clear(screen.getByLabelText('설명'));
+    await user.type(screen.getByLabelText('설명'), '반복 되는 일정을 해제합니다.');
+    const repeatCheckbox = screen.getByLabelText('반복 일정') as HTMLInputElement;
+    if (repeatCheckbox.checked) {
+      await user.click(repeatCheckbox);
+    }
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    const monthView = within(screen.getByTestId('month-view'));
+    const date15Td = monthView.getByText('15').closest('td')!;
+    const date16Td = monthView.getByText('16').closest('td')!;
+
+    expect(within(date15Td).queryByTestId('repeat-icon')).not.toBeInTheDocument();
+    expect(within(date16Td).getByTestId('repeat-icon')).toBeInTheDocument();
+  });
+});
+
+describe('반복 일정 단일 삭제', () => {});
