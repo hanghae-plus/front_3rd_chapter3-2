@@ -25,6 +25,7 @@ export const getRepeatingEvent = (event: Event | EventForm): Event[] | EventForm
   while (isBeforeEndDate(currentDate, endDate)) {
     repeatEvents.push({
       ...event,
+      id: crypto.randomUUID(),
       date: currentDate,
     });
     repeatInterval += event.repeat.interval;
