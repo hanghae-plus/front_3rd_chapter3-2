@@ -1,21 +1,11 @@
-import { ChakraProvider } from '@chakra-ui/react';
-import { render, renderHook, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { renderHook, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
-import { ReactElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useEventOperations } from '../../hooks/useEventOperations';
 import { generateRepeatingEvents } from '../../hooks/useGenerateRepeatingEvents';
 import { server } from '../../setupTests';
 
-const setup = (element: ReactElement) => {
-  const user = userEvent.setup();
-
-  return { ...render(<ChakraProvider>{element}</ChakraProvider>), user }; // ? Med: 왜 ChakraProvider로 감싸는지 물어보자
-};
-
-// Mock useToast
 vi.mock('@chakra-ui/react', async () => {
   const actual = await vi.importActual('@chakra-ui/react');
   return {
