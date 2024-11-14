@@ -44,4 +44,31 @@ describe('generateRepeatEventDates', () => {
       '2024-11-05',
     ]);
   });
+
+  it('월간 반복 일정을 생성한다', () => {
+    const baseDate = '2024-11-01';
+    const repeat: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2025-02-28',
+    };
+
+    expect(generateRepeatEventDates(baseDate, repeat)).toEqual([
+      '2024-11-01',
+      '2024-12-01',
+      '2025-01-01',
+      '2025-02-01',
+    ]);
+  });
+
+  it('연간 반복 일정을 생성한다', () => {
+    const baseDate = '2023-11-01';
+    const repeat: RepeatInfo = {
+      type: 'yearly',
+      interval: 1,
+      endDate: '2025-06-30',
+    };
+
+    expect(generateRepeatEventDates(baseDate, repeat)).toEqual(['2023-11-01', '2024-11-01']);
+  });
 });
