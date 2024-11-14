@@ -1,17 +1,17 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { setupMockHandlerCreation } from '../../__mocks__/handlersUtils';
 import App from '../../App';
 import { EventForm } from '../../types';
+import { checkEventInEventList } from '../helpers/eventHelpers';
 import {
   activateAndCheckRepeatFields,
   fillEventForm,
   setRepeatOptions,
 } from '../helpers/repeatFormHelpers';
-import { checkEventInEventList } from '../helpers/eventHelpers';
 
 describe('반복 일정 생성 및 반복 유형 선택', () => {
   const baseEventData: Partial<EventForm> = {
@@ -64,7 +64,7 @@ describe('반복 일정 생성 및 반복 유형 선택', () => {
     const user = userEvent.setup();
 
     // 1. 반복 설정 활성화
-    await user.click(screen.getByLabelText('반복 일정'));
+    await userEvent.click(screen.getByLabelText('반복 일정'));
     const repeatTypeSelect = screen.getByLabelText('반복 유형');
 
     // 2. 각 반복 유형 선택 및 확인

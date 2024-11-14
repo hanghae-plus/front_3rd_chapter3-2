@@ -144,7 +144,7 @@ it("검색어를 '회의'에서 '점심'으로 변경하면 필터링된 결과�
 
   expect(result.current.filteredEvents).toEqual([
     {
-      id: 2,
+      id: '2',
       title: '점심 약속',
       date: '2024-10-02',
       startTime: '12:00',

@@ -1,6 +1,7 @@
+import { Toast } from '@chakra-ui/react';
+
 import { Event } from '../types';
 import { isLeapYear } from './dateUtils';
-import { Toast } from '@chakra-ui/react';
 
 export const generateRepeatEvents = (event: Event): Event[] => {
   const startDate = new Date(event.date);
@@ -51,7 +52,7 @@ export const getNextRepeatDate = (
       nextDate.setDate(date.getDate() + interval * 7);
       break;
 
-    case 'monthly':
+    case 'monthly': {
       nextDate.setDate(1);
       nextDate.setMonth(date.getMonth() + interval);
       const lastDayOfNextMonth = new Date(
@@ -61,8 +62,9 @@ export const getNextRepeatDate = (
       ).getDate();
       nextDate.setDate(Math.min(originalDay, lastDayOfNextMonth));
       break;
+    }
 
-    case 'yearly':
+    case 'yearly': {
       const nextYear = date.getFullYear() + interval;
       nextDate.setFullYear(nextYear, date.getMonth(), 1);
       if (date.getMonth() === 1 && originalDay === 29) {
@@ -71,6 +73,7 @@ export const getNextRepeatDate = (
         nextDate.setDate(originalDay);
       }
       break;
+    }
   }
 
   return nextDate;

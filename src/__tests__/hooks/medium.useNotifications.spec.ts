@@ -42,7 +42,7 @@ it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다
   });
 
   expect(result.current.notifications).toHaveLength(1);
-  expect(result.current.notifiedEvents).toContain(1);
+  expect(result.current.notifiedEvents).toContain('1');
 });
 
 it('index를 기준으로 알림을 적절하게 제거할 수 있다', () => {
