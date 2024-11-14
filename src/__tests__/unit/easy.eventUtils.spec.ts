@@ -4,6 +4,7 @@ import {
   getRecurringEventDisplay,
   isRecurringEventEnded,
   convertToSingleEvent,
+  deleteRecurringEventInstance,
 } from '../../utils/eventUtils';
 
 describe('getFilteredEvents', () => {
@@ -291,7 +292,7 @@ describe('isRecurringEventEnded', () => {
     });
   });
 
-  describe('특정 횟수만큼 반복', () => {
+  describe('특정 횟수만큼 ��복', () => {
     it('지정된 횟수 이전이면 false를 반환한다', () => {
       const event = {
         ...baseEvent,
@@ -478,6 +479,100 @@ describe('convertToSingleEvent', () => {
 
       const result = convertToSingleEvent(baseEvent, differentEvent);
       expect(result).toBeNull();
+    });
+  });
+});
+
+describe('deleteRecurringEventInstance', () => {
+  const baseEvent = {
+    id: '1',
+    title: '테스트 일정',
+    date: '2024-01-01',
+    startTime: '10:00',
+    endTime: '11:00',
+    description: '',
+    location: '',
+    category: '',
+    notificationTime: 0,
+    repeat: {
+      type: 'daily',
+      interval: 1,
+      endDate: '2024-12-31',
+      endType: 'date' as const,
+      excludeDates: [],
+    },
+  };
+
+  it('반복 일정의 특정 날짜를 제외 목록에 추가한다', () => {
+    const targetDate = '2024-01-15';
+    const result = deleteRecurringEventInstance(baseEvent, targetDate);
+
+    expect(result.repeat?.excludeDates).toContain(targetDate);
+    expect(result.repeat?.excludeDates).toHaveLength(1);
+
+    // 원본 이벤트의 다른 속성들은 변경되지 않아야 함
+    expect(result.id).toBe(baseEvent.id);
+    expect(result.title).toBe(baseEvent.title);
+    expect(result.repeat?.type).toBe(baseEvent.repeat?.type);
+  });
+
+  it('이미 제외된 날짜를 다시 추가하지 않는다', () => {
+    const eventWithExclude = {
+      ...baseEvent,
+      repeat: {
+        ...baseEvent.repeat,
+        excludeDates: ['2024-01-15'],
+      },
+    };
+
+    const result = deleteRecurringEventInstance(eventWithExclude, '2024-01-15');
+    expect(result.repeat?.excludeDates).toHaveLength(1);
+    expect(result.repeat?.excludeDates).toContain('2024-01-15');
+  });
+
+  it('여러 날짜를 제외 목록에 추가할 수 있다', () => {
+    let event = baseEvent;
+    const dates = ['2024-01-15', '2024-01-16', '2024-01-17'];
+
+    dates.forEach((date) => {
+      event = deleteRecurringEventInstance(event, date);
+    });
+
+    expect(event.repeat?.excludeDates).toHaveLength(3);
+    dates.forEach((date) => {
+      expect(event.repeat?.excludeDates).toContain(date);
+    });
+  });
+
+  describe('예외 처리', () => {
+    it('반복 일정이 아닌 경우 null을 반환한다', () => {
+      const nonRecurringEvent = { ...baseEvent, repeat: undefined };
+      const result = deleteRecurringEventInstance(nonRecurringEvent, '2024-01-15');
+      expect(result).toBeNull();
+    });
+
+    it('유효하지 않은 날짜 형식인 경우 null을 반환한다', () => {
+      const result = deleteRecurringEventInstance(baseEvent, 'invalid-date');
+      expect(result).toBeNull();
+    });
+
+    it('반복 일정 범위를 벗어난 날짜인 경우 null을 반환한다', () => {
+      const result = deleteRecurringEventInstance(baseEvent, '2025-01-01');
+      expect(result).toBeNull();
+    });
+
+    it('excludeDates가 없는 경우 새로 생성한다', () => {
+      const eventWithoutExcludeDates = {
+        ...baseEvent,
+        repeat: {
+          ...baseEvent.repeat,
+          excludeDates: undefined,
+        },
+      };
+
+      const result = deleteRecurringEventInstance(eventWithoutExcludeDates, '2024-01-15');
+      expect(result.repeat?.excludeDates).toBeDefined();
+      expect(result.repeat?.excludeDates).toContain('2024-01-15');
     });
   });
 });
