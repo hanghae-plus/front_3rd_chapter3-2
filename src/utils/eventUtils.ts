@@ -185,3 +185,42 @@ export function convertToSingleEvent(originalEvent: Event, updatedEvent: Event):
 
   return result;
 }
+export function deleteRecurringEventInstance(event: Event, dateToExclude: string): Event | null {
+  // 반복 일정이 아닌 경우
+  if (!event.repeat) {
+    return null;
+  }
+
+  // 날짜 유효성 검사
+  const excludeDate = new Date(dateToExclude);
+  if (isNaN(excludeDate.getTime())) {
+    return null;
+  }
+
+  // 반복 일정의 범위 체크
+  const startDate = new Date(event.date);
+  const endDate = event.repeat.endDate ? new Date(event.repeat.endDate) : new Date('2025-06-30'); // 예제 특성상 최대 날짜
+
+  if (excludeDate < startDate || excludeDate > endDate) {
+    return null;
+  }
+
+  // 새로운 제외 날짜 목록 생성
+  const excludeDates = Array.isArray(event.repeat.excludeDates)
+    ? [...event.repeat.excludeDates]
+    : [];
+
+  // 이미 제외된 날짜가 아닌 경우에만 추가
+  if (!excludeDates.includes(dateToExclude)) {
+    excludeDates.push(dateToExclude);
+  }
+
+  // 새로운 이벤트 객체 생성
+  return {
+    ...event,
+    repeat: {
+      ...event.repeat,
+      excludeDates,
+    },
+  };
+}
