@@ -20,33 +20,35 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
   );
 };
 
-export const setupMockHandlerUpdating = () => {
-  const mockEvents: Event[] = [
-    {
-      id: '1',
-      title: '기존 회의',
-      date: '2024-10-15',
-      startTime: '09:00',
-      endTime: '10:00',
-      description: '기존 팀 미팅',
-      location: '회의실 B',
-      category: '업무',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 10,
-    },
-    {
-      id: '2',
-      title: '기존 회의2',
-      date: '2024-10-15',
-      startTime: '11:00',
-      endTime: '12:00',
-      description: '기존 팀 미팅 2',
-      location: '회의실 C',
-      category: '업무 회의',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 5,
-    },
-  ];
+export const setupMockHandlerUpdating = (registeredEvents?: Event[]) => {
+  const mockEvents: Event[] = !registeredEvents
+    ? [
+        {
+          id: '1',
+          title: '기존 회의',
+          date: '2024-10-15',
+          startTime: '09:00',
+          endTime: '10:00',
+          description: '기존 팀 미팅',
+          location: '회의실 B',
+          category: '업무',
+          repeat: { type: 'none', interval: 0 },
+          notificationTime: 10,
+        },
+        {
+          id: '2',
+          title: '기존 회의2',
+          date: '2024-10-15',
+          startTime: '11:00',
+          endTime: '12:00',
+          description: '기존 팀 미팅 2',
+          location: '회의실 C',
+          category: '업무 회의',
+          repeat: { type: 'none', interval: 0 },
+          notificationTime: 5,
+        },
+      ]
+    : [...registeredEvents];
 
   server.use(
     http.get('/api/events', () => {
@@ -63,21 +65,23 @@ export const setupMockHandlerUpdating = () => {
   );
 };
 
-export const setupMockHandlerDeletion = () => {
-  const mockEvents: Event[] = [
-    {
-      id: '1',
-      title: '삭제할 이벤트',
-      date: '2024-10-15',
-      startTime: '09:00',
-      endTime: '10:00',
-      description: '삭제할 이벤트입니다',
-      location: '어딘가',
-      category: '기타',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 10,
-    },
-  ];
+export const setupMockHandlerDeletion = (registeredEvents?: Event[]) => {
+  const mockEvents: Event[] = !registeredEvents
+    ? [
+        {
+          id: '1',
+          title: '삭제할 이벤트',
+          date: '2024-10-15',
+          startTime: '09:00',
+          endTime: '10:00',
+          description: '삭제할 이벤트입니다',
+          location: '어딘가',
+          category: '기타',
+          repeat: { type: 'none', interval: 0 },
+          notificationTime: 10,
+        },
+      ]
+    : registeredEvents;
 
   server.use(
     http.get('/api/events', () => {
