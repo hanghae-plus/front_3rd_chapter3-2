@@ -190,6 +190,7 @@ function App() {
                   <Text fontWeight="bold">{date.getDate()}</Text>
                   {dateEvents.map((event) => {
                       const isNotified = notifiedEvents.includes(event.id);
+                      const repeatIcon = event.repeat.type !== 'none' ? '🔄 ' : null;
                       return (
                         <Box
                           key={event.id}
@@ -203,6 +204,7 @@ function App() {
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
                             <Text fontSize="sm" noOfLines={1}>
+                              {repeatIcon}
                               {event.title}
                             </Text>
                           </HStack>
