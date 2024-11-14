@@ -36,4 +36,48 @@ export const handlers = [
 
     return new HttpResponse(null, { status: 404 });
   }),
+
+  http.post('/api/events-list', async ({ request }) => {
+    const newEvents = (await request.json()) as Event[];
+    return HttpResponse.json(newEvents, { status: 200 });
+  }),
+
+  http.put('/api/events-list', async ({ request }) => {
+    const needUpdateEvents = (await request.json()) as Event[];
+
+    const isEventsAllAvaliable = needUpdateEvents.every(({ id }) => {
+      const index = events.findIndex((event) => event.id === id);
+      return index !== -1;
+    });
+
+    if (!isEventsAllAvaliable) {
+      return new HttpResponse(null, { status: 404 });
+    }
+
+    const updatedEvents = needUpdateEvents.map((updateEvent) => {
+      const { id } = updateEvent;
+      const index = events.findIndex((event) => event.id === id);
+
+      return { ...events[index], ...updateEvent };
+    });
+
+    return HttpResponse.json(updatedEvents, { status: 200 });
+  }),
+
+  http.delete('/api/events-list', async ({ request }) => {
+    const needDeleteEventIds = (await request.json()) as Event['id'][];
+
+    const isEventsAllAvaliable = needDeleteEventIds.every((id) => {
+      const index = events.findIndex((event) => event.id === id);
+      return index !== -1;
+    });
+
+    if (!isEventsAllAvaliable) {
+      return new HttpResponse(null, { status: 404 });
+    }
+
+    const deletedEvents = events.filter((event) => !needDeleteEventIds.includes(event.id));
+
+    return HttpResponse.json(deletedEvents, { status: 200 });
+  }),
 ];

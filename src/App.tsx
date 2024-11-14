@@ -4,6 +4,7 @@ import {
   ChevronRightIcon,
   DeleteIcon,
   EditIcon,
+  RepeatIcon,
 } from '@chakra-ui/icons';
 import {
   Alert,
@@ -55,6 +56,7 @@ import {
   getWeeksAtMonth,
 } from './utils/dateUtils';
 import { findOverlappingEvents } from './utils/eventOverlap';
+import { isRepeatEvent } from './utils/eventRepeat.ts';
 import { getTimeErrorMessage } from './utils/timeValidation';
 
 const categories = ['업무', '개인', '가족', '기타'];
@@ -189,6 +191,8 @@ function App() {
                     .filter((event) => new Date(event.date).toDateString() === date.toDateString())
                     .map((event) => {
                       const isNotified = notifiedEvents.includes(event.id);
+                      const isRepeat = isRepeatEvent(event);
+
                       return (
                         <Box
                           key={event.id}
@@ -201,6 +205,7 @@ function App() {
                         >
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
+                            {isRepeat && <RepeatIcon />}
                             <Text fontSize="sm" noOfLines={1}>
                               {event.title}
                             </Text>
@@ -257,6 +262,7 @@ function App() {
                             </Text>
                           )}
                           {getEventsForDay(filteredEvents, day).map((event) => {
+                            const isRepeat = isRepeatEvent(event);
                             const isNotified = notifiedEvents.includes(event.id);
                             return (
                               <Box
@@ -270,6 +276,7 @@ function App() {
                               >
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
+                                  {isRepeat && <RepeatIcon />}
                                   <Text fontSize="sm" noOfLines={1}>
                                     {event.title}
                                   </Text>
@@ -357,7 +364,15 @@ function App() {
 
           <FormControl>
             <FormLabel>반복 설정</FormLabel>
-            <Checkbox isChecked={isRepeating} onChange={(e) => setIsRepeating(e.target.checked)}>
+            <Checkbox
+              isChecked={isRepeating}
+              onChange={(e) => {
+                setIsRepeating(e.target.checked);
+
+                const resetRepeatType = e.target.checked ? 'daily' : 'none';
+                setRepeatType(resetRepeatType);
+              }}
+            >
               반복 일정
             </Checkbox>
           </FormControl>
