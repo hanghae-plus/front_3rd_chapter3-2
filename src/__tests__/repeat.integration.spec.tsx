@@ -5,6 +5,8 @@ import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import React from 'react';
 
+import { setupMockHandlerBulkCreation } from '../__mocks__/handlersUtils';
+import App from '../App';
 import { EventForm } from '../components/eventForm/EventForm';
 
 interface ProviderProps {
@@ -41,6 +43,16 @@ const renderEventForm = (initialValues?: [atom: any, value: any][]) => {
       </ChakraProvider>
     );
   }
+};
+
+const renderApp = () => {
+  return render(
+    <ChakraProvider>
+      <Provider>
+        <App />
+      </Provider>
+    </ChakraProvider>
+  );
 };
 
 describe('반복 유형 선택', () => {
@@ -125,8 +137,11 @@ describe('반복 간격 설정', () => {
 });
 describe('반복 일정 표시', () => {
   it('반복 일정일 경우 캘린더에 반복 일정 아이콘이 뜬다.', async () => {
-    renderEventForm();
-    await userEvent.type(screen.getByLabelText(/제목/), '제목');
+    vi.setSystemTime(new Date('2024-11-15'));
+    setupMockHandlerBulkCreation();
+    renderApp();
+
+    await userEvent.type(screen.getByLabelText(/제목/), '반복 일정 테스트');
     await userEvent.type(screen.getByLabelText(/날짜/), '2024-11-15');
     await userEvent.type(screen.getByLabelText(/시작 시간/), '09:00');
     await userEvent.type(screen.getByLabelText(/종료 시간/), '10:00');
@@ -135,13 +150,17 @@ describe('반복 일정 표시', () => {
     await userEvent.selectOptions(screen.getByLabelText(/카테고리/), '업무');
 
     await userEvent.click(screen.getByRole('checkbox', { name: /반복 일정/ }));
+
+    await userEvent.clear(screen.getByLabelText(/반복 간격/));
+    await userEvent.type(screen.getByLabelText(/반복 간격/), '1');
+
     await userEvent.type(screen.getByLabelText(/반복 종료일/), '2024-11-17');
 
     await userEvent.click(screen.getByRole('button', { name: /일정 추가/ }));
 
     const eventList = await screen.findByTestId('event-list');
 
-    expect(within(eventList).getAllByText('제목')).toHaveLength(3);
+    expect(within(eventList).getAllByText('반복 일정 테스트')).toHaveLength(3);
     expect(within(eventList).getAllByLabelText('Repeat Event')).toHaveLength(3);
   });
 });

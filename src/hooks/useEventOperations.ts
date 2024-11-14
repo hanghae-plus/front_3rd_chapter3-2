@@ -3,6 +3,7 @@ import { atom, useAtom } from 'jotai';
 import { useEffect } from 'react';
 
 import { Event, EventForm } from '../types';
+import { getRepeatEvents } from '../utils/repeat';
 
 const eventsAtom = atom<Event[]>([]);
 
@@ -33,16 +34,26 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     try {
       let response;
       if (editing) {
+        eventData = { ...eventData, repeat: { type: 'none', interval: 0 } };
+
         response = await fetch(`/api/events/${(eventData as Event).id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(eventData),
         });
-      } else {
+      } else if (eventData.repeat.type === 'none') {
         response = await fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(eventData),
+        });
+      } else {
+        const events = getRepeatEvents(eventData as Event);
+
+        response = await fetch('/api/events-list', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ events }),
         });
       }
 
