@@ -5,7 +5,7 @@ import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import React from 'react';
 
-import { EventForm } from '../../components/eventForm/EventForm';
+import { EventForm } from '../components/eventForm/EventForm';
 
 interface ProviderProps {
   initialValues: [atom: any, value: any][];
