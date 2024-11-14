@@ -2,6 +2,7 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import { Event, EventForm } from '../types';
+import { generateRepeatingEvents } from '../utils/repeatEventUtils';
 
 export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -29,58 +30,26 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   // 반복 일정 생성 함수 추가
   const createRepeatingEvents = async (eventData: EventForm) => {
     try {
-      const { repeat } = eventData;
-      if (!repeat || repeat.type === 'none') {
-        throw new Error('Invalid repeat configuration');
-      }
+      const repeatingEvents = generateRepeatingEvents(eventData);
 
-      const startDate = new Date(eventData.date);
-      const endDate = repeat.endDate ? new Date(repeat.endDate) : new Date(startDate.getFullYear() + 1, startDate.getMonth(), startDate.getDate());
-      const repeatingEvents = [];
+    const response = await fetch('/api/events-list', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ events: repeatingEvents }),
+    });
 
-      let currentDate = new Date(startDate);
-      while (currentDate <= endDate) {
-        repeatingEvents.push({
-          ...eventData,
-          date: currentDate.toISOString().split('T')[0],
-          id: undefined, // 서버에서 ID를 생성하도록 함
-        });
+    if (!response.ok) {
+      throw new Error('Failed to create repeating events');
+    }
 
-        // 다음 반복 날짜 계산
-        switch (repeat.type) {
-          case 'daily':
-            currentDate.setDate(currentDate.getDate() + repeat.interval);
-            break;
-          case 'weekly':
-            currentDate.setDate(currentDate.getDate() + (7 * repeat.interval));
-            break;
-          case 'monthly':
-            currentDate.setMonth(currentDate.getMonth() + repeat.interval);
-            break;
-          case 'yearly':
-            currentDate.setFullYear(currentDate.getFullYear() + repeat.interval);
-            break;
-        }
-      }
-
-      const response = await fetch('/api/events-list', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ events: repeatingEvents }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create repeating events');
-      }
-
-      await fetchEvents();
-      onSave?.();
-      toast({
-        title: '반복 일정이 추가되었습니다.',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
+    await fetchEvents();
+    onSave?.();
+    toast({
+      title: '반복 일정이 추가되었습니다.',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
     } catch (error) {
       console.error('Error creating repeating events:', error);
       toast({
@@ -204,7 +173,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     }
   };
 
-  const deleteEvent = async (id: string, isRepeating: boolean) => {
+  const deleteEvent = async (id: string, isRepeating?: boolean) => {
     try {
       if (isRepeating) {
         await deleteRepeatingEvent(id);
