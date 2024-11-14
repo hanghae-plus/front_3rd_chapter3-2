@@ -578,6 +578,48 @@ test.describe.serial('통합 테스트', () => {
       await page.getByRole('cell', { name: '19 정원이랑 데이트' }).locator('div').first().click();
       await page.getByRole('cell', { name: '20 정원이랑 데이트' }).locator('div').first().click();
     });
+
+    test('3. 반복 종료일을 지정한 이벤트에 대해서 반복 종료일 이후에는 일정이 존재하지 않아야한다.', async ({ page }) => {  
+      test.setTimeout(60000);
+      await page.goto('http://localhost:5173/');
+      await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+      await page.reload();
+    
+      {/* 정원이랑 카페가기 일정 추가 */}
+      await page.getByLabel('제목').click();
+      await page.getByLabel('제목').fill('정원이랑 카페가기');
+      await page.getByLabel('날짜').fill('2024-11-14');
+      await page.getByLabel('시작 시간').click();
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowRight');
+      await page.getByLabel('시작 시간').fill('18:00');
+      await page.getByLabel('종료 시간').click();
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowRight');
+      await page.getByLabel('종료 시간').press('ArrowRight');
+      await page.getByLabel('종료 시간').fill('22:00');
+      await page.getByLabel('설명').click();
+      await page.getByLabel('설명').fill('씨엘트리');
+      await page.getByLabel('위치').click();
+      await page.getByLabel('위치').fill('송리단길');
+      await page.getByLabel('카테고리').selectOption('개인');
+      await page.locator('span').first().click();
+      await page.getByLabel('반복 종료일').fill('2024-11-19');
+      await page.getByTestId('event-submit-button').click();
+    
+      {/* 반복 종료일을 지정한 일정에 대해 반복 시작일부터 종료일까지 모두 일정이 존재함 */}
+      await page.getByRole('cell', { name: '14 정원이랑 카페가기' }).locator('div').first().click();
+      await page.getByRole('cell', { name: '15 정원이랑 카페가기' }).locator('div').first().click();
+      await page.getByRole('cell', { name: '16 정원이랑 카페가기' }).locator('div').first().click();
+      await page.getByRole('cell', { name: '17 정원이랑 카페가기' }).locator('div').first().click();
+      await page.getByRole('cell', { name: '18 정원이랑 카페가기' }).locator('div').first().click();
+      await page.getByRole('cell', { name: '19 정원이랑 카페가기' }).locator('div').first().click();
+      
+      {/* 반복 종료일 이후에는 일정이 존재하지 않아야함 */}
+      await page.getByRole('cell', { name: '20' }).click();
+    });
   });
 
   test.afterAll(() => {
