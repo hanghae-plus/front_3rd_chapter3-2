@@ -157,3 +157,30 @@ export function isRecurringEventEnded(event: Event, currentDate: Date = new Date
       return true;
   }
 }
+
+export function convertToSingleEvent(originalEvent: Event, updatedEvent: Event): Event | null {
+  // 원본 이벤트가 없는 경우
+  if (!originalEvent) {
+    return null;
+  }
+
+  // 수정할 이벤트가 없는 경우, 원본에서 repeat만 제거
+  if (!updatedEvent) {
+    const { repeat, ...eventWithoutRepeat } = originalEvent;
+    return eventWithoutRepeat;
+  }
+
+  // ID가 다른 경우
+  if (originalEvent.id !== updatedEvent.id) {
+    return null;
+  }
+
+  // 수정된 내용과 원본 내용을 병합하고 repeat 속성 제거
+  const result: Event = {
+    ...originalEvent, // 원본 데이터를 기본으로
+    ...updatedEvent, // 수정된 데이터로 덮어쓰기
+    repeat: undefined, // repeat 속성 제거
+  };
+
+  return result;
+}
