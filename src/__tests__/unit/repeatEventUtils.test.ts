@@ -61,6 +61,20 @@ describe('generateRepeatEventDates', () => {
     ]);
   });
 
+  it('endDate가 없는 경우 2025-06-30을 기본 종료일로 사용한다', () => {
+    const baseDate = '2025-04-01';
+    const repeat: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+    };
+
+    expect(generateRepeatEventDates(baseDate, repeat)).toEqual([
+      '2025-04-01',
+      '2025-05-01',
+      '2025-06-01',
+    ]);
+  });
+
   it('연간 반복 일정을 생성한다', () => {
     const baseDate = '2023-11-01';
     const repeat: RepeatInfo = {
@@ -70,5 +84,32 @@ describe('generateRepeatEventDates', () => {
     };
 
     expect(generateRepeatEventDates(baseDate, repeat)).toEqual(['2023-11-01', '2024-11-01']);
+  });
+
+  it('윤년 2월 29일을 포함하는 2020-02-29의 경우, 윤년은 29일, 평년은 28일로 처리한다', () => {
+    const baseDate = '2020-02-29';
+    const repeat: RepeatInfo = {
+      type: 'yearly',
+      interval: 1,
+    };
+
+    expect(generateRepeatEventDates(baseDate, repeat)).toEqual([
+      '2020-02-29',
+      '2021-02-28',
+      '2022-02-28',
+      '2023-02-28',
+      '2024-02-29',
+      '2025-02-28',
+    ]);
+  });
+
+  it('반복 일정이 없는 경우 기본 일정을 반환한다', () => {
+    const baseDate = '2024-11-01';
+    const repeat: RepeatInfo = {
+      type: 'none',
+      interval: 0,
+    };
+
+    expect(generateRepeatEventDates(baseDate, repeat)).toEqual(['2024-11-01']);
   });
 });
