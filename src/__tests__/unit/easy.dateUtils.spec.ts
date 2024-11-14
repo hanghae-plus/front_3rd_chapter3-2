@@ -1,5 +1,9 @@
 import { Event } from '../../types';
 import {
+  addDays,
+  addMonths,
+  addWeeks,
+  addYears,
   fillZero,
   formatDate,
   formatMonth,
@@ -9,7 +13,10 @@ import {
   getWeekDates,
   getWeeksAtMonth,
   isDateInRange,
+  isLeapYear,
+  createRepeatDateRange,
 } from '../../utils/dateUtils';
+import { assertDate } from '../utils';
 
 describe('getDaysInMonth', () => {
   it('1월은 31일 수를 반환한다', () => {
@@ -296,5 +303,397 @@ describe('formatDate', () => {
   it('일이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {
     const testDate = new Date('2023-12-05');
     expect(formatDate(testDate)).toBe('2023-12-05');
+  });
+});
+
+describe('isLeapYear', () => {
+  test.each([
+    { year: 1, expected: false, description: '1은 윤년이 아닙니다' },
+    { year: 4, expected: true, description: '4는 윤년입니다' },
+    { year: 100, expected: false, description: '100은 100으로 나누어떨어지므로 윤년이 아닙니다' },
+    { year: 400, expected: true, description: '400은 400으로 나누어떨어지므로 윤년입니다' },
+    { year: 1900, expected: false, description: '1900은 100으로 나누어떨어지므로 윤년이 아닙니다' },
+    { year: 2000, expected: true, description: '2000은 400으로 나누어떨어지므로 윤년입니다' },
+    {
+      year: 2004,
+      expected: true,
+      description: '2004는 4로 나누어떨어지고 100으로 나누어떨어지지 않으므로 윤년입니다',
+    },
+    {
+      year: 2008,
+      expected: true,
+      description: '2008은 4로 나누어떨어지고 100으로 나누어떨어지지 않으므로 윤년입니다',
+    },
+    {
+      year: 2010,
+      expected: false,
+      description: '2010은 4로 나누어떨어지지 않으므로 윤년이 아닙니다',
+    },
+    {
+      year: 2012,
+      expected: true,
+      description: '2012는 4로 나누어떨어지고 100으로 나누어떨어지지 않으므로 윤년입니다',
+    },
+    {
+      year: 2024,
+      expected: true,
+      description: '2024는 4로 나누어떨어지고 100으로 나누어떨어지지 않으므로 윤년입니다',
+    },
+  ])('$description', ({ year, expected }) => {
+    expect(isLeapYear(year)).toBe(expected);
+  });
+});
+
+// 주어진 날짜에 원하는 만큼 일 수를 더한다
+describe('addDays', () => {
+  it('다음날 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-12-31');
+    const tomorrow = addDays(today, 1);
+    assertDate(tomorrow, new Date('2025-01-01'));
+  });
+
+  it('이틀 뒤 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-12-30');
+    const next = addDays(today, 2);
+    assertDate(next, new Date('2025-01-01'));
+  });
+
+  // TODO: 경계값 테스트?
+});
+
+// 주어진 날짜에 원하는 만큼 주 수를 더한다
+describe('addWeeks', () => {
+  it('다음주 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-12-31');
+    const next = addWeeks(today, 1);
+    assertDate(next, new Date('2025-01-07'));
+  });
+
+  it('2주 뒤 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-12-31');
+    const next = addWeeks(today, 2);
+    assertDate(next, new Date('2025-01-14'));
+  });
+});
+
+// 주어진 날짜에 원하는 만큼 월 수를 더한다
+describe('addMonths', () => {
+  it('다음달 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-01-01');
+    const next = addMonths(today, 1);
+    assertDate(next, new Date('2024-02-01'));
+  });
+
+  it('2달 뒤 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-01-01');
+    const next = addMonths(today, 2);
+    assertDate(next, new Date('2024-03-01'));
+  });
+
+  it('윤년이 아닐 경우 2월의 마지막 날인 28일을 반환한다', () => {
+    const today = new Date('2025-01-29');
+    const next = addMonths(today, 1);
+    assertDate(next, new Date('2025-02-28'));
+  });
+
+  it('다음 달에 30일이 없을 경우 다음 달의 마지막 날짜를 반환한다', () => {
+    const today = new Date('2024-01-30');
+    const next = addMonths(today, 1);
+    assertDate(next, new Date('2024-02-29'));
+  });
+
+  it('다음 달에 31일이 없을 경우 다음 달의 마지막 날짜를 반환한다', () => {
+    const today = new Date('2024-10-31');
+    const next = addMonths(today, 1);
+    assertDate(next, new Date('2024-11-30'));
+  });
+
+  // TODO: 경계값 테스트
+  // TODO: 유효하지 않은 월에 대한 처리
+});
+
+// 주어진 날짜에 원하는 만큼 년 수를 더한다
+describe('addYears', () => {
+  it('다음 년도의 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-01-28');
+    const next = addYears(today, 1);
+    assertDate(next, new Date('2025-01-28'));
+  });
+
+  it('2년 뒤 날짜를 구할 수 있다', () => {
+    const today = new Date('2024-01-28');
+    const next = addYears(today, 2);
+    assertDate(next, new Date('2026-01-28'));
+  });
+
+  it('다음 년도가 윤년이 아닐 경우, 2/28일을 반환한다', () => {
+    const today = new Date('2024-02-29');
+    const next = addYears(today, 1);
+    assertDate(next, new Date('2025-02-28'));
+  });
+
+  // TODO: 경계값 테스트
+  // TODO: 유효하지 않은 년에 대한 처리
+});
+
+describe('createRepeatDateRange', () => {
+  it('반복 일정 유형(type)이 주어지지 않을 경우, "daily"가 기본값으로 사용된다', () => {
+    const result = createRepeatDateRange({
+      start: '2024-01-01',
+      end: '2024-01-03',
+    });
+
+    expect(result).toEqual(['2024-01-01', '2024-01-02', '2024-01-03']);
+  });
+
+  it('interval이 주어지지 않을 경우, 기본값으로 1이 사용된다', () => {
+    const result = createRepeatDateRange({
+      type: 'daily',
+      start: '2024-01-01',
+      end: '2024-01-03',
+    });
+
+    expect(result).toEqual(['2024-01-01', '2024-01-02', '2024-01-03']);
+  });
+
+  it('interval이 3으로 주어질 경우, 시작일 기준으로 3일 간격으로 반복되는 날짜가 담긴 배열을 반환한다', () => {
+    const result = createRepeatDateRange({
+      type: 'daily',
+      start: '2024-01-01',
+      end: '2024-01-10',
+      interval: 3,
+    });
+
+    expect(result).toEqual(['2024-01-01', '2024-01-04', '2024-01-07', '2024-01-10']);
+  });
+
+  it('종료 날짜가 주어지지 않을 경우, 기본 값으로 "2050-12-31"이 사용된다', () => {
+    const result = createRepeatDateRange({
+      start: '2050-01-01',
+      type: 'daily',
+      interval: 1,
+    });
+
+    expect(result).toHaveLength(365);
+    expect(result[result.length - 1]).toBe('2050-12-31');
+  });
+
+  it('유효하지 않은 시작일이 주어질 경우 에러를 던진다', () => {
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '',
+      })
+    ).toThrowError(/유효하지 않은 시작일 입니다/);
+
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-19-01',
+      })
+    ).toThrowError(/유효하지 않은 시작일 입니다/);
+  });
+
+  it('유효하지 않은 종료일이 주어질 경우 에러를 던진다', () => {
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-01-01',
+        end: '',
+      })
+    ).toThrowError(/유효하지 않은 종료일 입니다/);
+
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-01-01',
+        end: '2024-19-01',
+      })
+    ).toThrowError(/유효하지 않은 종료일 입니다/);
+  });
+
+  it('종료일이 시작일보다 작을 경우 빈 배열을 반환한다', () => {
+    const result = createRepeatDateRange({
+      type: 'daily',
+      start: '2024-01-03',
+      end: '2024-01-01',
+    });
+
+    expect(result).toEqual([]);
+  });
+
+  it('유효하지 않은 interval이 주어질 경우 에러를 던진다', () => {
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-01-01',
+        interval: 0,
+      })
+    ).toThrowError(/유효하지 않은 interval 입니다/);
+
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-01-01',
+        interval: -1,
+      })
+    ).toThrowError(/유효하지 않은 interval 입니다/);
+
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-01-01',
+        interval: Infinity,
+      })
+    ).toThrowError(/유효하지 않은 interval 입니다/);
+
+    expect(() =>
+      createRepeatDateRange({
+        type: 'daily',
+        start: '2024-01-01',
+        interval: NaN,
+      })
+    ).toThrowError(/유효하지 않은 interval 입니다/);
+  });
+
+  describe('반복 일정 유형이 "weekly"일 경우', () => {
+    it('"2024-01-01"부터 "2024-01-30"까지 1주일 간격으로 반복되는 날짜가 담긴 배열을 반환한다', () => {
+      const dates = createRepeatDateRange({
+        type: 'weekly',
+        start: '2024-01-01',
+        end: '2024-01-30',
+      });
+
+      expect(dates).toEqual(['2024-01-01', '2024-01-08', '2024-01-15', '2024-01-22', '2024-01-29']);
+    });
+
+    it('interval이 2일 경우, "2024-01-01"부터 "2024-01-30"까지 2주일 간격으로 반복되는 날짜가 담긴 배열을 반환한다', () => {
+      const dates = createRepeatDateRange({
+        type: 'weekly',
+        start: '2024-01-01',
+        end: '2024-01-30',
+        interval: 2,
+      });
+
+      expect(dates).toEqual(['2024-01-01', '2024-01-15', '2024-01-29']);
+    });
+
+    it('시작일과 종료일이 일주일 미만 차이날 경우 시작일이 담긴 배열을 반환한다', () => {
+      const dates = createRepeatDateRange({
+        type: 'weekly',
+        start: '2024-01-01',
+        end: '2024-01-06',
+      });
+
+      expect(dates).toEqual(['2024-01-01']);
+    });
+  });
+
+  describe('반복 일정 유형이 "monthly"일 경우', () => {
+    it('"2024-01-01"부터 "2024-12-31"까지 1달 간격으로 반복되는 날짜가 담긴 배열을 반환한다', () => {
+      const dates = createRepeatDateRange({
+        type: 'monthly',
+        start: '2024-01-01',
+        end: '2024-12-31',
+      });
+
+      expect(dates).toEqual([
+        '2024-01-01',
+        '2024-02-01',
+        '2024-03-01',
+        '2024-04-01',
+        '2024-05-01',
+        '2024-06-01',
+        '2024-07-01',
+        '2024-08-01',
+        '2024-09-01',
+        '2024-10-01',
+        '2024-11-01',
+        '2024-12-01',
+      ]);
+    });
+
+    it('interval이 3일 경우, "2024-01-01"부터 "2024-12-31"까지 3달 간격으로 반복되는 날짜가 담긴 배열을 반환한다', () => {
+      const dates = createRepeatDateRange({
+        type: 'monthly',
+        start: '2024-01-01',
+        end: '2024-12-31',
+        interval: 3,
+      });
+
+      expect(dates).toEqual(['2024-01-01', '2024-04-01', '2024-07-01', '2024-10-01']);
+    });
+
+    it('"2024-01-31"부터 1달 간격으로 반복되는 날짜를 생성할 경우 31일이 없는 달은 마지막 날짜로 변환된 문자열이 담긴 배열을 반환한다', () => {
+      const dates = createRepeatDateRange({
+        type: 'monthly',
+        start: '2024-01-31',
+        end: '2024-12-31',
+      });
+
+      expect(dates).toEqual([
+        '2024-01-31',
+        '2024-02-29',
+        '2024-03-31',
+        '2024-04-30',
+        '2024-05-31',
+        '2024-06-30',
+        '2024-07-31',
+        '2024-08-31',
+        '2024-09-30',
+        '2024-10-31',
+        '2024-11-30',
+        '2024-12-31',
+      ]);
+    });
+
+    it('윤년의 2월 29일부터 반복되는 날짜를 생성할 경우 윤년이 아닌 2월은 28일로 변환된 문자열이 담긴 배열을 반환한다', () => {
+      const dates = createRepeatDateRange({
+        type: 'monthly',
+        start: '2024-02-29',
+        end: '2025-03-31',
+      });
+
+      expect(dates).toHaveLength(14); // 2 ~ 12, 1 ~ 3
+      expect(dates).toContain('2025-02-28');
+    });
+  });
+
+  describe('반복 일정 유형이 "yearly"일 경우', () => {
+    it('"2024-01-01"부터 "2030-12-31"까지 1년 간격으로 반복되는 날짜가 담긴 배열을 반환한다', () => {
+      const dates = createRepeatDateRange({
+        type: 'yearly',
+        start: '2024-01-01',
+        end: '2030-12-31',
+      });
+
+      expect(dates).toEqual([
+        '2024-01-01',
+        '2025-01-01',
+        '2026-01-01',
+        '2027-01-01',
+        '2028-01-01',
+        '2029-01-01',
+        '2030-01-01',
+      ]);
+    });
+
+    it('윤년의 2월 29일부터 시작할 경우 윤년이 아닌 2월은 28일로 변환된 문자열이 담긴 배열을 반환한다', () => {
+      const dates = createRepeatDateRange({
+        type: 'yearly',
+        start: '2024-02-29',
+        end: '2030-03-31',
+      });
+
+      expect(dates).toEqual([
+        '2024-02-29',
+        '2025-02-28',
+        '2026-02-28',
+        '2027-02-28',
+        '2028-02-29', // 2028년은 윤년
+        '2029-02-28',
+        '2030-02-28',
+      ]);
+    });
   });
 });

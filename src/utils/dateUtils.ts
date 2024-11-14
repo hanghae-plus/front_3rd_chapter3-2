@@ -1,4 +1,6 @@
-import { Event } from '../types.ts';
+import { isValid } from 'date-fns';
+
+import { Event, RepeatType } from '../types.ts';
 
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
@@ -107,4 +109,143 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(currentDate.getMonth() + 1),
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
+}
+
+// export function compareDate(d1: Date, d2: Date) {
+//   return d1.getTime() - d2.getTime();
+// }
+
+/**
+ * 주어진 년도가 윤년인지 확인합니다.
+ */
+export function isLeapYear(year: number): boolean {
+  // 400으로 나누어 떨어지면 윤년
+  if (year % 400 === 0) return true;
+
+  // 100으로 나누어 떨어지면 평년
+  if (year % 100 === 0) return false;
+
+  // 4로 나누어 떨어지면 윤년
+  return year % 4 === 0;
+}
+
+/**
+ * 특정 연월의 마지막 날짜를 구합니다
+ */
+function getLastDayOfMonth(year: number, month: number): number {
+  return new Date(year, month + 1, 0).getDate();
+}
+
+/**
+ * 특정 날짜가 해당 월에 존재하는지 확인합니다
+ *
+ * TODO: 테스트 코드 구현
+ */
+function isValidDayInMonth(year: number, month: number, day: number): boolean {
+  const lastDay = getLastDayOfMonth(year, month);
+  return day <= lastDay;
+}
+
+// 일 수 더하기
+export function addDays(date: Date, days: number): Date {
+  const result = stripTime(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+// 주 더하기
+export function addWeeks(date: Date, weeks: number): Date {
+  // +2주 == +14일
+  return addDays(date, weeks * 7);
+}
+
+// 월 더하기
+export function addMonths(date: Date, months: number, originalDate = date.getDate()): Date {
+  if (originalDate <= 28) {
+    const result = stripTime(date);
+    result.setMonth(result.getMonth() + months);
+    return result;
+  }
+
+  const nextMonth = date.getMonth() + months;
+  const result = new Date(date.getFullYear(), nextMonth, 1);
+
+  // 원래 일자가 다음 달에 존재하는지 확인
+  if (isValidDayInMonth(result.getFullYear(), result.getMonth(), originalDate)) {
+    // 존재하면 원래 일자로 설정
+    result.setDate(originalDate);
+  } else {
+    // 존재하지 않으면 해당 월의 마지막 날로 설정
+    result.setDate(getLastDayOfMonth(result.getFullYear(), result.getMonth()));
+  }
+
+  return result;
+}
+
+// 년 더하기
+export function addYears(date: Date, years: number, originalDate = date.getDate()): Date {
+  // 2월 29일이 아닐 경우
+  if (!(date.getMonth() === 1 && originalDate === 29)) {
+    const result = stripTime(date);
+    result.setFullYear(result.getFullYear() + years);
+    return result;
+  }
+
+  // 2월 29일일 경우
+  const nextYear = date.getFullYear() + years;
+  if (isLeapYear(nextYear)) {
+    return new Date(nextYear, 1, 29);
+  }
+
+  return new Date(nextYear, 1, 28);
+}
+
+export function createRepeatDateRange({
+  start,
+  type = 'daily',
+  interval = 1,
+  end = '2050-12-31',
+}: {
+  start: string;
+  type?: Omit<RepeatType, 'none'>;
+  interval?: number;
+  end?: string;
+}): string[] {
+  if (!isValid(new Date(start))) {
+    throw new Error('유효하지 않은 시작일 입니다');
+  }
+
+  if (!isValid(new Date(end))) {
+    throw new Error('유효하지 않은 종료일 입니다');
+  }
+
+  if (Number.isNaN(interval) || interval < 1 || !Number.isFinite(interval)) {
+    throw new Error('유효하지 않은 interval 입니다');
+  }
+
+  const startDate = stripTime(new Date(start));
+  const endDate = stripTime(new Date(end));
+  const dates: Date[] = [];
+
+  let nextDate = startDate;
+
+  while (nextDate.getTime() <= endDate.getTime()) {
+    dates.push(nextDate);
+
+    if (type === 'daily') {
+      nextDate = addDays(nextDate, interval);
+    } else if (type === 'weekly') {
+      nextDate = addWeeks(nextDate, interval);
+    } else if (type === 'monthly') {
+      // FIXME: 10/31, 11/30, 12/31, ... 과 같이 반복되는 날짜를 구하기 위해서 시작 날짜를 전달하고 있습니다
+      // 더 좋은 방법 찾아서 리팩토링 필요
+      nextDate = addMonths(nextDate, interval, startDate.getDate());
+    } else if (type === 'yearly') {
+      // FIXME: 2024/02/29, 2025/02/28, ..., 2028/02/29를 구하기 위해서 시작 날짜를 전달하고 있습니다
+      // 더 좋은 방법 찾아서 리팩토링 필요
+      nextDate = addYears(nextDate, interval, startDate.getDate());
+    }
+  }
+
+  return dates.map((date) => formatDate(date));
 }

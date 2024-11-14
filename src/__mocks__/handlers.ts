@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import { events } from '../__mocks__/response/events.json' assert { type: 'json' };
-import { Event } from '../types';
+import { Event, EventForm } from '../types';
 
 export const handlers = [
   http.get('/api/events', () => {
@@ -35,5 +35,16 @@ export const handlers = [
     }
 
     return new HttpResponse(null, { status: 404 });
+  }),
+
+  http.post('/api/events-list', async ({ request }) => {
+    const body = (await request.json()) as { events: EventForm[] };
+
+    const newEvents = body.events.map((event) => ({
+      ...event,
+      id: String(events.length + 1),
+    }));
+
+    return HttpResponse.json([...events, ...newEvents], { status: 201 });
   }),
 ];

@@ -1,5 +1,5 @@
-import { Event } from '../types';
-import { getWeekDates, isDateInRange } from './dateUtils';
+import { Event, EventForm } from '../types';
+import { createRepeatDateRange, getWeekDates, isDateInRange } from './dateUtils';
 
 function filterEventsByDateRange(events: Event[], start: Date, end: Date): Event[] {
   return events.filter((event) => {
@@ -47,4 +47,24 @@ export function getFilteredEvents(
   }
 
   return searchedEvents;
+}
+
+// 주어진 일정의 따라 반복 일정을 생성합니다
+export function createRepeatEvents(eventData: EventForm | Event): EventForm[] | Event[] {
+  const { repeat, date: startDate } = eventData;
+
+  const dates = createRepeatDateRange({
+    start: startDate,
+    end: repeat.endDate ?? '2050-12-31',
+    interval: repeat.interval,
+    type: repeat.type,
+  });
+
+  return dates.map((date) => ({
+    ...eventData,
+    repeat: {
+      ...eventData.repeat,
+    },
+    date,
+  }));
 }
