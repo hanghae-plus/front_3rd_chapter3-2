@@ -176,31 +176,43 @@ export const setupMockHandlerRepeatUpdating = () => {
   );
 };
 
-export const setupMockHandlerBulkDeletion = () => {
-  const mockEvents: Event[] = [
+export const setupMockHandlerRepeatDeletion = () => {
+  let mockEvents: Event[] = [
     {
       id: '1',
-      title: '삭제할 회의 1',
-      date: '2024-10-15',
+      title: '단일 삭제',
+      date: '2024-11-15',
       startTime: '09:00',
       endTime: '10:00',
-      description: '삭제할 팀 미팅 1',
-      location: '회의실 A',
+      description: '설명',
+      location: '위치',
       category: '업무',
-      repeat: { type: 'none', interval: 0 },
+      repeat: { type: 'daily', interval: 1, endDate: '2024-11-17', id: '1' },
       notificationTime: 10,
     },
     {
       id: '2',
-      title: '삭제할 회의 2',
-      date: '2024-10-15',
-      startTime: '11:00',
-      endTime: '12:00',
-      description: '삭제할 팀 미팅 2',
-      location: '회의실 B',
+      title: '단일 삭제',
+      date: '2024-11-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '설명',
+      location: '위치',
       category: '업무',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 5,
+      repeat: { type: 'daily', interval: 1, endDate: '2024-11-17', id: '1' },
+      notificationTime: 10,
+    },
+    {
+      id: '3',
+      title: '단일 삭제',
+      date: '2024-11-17',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '설명',
+      location: '위치',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-11-17', id: '1' },
+      notificationTime: 10,
     },
   ];
 
@@ -208,15 +220,10 @@ export const setupMockHandlerBulkDeletion = () => {
     http.get('/api/events', () => {
       return HttpResponse.json({ events: mockEvents });
     }),
-    http.delete('/api/events-list', async ({ request }) => {
-      const body = (await request.json()) as { eventIds: string[] };
-      const hasEvent = mockEvents.some((event) => body.eventIds.includes(event.id));
-
-      if (hasEvent) {
-        mockEvents.length = 0;
-        return new HttpResponse(null, { status: 204 });
-      }
-      return new HttpResponse(null, { status: 404 });
+    http.delete('/api/events/:id', async ({ params }) => {
+      const { id } = params;
+      mockEvents = mockEvents.filter((event) => event.id !== id);
+      return new HttpResponse(null, { status: 204 });
     })
   );
 };
