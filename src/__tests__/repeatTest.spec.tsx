@@ -174,8 +174,43 @@ describe('반복 종료', () => {
 });
 
 describe('반복 일정 단일 수정', () => {
-  it('반복일정을 수정하면 단일 일정으로 변경됩니다.', () => {});
-  it('반복일정 태그도 사라집니다.', () => {});
+  it('반복일정을 수정하면 단일 일정으로 변경됩니다.', async () => {
+    const { user } = setup(<App />);
+
+    const eventToEdit = screen.getByText(/반복 일정/);
+    await user.click(eventToEdit);
+
+    const titleInput = screen.getByLabelText('제목');
+    await user.clear(titleInput);
+    await user.type(titleInput, '수정된 일정');
+
+    const submitButton = screen.getByTestId('event-submit-button');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('수정된 일정')).toBeInTheDocument();
+      expect(screen.queryByTestId('repeat-tag')).not.toBeInTheDocument();
+    });
+  });
+
+  it('반복일정 태그도 사라집니다.', async () => {
+    const { user } = setup(<App />);
+
+    const eventToEdit = screen.getByText(/반복 일정/);
+    await user.click(eventToEdit);
+
+    const titleInput = screen.getByLabelText('제목');
+    await user.clear(titleInput);
+    await user.type(titleInput, '수정된 일정');
+
+    const submitButton = screen.getByTestId('event-submit-button');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      const eventBox = screen.getByText('수정된 일정').closest('div');
+      expect(eventBox).not.toContainElement(screen.queryByTestId('repeat-tag'));
+    });
+  });
 });
 
 describe('반복 일정 단일 삭제', () => {
