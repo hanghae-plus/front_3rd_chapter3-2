@@ -5,6 +5,8 @@ import path from 'path';
 
 import express from 'express';
 
+import { getNextDate } from './src/utils';
+
 const app = express();
 const port = 3000;
 const __dirname = path.resolve();
@@ -18,8 +20,13 @@ const getEvents = async () => {
 };
 
 app.get('/api/events', async (_, res) => {
-  const events = await getEvents();
-  res.json(events);
+  try {
+    const events = await getEvents();
+    res.json(events);
+  } catch (error) {
+    console.error('Error reading events:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.post('/api/events', async (req, res) => {
@@ -34,6 +41,55 @@ app.post('/api/events', async (req, res) => {
   );
 
   res.status(201).json(newEvent);
+});
+
+app.post('/api/events/repeat', async (req, res) => {
+  const events = await getEvents();
+  const {
+    title,
+    date,
+    startTime,
+    endTime,
+    description,
+    location,
+    category,
+    repeat,
+    notificationTime,
+  } = req.body;
+
+  const newEvents = [];
+  let currentEventDate = new Date(date);
+  const end = new Date(repeat.endDate || '2025-06-30');
+
+  while (currentEventDate <= end) {
+    // currentEventDate = adjustForLeapYear(currentEventDate);
+
+    const eventToAdd = {
+      id: randomUUID(),
+      title,
+      date: currentEventDate.toISOString().split('T')[0],
+      startTime,
+      endTime,
+      description,
+      location,
+      category,
+      repeat,
+      notificationTime,
+    };
+
+    newEvents.push(eventToAdd);
+
+    currentEventDate = getNextDate(currentEventDate, repeat.type, repeat.interval);
+  }
+
+  fs.writeFileSync(
+    `${__dirname}/src/__mocks__/response/realEvents.json`,
+    JSON.stringify({
+      events: [...events.events, ...newEvents],
+    })
+  );
+
+  res.status(201).json(newEvents);
 });
 
 app.put('/api/events/:id', async (req, res) => {
