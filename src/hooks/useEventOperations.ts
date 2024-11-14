@@ -2,6 +2,7 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import { Event, EventForm } from '../types';
+import { generateRepeatedEvents } from '../utils/eventRepeat.ts';
 
 export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -30,16 +31,44 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     try {
       let response;
       if (editing) {
+        const eventToUpdate = events.find((event) => event.id === (eventData as Event).id);
+
+        const isRepeatedEvent =
+          eventToUpdate?.repeat.type === 'none' && (eventData as Event).repeat.type !== 'none';
+
+        if (isRepeatedEvent) {
+          const repeatEvents = generateRepeatedEvents(eventData as Event);
+          const newEvents = repeatEvents.filter(
+            (event) => event.date !== (eventData as Event).date
+          );
+
+          response = await fetch('/api/events-list', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ events: newEvents }),
+          });
+        } else {
+          eventData = { ...eventData, repeat: { type: 'none', interval: 0 } };
+        }
+
         response = await fetch(`/api/events/${(eventData as Event).id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(eventData),
         });
-      } else {
+      } else if (eventData.repeat.type === 'none') {
         response = await fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(eventData),
+        });
+      } else {
+        const events = generateRepeatedEvents(eventData as Event);
+
+        response = await fetch('/api/events-list', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ events }),
         });
       }
 
