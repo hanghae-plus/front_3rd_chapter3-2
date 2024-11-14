@@ -4,6 +4,7 @@ import {
   ChevronRightIcon,
   DeleteIcon,
   EditIcon,
+  RepeatIcon,
 } from '@chakra-ui/icons';
 import {
   Alert,
@@ -138,6 +139,26 @@ function App() {
       return;
     }
 
+    if (isRepeating && !repeatInterval) {
+      toast({
+        title: '반복 간격을 1이상 설정해 주세요.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (repeatEndDate && date > repeatEndDate) {
+      toast({
+        title: '반복 종료일을 시작 날짜보다 늦게 설정해 주세요.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
       title,
@@ -156,6 +177,7 @@ function App() {
     };
 
     const overlapping = findOverlappingEvents(eventData, events);
+
     if (overlapping.length > 0) {
       setOverlappingEvents(overlapping);
       setIsOverlapDialogOpen(true);
@@ -202,6 +224,9 @@ function App() {
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
                             <Text fontSize="sm" noOfLines={1}>
+                              {event.repeat.type !== 'none' && (
+                                <RepeatIcon color="#4aa8d8" fontSize="20px" />
+                              )}
                               {event.title}
                             </Text>
                           </HStack>
@@ -271,6 +296,9 @@ function App() {
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
                                   <Text fontSize="sm" noOfLines={1}>
+                                    {event.repeat.type !== 'none' && (
+                                      <RepeatIcon color="#4aa8d8" fontSize="20px" />
+                                    )}
                                     {event.title}
                                   </Text>
                                 </HStack>
@@ -468,6 +496,9 @@ function App() {
                         fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
                         color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
                       >
+                        {event.repeat.type !== 'none' && (
+                          <RepeatIcon color="#4aa8d8" fontSize="20px" />
+                        )}
                         {event.title}
                       </Text>
                     </HStack>

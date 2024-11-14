@@ -1,7 +1,44 @@
+import { randomUUID } from 'crypto';
+
 import { http, HttpResponse } from 'msw';
 
 import { server } from '../setupTests';
 import { Event } from '../types';
+
+export const setupMockHandlerGetEvents = (initEvents = [] as Event[]) => {
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: initEvents });
+    })
+  );
+};
+
+export const setUpMockHandlerRepeatCreation = (initEvents = [] as Event[]) => {
+  const mockEvents: Event[] = [...initEvents];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+    http.post('/api/events-list', async ({ request }) => {
+      const { events: newEventList } = (await request.json()) as { events: Event[] };
+
+      const processedEvents = newEventList.map((event) => {
+        return {
+          ...event,
+          id: randomUUID(),
+          repeat: {
+            ...event.repeat,
+          },
+        };
+      });
+
+      mockEvents.push(...processedEvents);
+
+      return HttpResponse.json(processedEvents, { status: 201 });
+    })
+  );
+};
 
 // ! Hard 여기 제공 안함
 export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
