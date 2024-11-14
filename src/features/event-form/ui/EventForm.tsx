@@ -289,7 +289,7 @@ export const EventForm = memo(
                 <HStack>
                   <Input
                     type="number"
-                    min="1"
+                    min="0"
                     max="99"
                     inputMode="numeric"
                     name="repeatInterval"
