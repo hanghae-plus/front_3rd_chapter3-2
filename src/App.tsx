@@ -4,6 +4,7 @@ import {
   ChevronRightIcon,
   DeleteIcon,
   EditIcon,
+  RepeatIcon,
 } from '@chakra-ui/icons';
 import {
   Alert,
@@ -103,12 +104,16 @@ function App() {
     editEvent,
   } = useEventForm();
 
-  const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
-    setEditingEvent(null)
+  const { view, setView, currentDate, holidays, navigate } = useCalendarView();
+
+  const { events, saveEvent, deleteEvent } = useEventOperations(
+    Boolean(editingEvent),
+    currentDate,
+    () => setEditingEvent(null)
   );
 
   const { notifications, notifiedEvents, setNotifications } = useNotifications(events);
-  const { view, setView, currentDate, holidays, navigate } = useCalendarView();
+
   const { searchTerm, filteredEvents, setSearchTerm } = useSearch(events, currentDate, view);
 
   const [isOverlapDialogOpen, setIsOverlapDialogOpen] = useState(false);
@@ -196,11 +201,14 @@ function App() {
                           my={1}
                           bg={isNotified ? 'red.100' : 'gray.100'}
                           borderRadius="md"
-                          fontWeight={isNotified ? 'bold' : 'normal'}
-                          color={isNotified ? 'red.500' : 'inherit'}
+                          borderLeftWidth="4px"
+                          borderLeftColor={
+                            event.repeat.type !== 'none' ? 'blue.400' : 'transparent'
+                          }
                         >
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
+                            {event.repeat.type !== 'none' && <RepeatIcon color="blue.500" />}
                             <Text fontSize="sm" noOfLines={1}>
                               {event.title}
                             </Text>
@@ -265,11 +273,14 @@ function App() {
                                 my={1}
                                 bg={isNotified ? 'red.100' : 'gray.100'}
                                 borderRadius="md"
-                                fontWeight={isNotified ? 'bold' : 'normal'}
-                                color={isNotified ? 'red.500' : 'inherit'}
+                                borderLeftWidth="4px"
+                                borderLeftColor={
+                                  event.repeat.type !== 'none' ? 'blue.400' : 'transparent'
+                                }
                               >
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
+                                  {event.repeat.type !== 'none' && <RepeatIcon color="blue.500" />}
                                   <Text fontSize="sm" noOfLines={1}>
                                     {event.title}
                                   </Text>
@@ -470,6 +481,7 @@ function App() {
                       >
                         {event.title}
                       </Text>
+                      {event.originalStartDate && <RepeatIcon color="blue.500" />}
                     </HStack>
                     <Text>{event.date}</Text>
                     <Text>
@@ -507,7 +519,7 @@ function App() {
                     <IconButton
                       aria-label="Delete event"
                       icon={<DeleteIcon />}
-                      onClick={() => deleteEvent(event.id)}
+                      onClick={() => deleteEvent(event.id, event)}
                     />
                   </HStack>
                 </HStack>
