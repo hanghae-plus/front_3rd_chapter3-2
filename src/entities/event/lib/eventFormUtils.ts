@@ -111,7 +111,7 @@ export const getInitialFormState = (initialEvent: Event | null): EventFormState 
   category: initialEvent?.category || '',
   isRepeating: initialEvent?.isRepeating || false,
   repeatType: initialEvent?.repeat?.type || 'daily',
-  repeatInterval: initialEvent?.repeat?.interval || 1,
+  repeatInterval: initialEvent?.repeat?.interval || 0,
   repeatEndDate: initialEvent?.repeat?.endDate || '',
   repeatEndCondition: initialEvent?.repeat?.endCondition || 'never',
   repeatCount: initialEvent?.repeat?.count || undefined,
