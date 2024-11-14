@@ -1,15 +1,18 @@
 import { act, renderHook } from '@testing-library/react';
+import { Provider } from 'jotai';
+import React from 'react';
 
 import { useNotifications } from '../../hooks/useNotifications.ts';
 import { Event } from '../../types.ts';
 import { formatDate } from '../../utils/dateUtils.ts';
 import { parseHM } from '../utils.ts';
 
+const wrapper = ({ children }: { children: React.ReactNode }) => <Provider>{children}</Provider>;
 const 초 = 1000;
 const 분 = 초 * 60;
 
 it('초기 상태에서는 알림이 없어야 한다', () => {
-  const { result } = renderHook(() => useNotifications([]));
+  const { result } = renderHook(() => useNotifications([]), { wrapper });
   expect(result.current.notifications).toEqual([]);
   expect(result.current.notifiedEvents).toEqual([]);
 });
@@ -18,7 +21,7 @@ it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다
   const notificationTime = 5;
   const mockEvents: Event[] = [
     {
-      id: 1,
+      id: '1',
       title: '테스트 이벤트',
       date: formatDate(new Date()),
       startTime: parseHM(Date.now() + 10 * 분),
@@ -31,7 +34,7 @@ it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다
     },
   ];
 
-  const { result } = renderHook(() => useNotifications(mockEvents));
+  const { result } = renderHook(() => useNotifications(mockEvents), { wrapper });
 
   expect(result.current.notifications).toHaveLength(0);
 
@@ -42,16 +45,16 @@ it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다
   });
 
   expect(result.current.notifications).toHaveLength(1);
-  expect(result.current.notifiedEvents).toContain(1);
+  expect(result.current.notifiedEvents).toContain('1');
 });
 
 it('index를 기준으로 알림을 적절하게 제거할 수 있다', () => {
-  const { result } = renderHook(() => useNotifications([]));
+  const { result } = renderHook(() => useNotifications([]), { wrapper });
 
   act(() => {
     result.current.setNotifications([
-      { id: 1, message: '테스트 알림 1' },
-      { id: 2, message: '테스트 알림 2' },
+      { id: '1', message: '테스트 알림 1' },
+      { id: '2', message: '테스트 알림 2' },
     ]);
   });
 
@@ -68,7 +71,7 @@ it('index를 기준으로 알림을 적절하게 제거할 수 있다', () => {
 it('이미 알림이 발생한 이벤트에 대해서는 중복 알림이 발생하지 않아야 한다', () => {
   const mockEvents: Event[] = [
     {
-      id: 1,
+      id: '1',
       title: '테스트 이벤트',
       date: formatDate(new Date()),
       startTime: parseHM(Date.now() + 10 * 분),
@@ -81,7 +84,7 @@ it('이미 알림이 발생한 이벤트에 대해서는 중복 알림이 발생
     },
   ];
 
-  const { result } = renderHook(() => useNotifications(mockEvents));
+  const { result } = renderHook(() => useNotifications(mockEvents), { wrapper });
 
   vi.setSystemTime(new Date(Date.now() + 5 * 분));
 

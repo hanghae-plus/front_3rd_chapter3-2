@@ -1,5 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
+import { Provider } from 'jotai';
 import { http, HttpResponse } from 'msw';
+import React from 'react';
 
 import {
   setupMockHandlerCreation,
@@ -10,6 +12,7 @@ import { useEventOperations } from '../../hooks/useEventOperations.ts';
 import { server } from '../../setupTests.ts';
 import { Event } from '../../types.ts';
 
+const wrapper = ({ children }: { children: React.ReactNode }) => <Provider>{children}</Provider>;
 const toastFn = vi.fn();
 
 vi.mock('@chakra-ui/react', async () => {
@@ -21,7 +24,7 @@ vi.mock('@chakra-ui/react', async () => {
 });
 
 it('저장되어있는 초기 이벤트 데이터를 적절하게 불러온다', async () => {
-  const { result } = renderHook(() => useEventOperations(false));
+  const { result } = renderHook(() => useEventOperations(false), { wrapper });
 
   await act(() => Promise.resolve(null));
 
@@ -44,7 +47,7 @@ it('저장되어있는 초기 이벤트 데이터를 적절하게 불러온다',
 it('정의된 이벤트 정보를 기준으로 적절하게 저장이 된다', async () => {
   setupMockHandlerCreation(); // ? Med: 이걸 왜 써야하는지 물어보자
 
-  const { result } = renderHook(() => useEventOperations(false));
+  const { result } = renderHook(() => useEventOperations(false), { wrapper });
 
   await act(() => Promise.resolve(null));
 
@@ -71,7 +74,7 @@ it('정의된 이벤트 정보를 기준으로 적절하게 저장이 된다', a
 it("새로 정의된 'title', 'endTime' 기준으로 적절하게 일정이 업데이트 된다", async () => {
   setupMockHandlerUpdating();
 
-  const { result } = renderHook(() => useEventOperations(true));
+  const { result } = renderHook(() => useEventOperations(true), { wrapper });
 
   await act(() => Promise.resolve(null));
 
@@ -98,7 +101,7 @@ it("새로 정의된 'title', 'endTime' 기준으로 적절하게 일정이 업�
 it('존재하는 이벤트 삭제 시 에러없이 아이템이 삭제된다.', async () => {
   setupMockHandlerDeletion();
 
-  const { result } = renderHook(() => useEventOperations(false));
+  const { result } = renderHook(() => useEventOperations(false), { wrapper });
 
   await act(async () => {
     await result.current.deleteEvent('1');
@@ -116,7 +119,7 @@ it("이벤트 로딩 실패 시 '이벤트 로딩 실패'라는 텍스트와 함
     })
   );
 
-  renderHook(() => useEventOperations(true));
+  renderHook(() => useEventOperations(true), { wrapper });
 
   await act(() => Promise.resolve(null));
 
@@ -131,7 +134,7 @@ it("이벤트 로딩 실패 시 '이벤트 로딩 실패'라는 텍스트와 함
 });
 
 it("존재하지 않는 이벤트 수정 시 '일정 저장 실패'라는 토스트가 노출되며 에러 처리가 되어야 한다", async () => {
-  const { result } = renderHook(() => useEventOperations(true));
+  const { result } = renderHook(() => useEventOperations(true), { wrapper });
 
   await act(() => Promise.resolve(null));
 
@@ -167,7 +170,7 @@ it("네트워크 오류 시 '일정 삭제 실패'라는 텍스트가 노출되�
     })
   );
 
-  const { result } = renderHook(() => useEventOperations(false));
+  const { result } = renderHook(() => useEventOperations(false), { wrapper });
 
   await act(() => Promise.resolve(null));
 

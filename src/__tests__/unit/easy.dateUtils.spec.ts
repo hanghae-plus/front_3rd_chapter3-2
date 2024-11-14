@@ -9,6 +9,7 @@ import {
   getWeekDates,
   getWeeksAtMonth,
   isDateInRange,
+  isLeapYear,
 } from '../../utils/dateUtils';
 
 describe('getDaysInMonth', () => {
@@ -296,5 +297,27 @@ describe('formatDate', () => {
   it('일이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {
     const testDate = new Date('2023-12-05');
     expect(formatDate(testDate)).toBe('2023-12-05');
+  });
+});
+
+describe('isLeapYear', () => {
+  it('2020년은 윤년이므로 true를 반환한다', () => {
+    expect(isLeapYear(2020)).toBe(true);
+  });
+
+  it('2021년은 윤년이 아니므로 false를 반환한다', () => {
+    expect(isLeapYear(2021)).toBe(false);
+  });
+
+  it('1900년은 윤년이 아니므로 false를 반환한다', () => {
+    expect(isLeapYear(1900)).toBe(false);
+  });
+
+  it('2000년은 윤년이므로 true를 반환한다', () => {
+    expect(isLeapYear(2000)).toBe(true);
+  });
+
+  it('2024년은 윤년이므로 true를 반환한다', () => {
+    expect(isLeapYear(2024)).toBe(true);
   });
 });
