@@ -41,7 +41,10 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
       await fetchEvents();
       onSave?.();
-      displayToastNotification(editing ? '일정이 수정되었습니다.' : '일정이 추가되었습니다.', 'success');
+      displayToastNotification(
+        editing ? '일정이 수정되었습니다.' : '일정이 추가되었습니다.',
+        'success'
+      );
     } catch (error) {
       console.error('Error saving event:', error);
       displayToastNotification('일정 저장 실패', 'error');

@@ -1,5 +1,6 @@
-import React from 'react';
+/* eslint-disable no-unused-vars */
 import { Alert, AlertIcon, AlertTitle, Box, CloseButton, VStack } from '@chakra-ui/react';
+import React from 'react';
 
 interface Notification {
   message: string;
@@ -28,4 +29,4 @@ const NotificationList: React.FC<NotificationListProps> = ({ notifications, onCl
   );
 };
 
-export default NotificationList; 
+export default NotificationList;

@@ -1,6 +1,6 @@
-/* eslint-disable no-unused-vars */
-import { useRef } from 'react';
 import { ComponentMeta, ComponentStory } from '@storybook/react';
+import { useRef } from 'react';
+
 import OverlapAlertDialog from '../components/OverlapAlertDialog';
 
 export default {
@@ -42,4 +42,4 @@ NoOverlap.args = {
   onClose: () => console.log('Dialog closed'),
   overlappingEvents: [],
   onConfirm: () => console.log('Confirmed'),
-}; 
+};

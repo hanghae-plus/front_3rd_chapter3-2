@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { defineConfig, devices } from '@playwright/test';
 
 /**

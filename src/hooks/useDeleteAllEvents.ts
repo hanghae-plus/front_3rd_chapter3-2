@@ -1,7 +1,11 @@
+/* eslint-disable no-unused-vars */
 import { useToast } from '@chakra-ui/react';
 import { useState } from 'react';
 
-export const useDeleteAllEvents = (resetForm: () => void, setEditingEvent: (event: null) => void) => {
+export const useDeleteAllEvents = (
+  resetForm: () => void,
+  setEditingEvent: (event: null) => void
+) => {
   const toast = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -46,4 +50,4 @@ export const useDeleteAllEvents = (resetForm: () => void, setEditingEvent: (even
   };
 
   return { deleteAllEvents, isDeleting };
-}; 
+};

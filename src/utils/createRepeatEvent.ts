@@ -1,8 +1,12 @@
+/* eslint-disable no-case-declarations */
 import { RepeatType, Event } from '../types';
 import { formatDate } from './dateUtils';
 
 export function createRepeatEvent(event: Event, maxOccurrences?: number): Event[] {
-  const { date: startDateStr, repeat: { interval, type: repeatType, endDate: endDateStr } } = event;
+  const {
+    date: startDateStr,
+    repeat: { interval, type: repeatType, endDate: endDateStr },
+  } = event;
   const eventInstances: Event[] = [];
   let currentEventDate = new Date(startDateStr);
   const defaultEndDate = new Date('2025-06-30');
@@ -30,7 +34,10 @@ export function createRepeatEvent(event: Event, maxOccurrences?: number): Event[
     }
   };
 
-  while (currentEventDate <= endEventDate && (maxOccurrences === undefined || occurrences < maxOccurrences)) {
+  while (
+    currentEventDate <= endEventDate &&
+    (maxOccurrences === undefined || occurrences < maxOccurrences)
+  ) {
     eventInstances.push({
       ...event,
       date: formatDate(currentEventDate),

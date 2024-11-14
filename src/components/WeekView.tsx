@@ -1,11 +1,22 @@
-import React from 'react';
-import { VStack, Heading, Table, Thead, Tr, Th, Tbody, Td, Text, Box, HStack } from '@chakra-ui/react';
+/* eslint-disable no-unused-vars, no-undef */
 import { BellIcon } from '@chakra-ui/icons';
-import { Event } from '../types';
 import {
-  formatWeek,
-  getWeekDates,
-} from '../utils/dateUtils';
+  VStack,
+  Heading,
+  Table,
+  Thead,
+  Tr,
+  Th,
+  Tbody,
+  Td,
+  Text,
+  Box,
+  HStack,
+} from '@chakra-ui/react';
+import React from 'react';
+
+import { Event } from '../types';
+import { formatWeek, getWeekDates } from '../utils/dateUtils';
 interface WeekViewProps {
   currentDate: Date;
   weekDays: string[];
@@ -74,4 +85,4 @@ const WeekView: React.FC<WeekViewProps> = ({
   );
 };
 
-export default WeekView; 
+export default WeekView;

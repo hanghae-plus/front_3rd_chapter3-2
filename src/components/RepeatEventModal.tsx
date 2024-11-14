@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -10,6 +9,8 @@ import {
   Button,
   Text,
 } from '@chakra-ui/react';
+import React from 'react';
+
 import { Event, RepeatType } from '../types';
 
 interface RepeatEventModalProps {

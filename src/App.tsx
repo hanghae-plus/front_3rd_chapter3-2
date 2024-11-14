@@ -16,21 +16,22 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
+
 import EventList from './components/EventList';
+import MonthView from './components/MonthView';
+import NotificationList from './components/NotificationList';
+import OverlapAlertDialog from './components/OverlapAlertDialog';
 import RepeatEventModal from './components/RepeatEventModal';
+import WeekView from './components/WeekView';
 import { useCalendarView } from './hooks/useCalendarView.ts';
+import { useDeleteAllEvents } from './hooks/useDeleteAllEvents.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
-import { useDeleteAllEvents } from "./hooks/useDeleteAllEvents.ts";
 import { useNotifications } from './hooks/useNotifications.ts';
 import { useSearch } from './hooks/useSearch.ts';
 import { Event, EventForm, RepeatType } from './types';
 import { findOverlappingEvents } from './utils/eventOverlap';
 import { getTimeErrorMessage } from './utils/timeValidation';
-import NotificationList from './components/NotificationList';
-import OverlapAlertDialog from './components/OverlapAlertDialog';
-import WeekView from './components/WeekView';
-import MonthView from './components/MonthView';
 
 const categories = ['업무', '개인', '가족', '기타'];
 
@@ -351,11 +352,7 @@ function App() {
               </FormControl>
             </HStack>
           </VStack>
-          <Button
-            data-testid="event-submit-button"
-            onClick={addOrUpdateEvent}
-            colorScheme="blue"
-          >
+          <Button data-testid="event-submit-button" onClick={addOrUpdateEvent} colorScheme="blue">
             {editingEvent ? '일정 수정' : '일정 추가'}
           </Button>
           <Button onClick={deleteAllEvents} colorScheme="red" isLoading={isDeleting}>

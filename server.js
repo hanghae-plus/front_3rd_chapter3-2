@@ -3,20 +3,22 @@ import fs from 'fs';
 import { readFile } from 'fs/promises';
 import path from 'path';
 
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 
 const app = express();
 const port = 3000;
 const __dirname = path.resolve();
 
 app.use(express.json());
-app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type'],
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type'],
+    credentials: true,
+  })
+);
 
 const getEvents = async () => {
   const data = await readFile(`${__dirname}/src/__mocks__/response/realEvents.json`, 'utf8');

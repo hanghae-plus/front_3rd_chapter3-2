@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -9,6 +8,8 @@ import {
   Button,
   Text,
 } from '@chakra-ui/react';
+import React from 'react';
+
 import { Event } from '../types';
 
 interface OverlapAlertDialogProps {
@@ -58,4 +59,4 @@ const OverlapAlertDialog: React.FC<OverlapAlertDialogProps> = ({
   );
 };
 
-export default OverlapAlertDialog; 
+export default OverlapAlertDialog;

@@ -1,6 +1,8 @@
-import React from 'react';
-import { Box, HStack, VStack, Text, IconButton } from '@chakra-ui/react';
+/* eslint-disable no-unused-vars */
 import { BellIcon, EditIcon, DeleteIcon, RepeatIcon } from '@chakra-ui/icons';
+import { Box, HStack, VStack, Text, IconButton } from '@chakra-ui/react';
+import React from 'react';
+
 import { Event, RepeatType } from '../types';
 
 interface EventItemProps {
@@ -73,11 +75,7 @@ const EventItem: React.FC<EventItemProps> = ({
           )}
           <Text>
             알림:{' '}
-            {
-              notificationOptions.find(
-                (option) => option.value === event.notificationTime
-              )?.label
-            }
+            {notificationOptions.find((option) => option.value === event.notificationTime)?.label}
           </Text>
         </VStack>
         <HStack>

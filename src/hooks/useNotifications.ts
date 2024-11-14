@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useInterval } from '@chakra-ui/react';
 import { useState } from 'react';
 

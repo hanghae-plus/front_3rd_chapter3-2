@@ -1,5 +1,7 @@
-import React from 'react';
+/* eslint-disable no-unused-vars */
 import { VStack, FormControl, FormLabel, Input, Text } from '@chakra-ui/react';
+import React from 'react';
+
 import EventItem from './EventItem.tsx';
 import { Event } from '../types';
 

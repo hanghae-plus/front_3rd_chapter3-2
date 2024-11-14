@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { Event } from '../types';
 
 const 초 = 1000;

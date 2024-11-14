@@ -48,7 +48,6 @@ export const setupMockHandlerUpdating = () => {
     },
   ];
 
-
   server.use(
     http.get('/api/events', () => {
       return HttpResponse.json({ events: mockEvents });

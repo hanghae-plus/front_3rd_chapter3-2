@@ -1,5 +1,5 @@
-/* eslint-disable no-unused-vars */
 import { ComponentMeta, ComponentStory } from '@storybook/react';
+
 import RepeatEventModal from '../components/RepeatEventModal';
 
 export default {
@@ -50,4 +50,4 @@ Closed.args = {
   isOpen: false,
   onClose: () => console.log('Modal closed'),
   selectedEvent: null,
-}; 
+};

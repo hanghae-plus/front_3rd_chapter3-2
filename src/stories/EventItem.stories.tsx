@@ -1,6 +1,6 @@
-/* eslint-disable no-unused-vars */
 import { ComponentMeta } from '@storybook/react';
 import { composeStory } from '@storybook/testing-react';
+
 import EventItem from '../components/EventItem';
 import { Event } from '../types';
 

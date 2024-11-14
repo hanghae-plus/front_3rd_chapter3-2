@@ -1,5 +1,5 @@
-/* eslint-disable no-unused-vars */
 import { ComponentMeta, ComponentStory } from '@storybook/react';
+
 import NotificationList from '../components/NotificationList';
 
 export default {
@@ -23,4 +23,4 @@ export const NoNotifications = Template.bind({});
 NoNotifications.args = {
   notifications: [],
   onClose: (index: number) => console.log(`Notification ${index} closed`),
-}; 
+};

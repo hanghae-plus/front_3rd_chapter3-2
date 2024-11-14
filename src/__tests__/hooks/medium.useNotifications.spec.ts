@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { act, renderHook } from '@testing-library/react';
 
 import { useNotifications } from '../../hooks/useNotifications.ts';

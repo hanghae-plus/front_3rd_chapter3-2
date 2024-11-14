@@ -1,5 +1,5 @@
-/* eslint-disable no-unused-vars */
 import { ComponentMeta, ComponentStory } from '@storybook/react';
+
 import EventList from '../components/EventList';
 import { Event } from '../types';
 
