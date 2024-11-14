@@ -1,4 +1,4 @@
-import { Event } from '../../types';
+import { Event, RepeatInfo } from '../../types';
 import {
   fillZero,
   formatDate,
@@ -12,6 +12,7 @@ import {
   getRemainingDatesByMonth,
   getRemainingDatesByWeek,
   getRemainingDatesByYear,
+  getRemainingDatesOfRepeatedEvent,
   getWeekDates,
   getWeekday,
   getWeeksAtMonth,
@@ -1238,5 +1239,63 @@ describe('getRemainingDatesByYear', () => {
       weekOrder
     );
     expect(result).toHaveLength(0);
+  });
+});
+
+describe('getRemainingDatesOfRepeatedEvent', () => {
+  const testDate = '2024-11-12';
+  const repeatInfo: RepeatInfo = {
+    type: 'none',
+    interval: 0,
+    endDate: '2025-06-30',
+  };
+  it('🟢 repeat type이 "daily" 이고 간격이 1일 경우 반복종료일까지 하루 간격의 날짜 배열을 반환한다', () => {
+    const testRepeatInfo: RepeatInfo = {
+      ...repeatInfo,
+      type: 'daily',
+      interval: 1,
+    };
+    const result = getRemainingDatesOfRepeatedEvent(testDate, testRepeatInfo);
+    expect(result.length).toBeGreaterThan(150);
+    expect(result.at(0)).toEqual(new Date('2024-11-13'));
+    expect(result.at(-1)).toEqual(new Date('2025-06-30'));
+  });
+  it('🟢 repeat type이 "weekly" 이고 간격이 1, 요일은 "화"일 경우 반복종료일까지 일주일 간격의 날짜 배열을 반환한다', () => {
+    const testRepeatInfo: RepeatInfo = {
+      ...repeatInfo,
+      type: 'weekly',
+      interval: 1,
+      weekType: 'tue',
+    };
+    const result = getRemainingDatesOfRepeatedEvent(testDate, testRepeatInfo);
+    expect(result).toHaveLength(32);
+    expect(result.at(0)).toEqual(new Date('2024-11-19'));
+    expect(result.at(-1)).toEqual(new Date('2025-06-24'));
+  });
+  it('🟢 repeat type이 "monthly" 이고 간격이 1이고 지정일은 12일 경우 반복종료일까지 월간 간격의 날짜 배열을 반환한다', () => {
+    const testRepeatInfo: RepeatInfo = {
+      ...repeatInfo,
+      type: 'monthly',
+      interval: 1,
+      weekType: 'tue',
+      day: 12,
+    };
+    const result = getRemainingDatesOfRepeatedEvent(testDate, testRepeatInfo);
+    expect(result).toHaveLength(7);
+    expect(result.at(0)).toEqual(new Date('2024-12-12'));
+    expect(result.at(-1)).toEqual(new Date('2025-06-12'));
+  });
+  it('🟢 repeat type이 "yealy" 이고 간격이 1이고 지정일은 2월 12일 경우 반복종료일까지 지정일자의 날짜 배열을 반환한다', () => {
+    const testRepeatInfo: RepeatInfo = {
+      ...repeatInfo,
+      type: 'yearly',
+      interval: 1,
+      monthType: 'feb',
+      weekType: 'tue',
+      day: 12,
+    };
+    const result = getRemainingDatesOfRepeatedEvent(testDate, testRepeatInfo);
+    expect(result).toHaveLength(1);
+    expect(result.at(0)).toEqual(new Date('2025-02-12'));
   });
 });
