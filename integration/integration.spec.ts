@@ -620,6 +620,49 @@ test.describe.serial('통합 테스트', () => {
       {/* 반복 종료일 이후에는 일정이 존재하지 않아야함 */}
       await page.getByRole('cell', { name: '20' }).click();
     });
+
+    test('4. 반복 종료일을 지정하지 않고 반복 일정을 추가하면 모든 일정이 반복되어야 한다.', async ({ page }) => {
+      test.setTimeout(60000);
+      await page.goto('http://localhost:5173/');
+      await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+      await page.reload();
+    
+      {/* 정원이랑 데이트하기 매일 반복 일정 추가 */}
+      await page.getByLabel('제목').click();
+      await page.getByLabel('제목').fill('정원이랑 데이트하기');
+      await page.getByLabel('날짜').fill('2024-11-14');
+      await page.getByLabel('시작 시간').click();
+      await page.getByLabel('시작 시간').click();
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowRight');
+      await page.getByLabel('시작 시간').fill('20:00');
+      await page.getByLabel('종료 시간').click();
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowRight');
+      await page.getByLabel('종료 시간').fill('22:00');
+      await page.getByLabel('설명').click();
+      await page.getByLabel('설명').fill('매일매일 만나서 운동하기');
+      await page.getByLabel('위치').click();
+      await page.getByLabel('위치').fill('광나루 한강공원');
+      await page.getByLabel('카테고리').selectOption('개인');
+      await page.locator('span').first().click();
+      await page.getByTestId('event-submit-button').click();
+    
+      {/* 예시로 25년 6월로 이동 */}
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+    
+      
+      {/* 25년 6월 30일에도 일정이 존재함 */}
+      await page.getByRole('row', { name: '정원이랑 데이트하기 30' }).locator('div').first().click();
+    });
   });
 
   test.afterAll(() => {
