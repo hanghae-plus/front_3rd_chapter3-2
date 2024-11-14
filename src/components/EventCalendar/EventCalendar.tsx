@@ -11,7 +11,7 @@ type Props = ReturnType<typeof useCalendarView> & {
   notifiedEvents: EventId[];
 };
 
-export const Calendar = ({
+export const EventCalendar = ({
   filteredEvents,
   notifiedEvents,
 

@@ -1,7 +1,7 @@
 import { Box, Flex } from '@chakra-ui/react';
 
-import { Calendar } from './components/Calendar/Calendar.tsx';
 import { DialogEventOverlapAlert } from './components/DialogEventOverlapAlert.tsx';
+import { EventCalendar } from './components/EventCalendar/EventCalendar.tsx';
 import { EventInputForm } from './components/EventInputForm/EventInputForm.tsx';
 import { EventSearchForm } from './components/EventSearchForm.tsx';
 import { NotificationList } from './components/NotificationList.tsx';
@@ -27,7 +27,7 @@ function App() {
       <Flex gap={6} h="full">
         <EventInputForm events={events} saveEvent={saveEvent} />
 
-        <Calendar
+        <EventCalendar
           {...calendarView}
           filteredEvents={eventSearch.filteredEvents}
           notifiedEvents={notifiedEvents}
@@ -41,7 +41,6 @@ function App() {
       </Flex>
 
       <DialogEventOverlapAlert saveEvent={saveEvent} />
-
       <NotificationList notifications={notifications} removeNotification={removeNotification} />
     </Box>
   );
