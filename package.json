@@ -11,12 +11,13 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test e2e", 
-    "test:integration": "playwright test integration", 
+    "test:e2e": "playwright test e2e",
+    "test:integration": "playwright test integration",
     "build": "tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx,js --report-unused-disable-directives --max-warnings 0",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "chromatic": "npx chromatic --project-token=chpt_d26afde50246153"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
@@ -53,6 +54,7 @@
     "@vitejs/plugin-react-swc": "^3.5.0",
     "@vitest/coverage-v8": "^2.0.3",
     "@vitest/ui": "^1.6.0",
+    "chromatic": "^11.18.1",
     "concurrently": "^8.2.2",
     "eslint": "^8.45.0",
     "eslint-config-prettier": "^8.8.0",
