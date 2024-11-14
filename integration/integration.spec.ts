@@ -470,6 +470,36 @@ test.describe.serial('통합 테스트', () => {
       await page.getByRole('cell', { name: '16 매일 정원이랑 운동하기' }).click();
   
     });
+
+    test('2. 반복 일정에는 반복 아이콘이 표시되어야한다.', async ({ page }) => {
+      await page.goto('http://localhost:5173/');
+      await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+      await page.reload();
+  
+      {/* 반복 일정 등록하기 */}
+      await page.getByLabel('제목').fill('반복 일정');
+      await page.getByLabel('날짜').fill('2024-11-15');
+      await page.getByLabel('시작 시간').click();
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowRight');
+      await page.getByLabel('시작 시간').fill('01:00');
+      await page.getByLabel('종료 시간').click();
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowRight');
+      await page.getByLabel('종료 시간').fill('22:00');
+      await page.getByLabel('설명').click();
+      await page.getByLabel('설명').fill('반복 일정이면 아이콘이 뜰까요?');
+      await page.getByLabel('위치').click();
+      await page.getByLabel('위치').fill('내집');
+      await page.getByLabel('카테고리').selectOption('개인');
+      await page.locator('label').filter({ hasText: '반복 일정' }).click();
+      await page.getByLabel('반복 유형').selectOption('daily');
+      await page.getByTestId('event-submit-button').click();
+  
+      {/* 반복 일정에 반복 아이콘이 표시되는지 확인하기 */}
+      await page.locator('.chakra-stack > .chakra-stack > .chakra-icon').first().click();
+    })
   });
 
   test.afterAll(() => {
