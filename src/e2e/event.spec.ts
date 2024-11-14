@@ -4,7 +4,7 @@ import { setupServer } from 'msw/node';
 
 import { Event } from '../entities/event/model/type.ts';
 
-const initialEvents: Event[] = [
+const defaultEvents: Event[] = [
   {
     id: '1',
     title: '회의',
@@ -18,6 +18,8 @@ const initialEvents: Event[] = [
     notificationTime: 30,
   },
 ];
+
+let initialEvents: Event[];
 
 const server = setupServer(
   http.get('/api/events', (req, res, ctx) => {
@@ -34,6 +36,10 @@ const server = setupServer(
 test.describe('반복 이벤트 e2e 테스트', () => {
   test.beforeAll(() => {
     server.listen({ onUnhandledRequest: 'bypass' });
+  });
+
+  test.beforeEach(() => {
+    initialEvents = [...defaultEvents]; // 매 테스트마다 초기화
   });
 
   test.afterEach(() => {
@@ -68,8 +74,8 @@ test.describe('반복 이벤트 e2e 테스트', () => {
                 id: '2',
                 title: '일정',
                 date: '2024-11-15',
-                startTime: '07:22',
-                endTime: '07:30',
+                startTime: '18:56',
+                endTime: '18:59',
                 location: '',
                 category: '',
                 repeat: { type: 'daily', interval: 1, endDate: '' },
