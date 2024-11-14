@@ -28,7 +28,7 @@ function App() {
     setEventForm: eventFormState.setEventForm,
     setIsRepeating: eventFormState.setIsRepeating,
   });
-  const { repeatEvent, updateRepeatEvent, deleteRepeatInstance } = useRepeatEvent();
+  const { repeatEvent, updateRepeatEvent } = useRepeatEvent();
   const { events, saveEvent, deleteEvent } = useEventOperations(
     Boolean(editingEvent),
     updateRepeatEvent,

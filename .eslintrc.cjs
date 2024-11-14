@@ -13,7 +13,7 @@ module.exports = {
     browser: true,
     node: true,
   },
-  ignorePatterns: ['node_modules/*', 'dist'],
+  ignorePatterns: ['node_modules/*', 'dist', 'cypress/**'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     tsconfigRootDir: __dirname,
