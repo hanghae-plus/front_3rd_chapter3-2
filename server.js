@@ -11,23 +11,10 @@ const __dirname = path.resolve();
 
 app.use(express.json());
 
-let memoryEvents = { events: [] };
-
 const getEvents = async () => {
-  if (process.env.NODE_ENV === 'test') {
-    return memoryEvents; // 테스트 환경에서는 메모리 내 데이터를 사용
-  } else {
-    const data = await readFile(`${__dirname}/src/__mocks__/response/realEvents.json`, 'utf8');
-    return JSON.parse(data);
-  }
-};
+  const data = await readFile(`${__dirname}/src/__mocks__/response/realEvents.json`, 'utf8');
 
-const saveEvents = (events) => {
-  if (process.env.NODE_ENV === 'test') {
-    memoryEvents = events; // 테스트 환경에서는 메모리에 데이터 저장
-  } else {
-    fs.writeFileSync(`${__dirname}/src/__mocks__/response/realEvents.json`, JSON.stringify(events));
-  }
+  return JSON.parse(data);
 };
 
 app.get('/api/events', async (_, res) => {
@@ -38,9 +25,14 @@ app.get('/api/events', async (_, res) => {
 app.post('/api/events', async (req, res) => {
   const events = await getEvents();
   const newEvent = { id: randomUUID(), ...req.body };
-  const updatedEvents = { events: [...events.events, newEvent] };
 
-  saveEvents(updatedEvents);
+  fs.writeFileSync(
+    `${__dirname}/src/__mocks__/response/realEvents.json`,
+    JSON.stringify({
+      events: [...events.events, newEvent],
+    })
+  );
+
   res.status(201).json(newEvent);
 });
 
@@ -48,13 +40,18 @@ app.put('/api/events/:id', async (req, res) => {
   const events = await getEvents();
   const id = req.params.id;
   const eventIndex = events.events.findIndex((event) => event.id === id);
-
   if (eventIndex > -1) {
     const newEvents = [...events.events];
     newEvents[eventIndex] = { ...events.events[eventIndex], ...req.body };
-    saveEvents({ events: newEvents });
 
-    res.json(newEvents[eventIndex]);
+    fs.writeFileSync(
+      `${__dirname}/src/__mocks__/response/realEvents.json`,
+      JSON.stringify({
+        events: newEvents,
+      })
+    );
+
+    res.json(events.events[eventIndex]);
   } else {
     res.status(404).send('Event not found');
   }
@@ -63,14 +60,20 @@ app.put('/api/events/:id', async (req, res) => {
 app.delete('/api/events/:id', async (req, res) => {
   const events = await getEvents();
   const id = req.params.id;
-  const updatedEvents = { events: events.events.filter((event) => event.id !== id) };
 
-  saveEvents(updatedEvents);
+  fs.writeFileSync(
+    `${__dirname}/src/__mocks__/response/realEvents.json`,
+    JSON.stringify({
+      events: events.events.filter((event) => event.id !== id),
+    })
+  );
+
   res.status(204).send();
 });
 
 app.post('/api/events-list', async (req, res) => {
   const events = await getEvents();
+  // const repeatId = randomUUID();
   const repeatId = `repeat-${Date.now()}`;
 
   const newEvents = req.body.events.map((event) => {
@@ -85,7 +88,13 @@ app.post('/api/events-list', async (req, res) => {
     };
   });
 
-  saveEvents({ events: [...events.events, ...newEvents] });
+  fs.writeFileSync(
+    `${__dirname}/src/__mocks__/response/realEvents.json`,
+    JSON.stringify({
+      events: [...events.events, ...newEvents],
+    })
+  );
+
   res.status(201).json(newEvents);
 });
 
@@ -103,8 +112,14 @@ app.put('/api/events-list', async (req, res) => {
   });
 
   if (isUpdated) {
-    saveEvents({ events: newEvents });
-    res.json(newEvents);
+    fs.writeFileSync(
+      `${__dirname}/src/__mocks__/response/realEvents.json`,
+      JSON.stringify({
+        events: newEvents,
+      })
+    );
+
+    res.json(events.events);
   } else {
     res.status(404).send('Event not found');
   }
@@ -113,9 +128,15 @@ app.put('/api/events-list', async (req, res) => {
 app.delete('/api/events-list', async (req, res) => {
   const events = await getEvents();
   const id = req.body.eventId;
-  const updatedEvents = { events: events.events.filter((event) => event.repeat.id !== id) };
+  // const id = req.params.id;
 
-  saveEvents(updatedEvents);
+  fs.writeFileSync(
+    `${__dirname}/src/__mocks__/response/realEvents.json`,
+    JSON.stringify({
+      events: events.events.filter((event) => event.repeat.id !== id),
+    })
+  );
+
   res.status(204).send();
 });
 
