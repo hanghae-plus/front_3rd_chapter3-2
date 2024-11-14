@@ -1,5 +1,5 @@
 import { Event } from '../../types';
-import { getFilteredEvents } from '../../utils/eventUtils';
+import { getFilteredEvents, getRecurringEventDisplay } from '../../utils/eventUtils';
 
 describe('getFilteredEvents', () => {
   const events: Event[] = [
@@ -112,5 +112,133 @@ describe('getFilteredEvents', () => {
   it('빈 이벤트 리스트에 대해 빈 배열을 반환한다', () => {
     const result = getFilteredEvents([], '', new Date('2024-07-01'), 'month');
     expect(result).toHaveLength(0);
+  });
+});
+
+describe('getRecurringEventDisplay', () => {
+  const baseEvent = {
+    id: '1',
+    title: '테스트 일정',
+    date: '2024-01-01',
+    startTime: '10:00',
+    endTime: '11:00',
+    description: '',
+    location: '',
+    category: '',
+    notificationTime: 0,
+  };
+
+  it('반복 일정이 아닌 경우 기본 표시 정보를 반환한다', () => {
+    const event = { ...baseEvent };
+
+    const display = getRecurringEventDisplay(event);
+    expect(display).toEqual({
+      icon: null,
+      badge: null,
+      className: '',
+    });
+  });
+
+  it('일간 반복 일정의 표시 정보를 반환한다', () => {
+    const event = {
+      ...baseEvent,
+      repeat: {
+        type: 'daily',
+        interval: 1,
+        endDate: '2024-01-10',
+      },
+    };
+
+    const display = getRecurringEventDisplay(event);
+    expect(display).toEqual({
+      icon: 'repeat-daily',
+      badge: '매일',
+      className: 'recurring-event recurring-daily',
+    });
+  });
+
+  it('주간 반복 일정의 표시 정보를 반환한다', () => {
+    const event = {
+      ...baseEvent,
+      repeat: {
+        type: 'weekly',
+        interval: 1,
+        endDate: '2024-02-01',
+      },
+    };
+
+    const display = getRecurringEventDisplay(event);
+    expect(display).toEqual({
+      icon: 'repeat-weekly',
+      badge: '매주',
+      className: 'recurring-event recurring-weekly',
+    });
+  });
+
+  it('월간 반복 일정의 표시 정보를 반환한다', () => {
+    const event = {
+      ...baseEvent,
+      repeat: {
+        type: 'monthly',
+        interval: 1,
+        endDate: '2024-12-01',
+      },
+    };
+
+    const display = getRecurringEventDisplay(event);
+    expect(display).toEqual({
+      icon: 'repeat-monthly',
+      badge: '매월',
+      className: 'recurring-event recurring-monthly',
+    });
+  });
+
+  it('반복 간격이 1이 아닌 경우 적절한 뱃지 텍스트를 반환한다', () => {
+    const event = {
+      ...baseEvent,
+      repeat: {
+        type: 'daily',
+        interval: 2,
+        endDate: '2024-01-10',
+      },
+    };
+
+    const display = getRecurringEventDisplay(event);
+    expect(display.badge).toBe('2일마다');
+  });
+
+  describe('특수한 반복 패턴', () => {
+    it('종료일이 없는 반복 일정을 처리한다', () => {
+      const event = {
+        ...baseEvent,
+        repeat: {
+          type: 'daily',
+          interval: 1,
+          endDate: null,
+        },
+      };
+
+      const display = getRecurringEventDisplay(event);
+      expect(display.badge).toBe('매일');
+      expect(display.className).toContain('recurring-infinite');
+    });
+
+    it('잘못된 반복 타입에 대해 기본 표시 정보를 반환한다', () => {
+      const event = {
+        ...baseEvent,
+        repeat: {
+          type: 'invalid-type' as any,
+          interval: 1,
+          endDate: '2024-01-10',
+        },
+      };
+
+      const display = getRecurringEventDisplay(event);
+      expect(display).toEqual({
+        icon: null,
+        badge: null,
+        className: '',
+      });
+    });
   });
 });
