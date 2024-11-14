@@ -4,10 +4,11 @@ import useScheduleForm from '@stores/useScheduleForm';
 import { findOverlappingEvents } from '@utils/eventOverlap';
 import { useMemo } from 'react';
 
+import { useEventOperations } from './useEventOperations';
+
 import { useDialogContext } from '@/context/useDialog';
 import { eventFormValidation } from '@/services/eventValidation';
 import { Event } from '@/types';
-import { useEventOperations } from './useEventOperations';
 
 export const useSaveEvent = () => {
   const toast = useToast();
@@ -37,7 +38,7 @@ export const useSaveEvent = () => {
     const targetEvent = events.find((event: Event) => event.id === id);
     if (targetEvent) return targetEvent.repeat.type !== 'none';
     else return false;
-  }, [id]);
+  }, [events, id]);
 
   const memoForm = useMemo(
     () => ({

@@ -1,16 +1,17 @@
 import { ChakraProvider, useToast, UseToastOptions } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { CalendarManager } from '@/components/templates/CalendarManager.tsx';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { http } from 'msw';
 import React from 'react';
 
 import { eventFactory } from '../../__mocks__/Factory.ts';
 import { events } from '../../__mocks__/response/events.json' assert { type: 'json' };
 import { Event, EventForm } from '../../types.ts';
+
+import { CalendarManager } from '@/components/templates/CalendarManager.tsx';
+import { createQueryClient } from '@/createQueryClient.ts';
 import { useEventOperations } from '@/hooks/useEventOperations.ts';
 import { server } from '@/setupTests.ts';
-import { http } from 'msw';
-import { createQueryClient } from '@/createQueryClient.ts';
 
 const MOCK_EVENTS = [...events] as const;
 const MOCK_EVENTS_LENGTH = MOCK_EVENTS.length;

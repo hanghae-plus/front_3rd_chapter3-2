@@ -4,7 +4,6 @@ import { ChakraProvider, useToast, UseToastOptions } from '@chakra-ui/react';
 import useCalendarViewStore from '@stores/useCalendarViewStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AddSchedule } from '@templates/AddSchedule';
-import { CalendarManager } from '@/components/templates/CalendarManager';
 import { ScheduleManager } from '@templates/ScheduleManager';
 import { screen, act, renderHook, waitFor, fireEvent, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
@@ -16,13 +15,14 @@ import { checkAllEvent } from './helpers/checkAllEvent';
 import { events } from '../__mocks__/response/events.json' assert { type: 'json' };
 
 import { AlertDuplicateSchedule } from '@/components/templates/AlertDialog';
+import { CalendarManager } from '@/components/templates/CalendarManager';
 import { Notification } from '@/components/templates/Notification';
+import { TEST_ID } from '@/constants/testID';
 import DialogProvider from '@/context/DialogProvider';
-import useScheduleForm from '@/stores/useScheduleForm';
-import { Event } from '@/types';
 import { createQueryClient } from '@/createQueryClient';
 import { useEventOperations } from '@/hooks/useEventOperations';
-import { TEST_ID } from '@/constants/testID';
+import useScheduleForm from '@/stores/useScheduleForm';
+import { Event } from '@/types';
 
 const MOCK_EVENTS = [...events] as const;
 const MOCK_EVENTS_COUNT = MOCK_EVENTS.length;

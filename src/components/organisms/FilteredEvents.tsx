@@ -1,4 +1,3 @@
-import { useEventOperations } from '@/hooks/useEventOperations';
 import { Text } from '@chakra-ui/react';
 import { useNotifications } from '@hooks/useNotifications';
 import { useSearch } from '@hooks/useSearch';
@@ -6,6 +5,8 @@ import useScheduleForm from '@stores/useScheduleForm';
 import { Schedule } from '@templates/Schedule';
 import { useCallback } from 'react';
 import { Event } from 'src/types';
+
+import { useEventOperations } from '@/hooks/useEventOperations';
 
 export const FilteredEvents = () => {
   const { filteredEvents } = useSearch();

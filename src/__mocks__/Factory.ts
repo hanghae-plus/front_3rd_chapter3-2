@@ -1,5 +1,5 @@
-import { Event, EventForm } from 'src/types';
 import * as Factory from 'factory.ts';
+import { Event, EventForm } from 'src/types';
 
 export const eventFactory = Factory.Sync.makeFactory<Event>({
   id: Factory.each((i) => String(i + 1)), // 각 객체마다 id를 고유하게 설정

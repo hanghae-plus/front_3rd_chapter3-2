@@ -20,9 +20,9 @@ import { WEEK_DAYS } from '../../constants/days';
 import { formatDate, formatMonth, getEventsForDay, getWeeksAtMonth } from '../../utils/dateUtils';
 
 import { NOTIFICATION_COLORS } from '@/constants/notifications';
+import { TEST_ID } from '@/constants/testID';
 import useScheduleForm from '@/stores/useScheduleForm';
 import { Event } from '@/types';
-import { TEST_ID } from '@/constants/testID';
 
 type PropsType = {
   currentDate: Date;

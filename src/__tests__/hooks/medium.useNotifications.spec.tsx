@@ -6,6 +6,7 @@ import React from 'react';
 import { createEvent } from '../../__mocks__/Factory.ts';
 import { useNotifications } from '../../hooks/useNotifications.ts';
 import { Event } from '../../types.ts';
+
 import { createQueryClient } from '@/createQueryClient.ts';
 
 let toastCalls: any[] = [];

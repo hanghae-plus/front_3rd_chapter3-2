@@ -10,9 +10,9 @@ import {
 } from '@chakra-ui/react';
 import React, { useRef } from 'react';
 
+import { TEST_ID } from '@/constants/testID';
 import { useDialogContext } from '@/context/useDialog';
 import { useSaveEvent } from '@/hooks/useSaveEvent';
-import { TEST_ID } from '@/constants/testID';
 
 export const AlertDuplicateSchedule: React.FC = () => {
   const { dialogName, setDialogName, overlapEvents, setOverlapEvents } = useDialogContext();

@@ -5,7 +5,7 @@ import { Event } from '../../types';
 function fillEventForm(events) {
   events.forEach((event) => {
     if (event.type === 'date') {
-      cy.get(`[data-testid="${event.testId}"]`).clear().type(event.value);
+      cy.get(`[data-testid="${event.testId}"]`).clear()!.type(event.value);
     }
 
     if (event.type === 'input') {
@@ -363,7 +363,7 @@ describe('-', () => {
           cy.get('.chakra-icon').should('exist'); // 반복 아이콘 확인
           cy.contains('daily').should('exist'); // 반복 타입 확인
           cy.contains('매일 반복').should('exist'); // 일정 제목 확인
-        })
+        })!
         .click();
 
       // WHEN: 일정을 편집하고 '해당 일정만 수정'버튼을 클릭해 단일 일정으로 저장한다.
@@ -429,7 +429,7 @@ describe('-', () => {
           cy.get('.chakra-icon').should('exist'); // 반복 아이콘 확인
           cy.contains('daily').should('exist'); // 반복 타입 확인
           cy.contains('매일 반복').should('exist'); // 일정 제목 확인
-        })
+        })!
         .click();
 
       // WHEN: 일정을 편집하고 '해당 일정만 수정'버튼을 클릭해 단일 일정으로 저장한다.
@@ -506,7 +506,7 @@ describe('-', () => {
           cy.get('.chakra-icon').should('exist'); // 반복 아이콘 확인
           cy.contains('daily').should('exist'); // 반복 타입 확인
           cy.contains('매일 반복').should('exist'); // 일정 제목 확인
-        })
+        })!
         .click();
 
       // WHEN: 해당 일정만 삭제 클릭
@@ -569,7 +569,7 @@ describe('-', () => {
           cy.get('.chakra-icon').should('exist'); // 반복 아이콘 확인
           cy.contains('daily').should('exist'); // 반복 타입 확인
           cy.contains('매일 반복').should('exist'); // 일정 제목 확인
-        })
+        })!
         .click();
 
       // WHEN: '전체 일정 삭제' 클릭해 일괄 삭제한다.

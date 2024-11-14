@@ -19,9 +19,9 @@ import { formatDate, formatWeek, getEventsForDay, getWeekDates } from '@utils/da
 import React, { useCallback } from 'react';
 
 import { NOTIFICATION_COLORS } from '@/constants/notifications';
+import { TEST_ID } from '@/constants/testID';
 import useScheduleForm from '@/stores/useScheduleForm';
 import { Event } from '@/types';
-import { TEST_ID } from '@/constants/testID';
 
 type PropsType = {
   currentDate: Date;
