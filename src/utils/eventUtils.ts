@@ -166,7 +166,8 @@ export function convertToSingleEvent(originalEvent: Event, updatedEvent: Event):
 
   // 수정할 이벤트가 없는 경우, 원본에서 repeat만 제거
   if (!updatedEvent) {
-    const { repeat, ...eventWithoutRepeat } = originalEvent;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { repeat: _, ...eventWithoutRepeat } = originalEvent;
     return eventWithoutRepeat;
   }
 
