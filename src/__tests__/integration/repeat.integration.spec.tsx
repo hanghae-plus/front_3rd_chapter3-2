@@ -9,9 +9,9 @@ import {
   setupMockHandlerBulkCreation,
   setupMockHandlerRepeatDeletion,
   setupMockHandlerRepeatUpdating,
-} from '../__mocks__/handlersUtils';
-import App from '../App';
-import { EventForm } from '../components/eventForm/EventForm';
+} from '../../__mocks__/handlersUtils';
+import App from '../../App';
+import { EventForm } from '../../components/eventForm/EventForm';
 
 interface ProviderProps {
   initialValues: [atom: any, value: any][];
