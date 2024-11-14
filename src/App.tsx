@@ -302,20 +302,21 @@ function App() {
           <Heading>{editingEvent ? '일정 수정' : '일정 추가'}</Heading>
 
           <FormControl>
-            <FormLabel>제목</FormLabel>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+            <FormLabel htmlFor="title">제목</FormLabel>
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
           </FormControl>
 
           <FormControl>
-            <FormLabel>날짜</FormLabel>
-            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <FormLabel htmlFor="date">날짜</FormLabel>
+            <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </FormControl>
 
           <HStack width="100%">
             <FormControl>
-              <FormLabel>시작 시간</FormLabel>
+              <FormLabel htmlFor="startTime">시작 시간</FormLabel>
               <Tooltip label={startTimeError} isOpen={!!startTimeError} placement="top">
                 <Input
+                  id="startTime"
                   type="time"
                   value={startTime}
                   onChange={handleStartTimeChange}
@@ -325,9 +326,10 @@ function App() {
               </Tooltip>
             </FormControl>
             <FormControl>
-              <FormLabel>종료 시간</FormLabel>
+              <FormLabel htmlFor="endTime">종료 시간</FormLabel>
               <Tooltip label={endTimeError} isOpen={!!endTimeError} placement="top">
                 <Input
+                  id="endTime"
                   type="time"
                   value={endTime}
                   onChange={handleEndTimeChange}
@@ -339,18 +341,22 @@ function App() {
           </HStack>
 
           <FormControl>
-            <FormLabel>설명</FormLabel>
-            <Input value={description} onChange={(e) => setDescription(e.target.value)} />
+            <FormLabel htmlFor="description">설명</FormLabel>
+            <Input
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </FormControl>
 
           <FormControl>
-            <FormLabel>위치</FormLabel>
-            <Input value={location} onChange={(e) => setLocation(e.target.value)} />
+            <FormLabel htmlFor="location">위치</FormLabel>
+            <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} />
           </FormControl>
 
           <FormControl>
-            <FormLabel>카테고리</FormLabel>
-            <Select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <FormLabel htmlFor="category">카테고리</FormLabel>
+            <Select id="category" value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="">카테고리 선택</option>
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
@@ -361,15 +367,20 @@ function App() {
           </FormControl>
 
           <FormControl>
-            <FormLabel>반복 설정</FormLabel>
-            <Checkbox isChecked={isRepeating} onChange={(e) => setIsRepeating(e.target.checked)}>
+            <FormLabel htmlFor="isRepeating">반복 설정</FormLabel>
+            <Checkbox
+              id="isRepeating"
+              isChecked={isRepeating}
+              onChange={(e) => setIsRepeating(e.target.checked)}
+            >
               반복 일정
             </Checkbox>
           </FormControl>
 
           <FormControl>
-            <FormLabel>알림 설정</FormLabel>
+            <FormLabel htmlFor="notificationTime">알림 설정</FormLabel>
             <Select
+              id="notificationTime"
               value={notificationTime}
               onChange={(e) => setNotificationTime(Number(e.target.value))}
             >
@@ -384,8 +395,9 @@ function App() {
           {isRepeating && (
             <VStack width="100%">
               <FormControl>
-                <FormLabel>반복 유형</FormLabel>
+                <FormLabel htmlFor="repeatType">반복 유형</FormLabel>
                 <Select
+                  id="repeatType"
                   value={repeatType}
                   onChange={(e) => setRepeatType(e.target.value as RepeatType)}
                 >
@@ -397,8 +409,9 @@ function App() {
               </FormControl>
               <HStack width="100%">
                 <FormControl>
-                  <FormLabel>반복 간격</FormLabel>
+                  <FormLabel htmlFor="repeatInterval">반복 간격</FormLabel>
                   <Input
+                    id="repeatInterval"
                     type="number"
                     value={repeatInterval}
                     onChange={(e) => setRepeatInterval(Number(e.target.value))}
@@ -406,8 +419,9 @@ function App() {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel>반복 종료일</FormLabel>
+                  <FormLabel htmlFor="repeatEndDate">반복 종료일</FormLabel>
                   <Input
+                    id="repeatEndDate"
                     type="date"
                     value={repeatEndDate}
                     onChange={(e) => setRepeatEndDate(e.target.value)}
@@ -417,7 +431,12 @@ function App() {
             </VStack>
           )}
 
-          <Button data-testid="event-submit-button" onClick={addOrUpdateEvent} colorScheme="blue">
+          <Button
+            id="event-submit-button"
+            data-testid="event-submit-button"
+            onClick={addOrUpdateEvent}
+            colorScheme="blue"
+          >
             {editingEvent ? '일정 수정' : '일정 추가'}
           </Button>
         </VStack>
