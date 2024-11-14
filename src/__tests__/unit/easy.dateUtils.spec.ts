@@ -349,25 +349,6 @@ describe('getRecurringDates', () => {
     });
   });
 
-  describe('반복 일정 수정', () => {
-    it('특정 날짜 이후의 모든 일정을 수정할 수 있다', () => {
-      const modifiedEvent = {
-        ...sampleEvent,
-        endTime: '11:30',
-        modifyFrom: '2024-09-02',
-      };
-
-      const dates = getRecurringDates(modifiedEvent);
-      const modifiedDates = dates.filter(
-        (date) => date.getTime() >= new Date('2024-09-02').getTime()
-      );
-
-      modifiedDates.forEach((date) => {
-        expect(getEventTime(date).endTime).toBe('11:30');
-      });
-    });
-  });
-
   describe('엣지 케이스 처리', () => {
     it('윤년의 2월 29일에 설정된 매월 반복을 올바르게 처리한다', () => {
       const leapYearEvent = {

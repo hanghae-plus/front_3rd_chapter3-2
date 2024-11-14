@@ -108,3 +108,155 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+
+interface Event {
+  id: string;
+  title: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  description: string;
+  location: string;
+  repeat?: {
+    type: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    interval: number;
+    endDate: string;
+    selectedDays?: string[];
+  };
+  excludeDates?: string[];
+  modifyFrom?: string;
+}
+
+export function getRecurringDates(event: Event): Date[] {
+  if (!event.repeat) return [new Date(event.date)];
+
+  const startDate = new Date(event.date);
+  const endDate = new Date(event.repeat.endDate);
+  const dates: Date[] = [];
+
+  // 종료일이 시작일보다 이전인 경우
+  if (endDate < startDate) return [];
+
+  const addDate = (date: Date) => {
+    // 제외된 날짜 체크
+    if (event.excludeDates?.includes(date.toISOString().split('T')[0])) {
+      return;
+    }
+    dates.push(new Date(date));
+  };
+
+  switch (event.repeat.type) {
+    case 'daily':
+      for (
+        let d = new Date(startDate);
+        d <= endDate;
+        d.setDate(d.getDate() + event.repeat.interval)
+      ) {
+        addDate(d);
+      }
+      break;
+
+    case 'weekly':
+      const selectedDays = event.repeat.selectedDays || [getDayCode(startDate.getDay())];
+      for (let d = new Date(startDate); d <= endDate; ) {
+        // 선택된 요일마다 확인
+        selectedDays.forEach((dayCode) => {
+          const dayNum = getDayNumber(dayCode);
+          const currentDay = d.getDay();
+          const daysUntilNext = (dayNum + 7 - currentDay) % 7;
+          const nextDate = new Date(d);
+          nextDate.setDate(d.getDate() + daysUntilNext);
+
+          if (nextDate <= endDate) {
+            addDate(nextDate);
+          }
+        });
+        // 다음 주로 이동
+        d.setDate(d.getDate() + 7 * event.repeat.interval);
+      }
+      break;
+
+    case 'monthly':
+      const dayOfMonth = startDate.getDate();
+      let currentDate = new Date(startDate);
+
+      while (currentDate <= endDate) {
+        // 현재 날짜 추가
+        addDate(new Date(currentDate));
+
+        // 다음 달로 이동
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+
+        // 다음 달의 정보 계산
+        const nextMonth = currentMonth + event.repeat.interval;
+        const nextYear = currentYear + Math.floor(nextMonth / 12);
+        const normalizedMonth = nextMonth % 12;
+
+        // 다음 달의 마지막 날짜 계산
+        const lastDayOfNextMonth = new Date(nextYear, normalizedMonth + 1, 0).getDate();
+
+        // 원하는 날짜와 해당 월의 마지막 날짜 중 작은 값 선택
+        const targetDay = Math.min(dayOfMonth, lastDayOfNextMonth);
+
+        // 새로운 날짜 설정
+        currentDate = new Date(nextYear, normalizedMonth, targetDay);
+      }
+      break;
+
+    case 'yearly':
+      const month = startDate.getMonth();
+      const day = startDate.getDate();
+
+      for (
+        let year = startDate.getFullYear();
+        year <= endDate.getFullYear();
+        year += event.repeat.interval
+      ) {
+        // 윤년 처리
+        const targetDate = new Date(year, month, 1);
+        const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+        const targetDay = Math.min(day, lastDayOfMonth);
+
+        targetDate.setDate(targetDay);
+        if (targetDate <= endDate) {
+          addDate(targetDate);
+        }
+      }
+      break;
+  }
+
+  // 수정 시작일 이후의 일정 처리
+  if (event.modifyFrom) {
+    const modifyFromDate = new Date(event.modifyFrom);
+    return dates.map((date) => {
+      if (date >= modifyFromDate) {
+        const modifiedDate = new Date(date);
+        // 수정된 종료 시간 적용
+        const [hours, minutes] = event.endTime.split(':');
+        modifiedDate.setHours(parseInt(hours), parseInt(minutes));
+        return modifiedDate;
+      }
+      return new Date(date); // 새로운 Date 객체 반환
+    });
+  }
+
+  return dates.map((date) => new Date(date)); // 모든 날짜에 대해 새로운 Date 객체 반환
+}
+
+function getDayCode(dayNumber: number): string {
+  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  return days[dayNumber];
+}
+
+function getDayNumber(dayCode: string): number {
+  const days = { SUN: 0, MON: 1, TUE: 2, WED: 3, THU: 4, FRI: 5, SAT: 6 };
+  return days[dayCode as keyof typeof days];
+}
+
+export function getEventTime(date: Date) {
+  return {
+    startTime: `${fillZero(date.getHours())}:${fillZero(date.getMinutes())}`,
+    endTime: `${fillZero(date.getHours())}:${fillZero(date.getMinutes())}`,
+  };
+}
