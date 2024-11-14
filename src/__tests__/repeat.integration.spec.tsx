@@ -111,6 +111,17 @@ describe('반복 간격 설정', () => {
       await screen.findByText('반복 간격을 1 이상의 숫자로 입력해주세요.')
     ).toBeInTheDocument();
   });
+
+  it('각 반복 유형에 대해 올바른 간격을 설정할 수 있어야 한다', async () => {
+    renderEventForm();
+
+    await userEvent.click(screen.getByRole('checkbox', { name: /반복 일정/ }));
+
+    await userEvent.clear(screen.getByLabelText(/반복 간격/));
+    await userEvent.type(screen.getByLabelText(/반복 간격/), '3');
+
+    expect(screen.getByLabelText(/반복 간격/)).toHaveValue(3);
+  });
 });
 describe('반복 일정 표시', () => {});
 describe('반복 종료', () => {});
