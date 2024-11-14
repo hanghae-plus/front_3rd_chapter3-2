@@ -214,5 +214,17 @@ describe('반복 일정 단일 수정', () => {
 });
 
 describe('반복 일정 단일 삭제', () => {
-  it('반복일정을 삭제하면 해당 일정만 삭제합니다.', () => {});
+  it('반복일정을 삭제하면 해당 일정만 삭제합니다.', async () => {
+    const { user } = setup(<App />);
+
+    const eventToDelete = screen.getByText(/반복 일정/);
+    await user.click(eventToDelete);
+
+    const deleteButton = screen.getByLabelText('Delete event');
+    await user.click(deleteButton);
+
+    await waitFor(() => {
+      expect(screen.queryByText(/반복 일정/)).not.toBeInTheDocument();
+    });
+  });
 });
