@@ -29,7 +29,7 @@ describe('반복 설정', () => {
   });
 });
 
-describe('반복 유형 선택', () => {
+describe('반복 선택 초기 설정', () => {
   it('isRepeating이 true일 때 repeatType은 none이 아니어야 하며, "daily"이어야 한다', () => {
     const { result } = renderHook(() => useEventForm());
 
@@ -43,9 +43,6 @@ describe('반복 유형 선택', () => {
     expect(result.current.repeatType).not.toBe('none');
     expect(result.current.repeatType).toBe('daily');
   });
-});
-
-describe('반복 간격 설정', () => {
   it('isRepeating이 true일 때 repeatInterval은 1이어야 한다', () => {
     const { result } = renderHook(() => useEventForm());
 
