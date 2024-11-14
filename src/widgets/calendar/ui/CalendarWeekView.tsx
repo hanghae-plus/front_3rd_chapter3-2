@@ -22,10 +22,11 @@ import { useNotifications } from '../../../features/notification/model/useNotifi
 
 interface CalendarWeekViewProps {
   events: Event[];
+  currentDate: Date;
 }
 
-const CalendarWeekView = ({ events }: CalendarWeekViewProps) => {
-  const { view, currentDate } = useCalendarView();
+const CalendarWeekView = ({ events, currentDate }: CalendarWeekViewProps) => {
+  const { view } = useCalendarView();
   const { filteredEvents } = useSearch(events, currentDate, view);
   const { notifiedEvents } = useNotifications(events);
 

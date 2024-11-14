@@ -40,7 +40,7 @@ const CalendarView = ({ events }: CalendarViewProps) => {
         />
       </HStack>
 
-      {view === 'week' && <CalendarWeekView events={events} />}
+      {view === 'week' && <CalendarWeekView events={events} currentDate={currentDate} />}
       {view === 'month' && <CalendarMonthView events={events} currentDate={currentDate} />}
     </VStack>
   );
