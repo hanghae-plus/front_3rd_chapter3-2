@@ -48,3 +48,72 @@ export function getFilteredEvents(
 
   return searchedEvents;
 }
+
+interface EventDisplay {
+  icon: string | null;
+  badge: string | null;
+  className: string;
+}
+
+export function getRecurringEventDisplay(event: Event): EventDisplay {
+  // 반복 설정이 없는 경우 기본값 반환
+  if (!event.repeat) {
+    return {
+      icon: null,
+      badge: null,
+      className: '',
+    };
+  }
+
+  const { type, interval } = event.repeat;
+
+  // 잘못된 반복 타입 처리
+  if (!['daily', 'weekly', 'monthly'].includes(type)) {
+    return {
+      icon: null,
+      badge: null,
+      className: '',
+    };
+  }
+
+  // 반복 타입별 기본 설정
+  const typeConfig = {
+    daily: {
+      icon: 'repeat-daily',
+      badgeUnit: '일',
+      className: 'recurring-daily',
+    },
+    weekly: {
+      icon: 'repeat-weekly',
+      badgeUnit: '주',
+      className: 'recurring-weekly',
+    },
+    monthly: {
+      icon: 'repeat-monthly',
+      badgeUnit: '월',
+      className: 'recurring-monthly',
+    },
+  };
+
+  // 반복 간격에 따른 뱃지 텍스트 생성
+  let badge: string;
+  if (interval === 1) {
+    badge = `매${typeConfig[type].badgeUnit}`;
+  } else {
+    badge = `${interval}${typeConfig[type].badgeUnit}마다`;
+  }
+
+  // 기본 클래스명
+  let className = `recurring-event ${typeConfig[type].className}`;
+
+  // 무한 반복 일정인 경우 클래스 추가
+  if (event.repeat.endDate === null) {
+    className += ' recurring-infinite';
+  }
+
+  return {
+    icon: typeConfig[type].icon,
+    badge,
+    className: className.trim(),
+  };
+}
