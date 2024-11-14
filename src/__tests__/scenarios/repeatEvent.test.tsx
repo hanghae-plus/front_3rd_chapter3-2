@@ -176,4 +176,69 @@ describe('반복 일정과 관련된 기능들이 모두 올바르게 동작한�
       expect(repeatIcons.length).toBeGreaterThan(0);
     });
   });
+
+  describe('반복 일정 단일 수정', () => {
+    it('반복일정을 수정하면 단일 일정으로 변경됩니다', async () => {
+      const user = userEvent.setup();
+
+      // 반복 일정 생성
+      await fillEventForm(user, baseEventData);
+      await setRepeatOptions(user, 'daily', '2024-03-07');
+      await user.click(screen.getByTestId('event-submit-button'));
+
+      // 특정 일정 수정
+      const editButtons = screen.getAllByLabelText('Edit event');
+      await user.click(editButtons[0]);
+      await user.type(screen.getByLabelText('제목'), ' 수정됨');
+      await user.click(screen.getByTestId('event-submit-button'));
+
+      // 수정된 일정이 단일 일정으로 변경되었는지 확인
+      const editedEvent = await screen.findByText(`${baseEventData.title} 수정됨`);
+      const eventContainer = editedEvent.closest('div');
+      expect(within(eventContainer!).queryByTestId('repeat-icon')).not.toBeInTheDocument();
+    });
+
+    it('반복일정 아이콘도 사라집니다', async () => {
+      const user = userEvent.setup();
+
+      // 반복 일정 생성
+      await fillEventForm(user, baseEventData);
+      await setRepeatOptions(user, 'daily', '2024-03-07');
+      await user.click(screen.getByTestId('event-submit-button'));
+
+      // 일정 수정 후 아이콘 확인
+      const editButtons = screen.getAllByLabelText('Edit event');
+      await user.click(editButtons[0]);
+      await user.click(screen.getByTestId('event-submit-button'));
+
+      const modifiedEvent = await screen.findByText(baseEventData.title!);
+      const eventContainer = modifiedEvent.closest('div');
+      expect(within(eventContainer!).queryByTestId('repeat-icon')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('반복 단일 삭제', () => {
+    it('반복일정을 삭제하면 해당 일정만 삭제합니다', async () => {
+      const user = userEvent.setup();
+
+      // 반복 일정 생성
+      await fillEventForm(user, baseEventData);
+      await setRepeatOptions(user, 'daily', '2024-03-07');
+      await user.click(screen.getByTestId('event-submit-button'));
+
+      // 초기 일정 개수 확인
+      const initialEvents = screen.getAllByText(baseEventData.title!);
+      const initialCount = initialEvents.length;
+
+      // 첫 번째 일정 삭제
+      const deleteButtons = screen.getAllByLabelText('Delete event');
+      await user.click(deleteButtons[0]);
+
+      // 삭제 후 일정 개수 확인
+      await waitFor(() => {
+        const remainingEvents = screen.getAllByText(baseEventData.title!);
+        expect(remainingEvents.length).toBe(initialCount - 1);
+      });
+    });
+  });
 });
