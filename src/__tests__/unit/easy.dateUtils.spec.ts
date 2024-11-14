@@ -5,6 +5,7 @@ import {
   formatMonth,
   formatWeek,
   getDaysInMonth,
+  getNextData,
   getEventsForDay,
   getWeekDates,
   getWeeksAtMonth,
@@ -302,12 +303,91 @@ describe('formatDate', () => {
 
 describe('isLeapYear', () => {
   it('해당 년도가 윤년이면 true를 반환한다.', () => {
-    const testDate = new Date('2024-2-29');
-    expect(isLeapYear(testDate)).toBe(true);
+    expect(isLeapYear('2024-2-29')).toBe(true);
   });
 
   it('해당 년도가 윤년이 아니면 false를 반환한다.', () => {
-    const testDate = new Date('2023-2-28');
-    expect(isLeapYear(testDate)).toBe(false);
+    expect(isLeapYear('2023-2-28')).toBe(false);
+  });
+});
+
+describe('handleSaveMultipleEvent', () => {
+  it('해당 년도가 윤년이면 true를 반환한다.', () => {
+    expect(isLeapYear('2024-2-29')).toBe(true);
+  });
+
+  it('해당 년도가 윤년이 아니면 false를 반환한다.', () => {
+    expect(isLeapYear('2023-2-28')).toBe(false);
+  });
+});
+
+describe('getNextDate', () => {
+  it('이벤트의 type이 yearly이고 interval가 1이라면 1년 후를 반환한다.', () => {
+    const testDate = new Date('2023-11-14');
+    expect(getNextData(testDate, 'yearly', 1)).toBe('2024-11-14');
+  });
+
+  it('이벤트의 type이 yearly이고 interval가 2이라면 2년 후를 반환한다.', () => {
+    const testDate = new Date('2022-11-14');
+    expect(getNextData(testDate, 'yearly', 2)).toBe('2024-11-14');
+  });
+
+  it('이벤트의 type이 yearly이고 currentDate가 2월29일이면 1년 후 2월28일을 반환한다.', () => {
+    const testDate = new Date('2024-02-29');
+    expect(getNextData(testDate, 'yearly', 1)).toBe('2025-02-28');
+  });
+
+  it('이벤트의 type이 yearly이고 currentDate가 2월29일이면 4년 후 2월29일을 반환한다.', () => {
+    const testDate = new Date('2020-02-29');
+    expect(getNextData(testDate, 'yearly', 1)).toBe('2024-02-29');
+  });
+
+  it('이벤트의 type이 monthly이고 interval가 1이라면 한달 후를 반환한다.', () => {
+    const testDate = new Date('2024-11-14');
+    expect(getNextData(testDate, 'monthly', 1)).toBe('2024-12-14');
+  });
+
+  it('이벤트의 type이 monthly이고 interval가 2이라면 두달 후를 반환한다.', () => {
+    const testDate = new Date('2024-11-14');
+    expect(getNextData(testDate, 'monthly', 2)).toBe('2025-1-14');
+  });
+
+  it('이벤트의 type이 monthly이고 currentDate가 1월 29일이면, 2월28일을 반환한다.', () => {
+    const testDate = new Date('2023-01-29');
+    expect(getNextData(testDate, 'monthly', 1)).toBe('2023-02-28');
+  });
+
+  it('이벤트의 type이 monthly이고 currentDate가 윤년 1월 29일이면, 2월28일을 반환한다.', () => {
+    const testDate = new Date('2024-01-29');
+    expect(getNextData(testDate, 'monthly', 1)).toBe('2024-02-28');
+  });
+
+  it('이벤트의 type이 monthly이고 currentDate가 2월29면 2월28일을 반환한다.', () => {
+    const testDate = new Date('2024-02-14');
+    expect(getNextData(testDate, 'monthly', 1)).toBe('2024-12-14');
+  });
+  it('이벤트의 type이 monthly이고 currentDate가 2월29면 2월28일을 반환한다.', () => {
+    const testDate = new Date('2024-02-14');
+    expect(getNextData(testDate, 'monthly', 1)).toBe('2024-12-14');
+  });
+
+  it('이벤트의 type이 weekly이고 interval가 1이라면 다음주를 반환한다.', () => {
+    const testDate = new Date('2024-11-14');
+    expect(getNextData(testDate, 'weekly', 1)).toBe('2024-11-21');
+  });
+
+  it('이벤트의 type이 weekly이고 interval가 2이라면 2주 후를 반환한다.', () => {
+    const testDate = new Date('2024-11-14');
+    expect(getNextData(testDate, 'weekly', 2)).toBe('2024-11-28');
+  });
+
+  it('이벤트의 type이 daily interval가 1이라면 다음 1일 후를 반환한다.', () => {
+    const testDate = new Date('2024-11-14');
+    expect(getNextData(testDate, 'daily', 1)).toBe('2024-11-15');
+  });
+
+  it('이벤트의 type이 daily interval가 2이라면 다음 2일 후를 반환한다.', () => {
+    const testDate = new Date('2024-11-14');
+    expect(getNextData(testDate, 'daily', 2)).toBe('2024-11-16');
   });
 });

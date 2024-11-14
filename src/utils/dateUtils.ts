@@ -112,5 +112,19 @@ export function formatDate(currentDate: Date, day?: number) {
 /**
  * 해당 날짜가 윤년인지 체크
  */
+export const isLeapYear = (date: string) => console.log('윤년');
 
-export const isLeapYear = (date: Date) => console.log('윤년');
+/**
+ * 추가할 데이터 반환
+ */
+export const getNextData = (currentDate: Date, type: string, interval: number) => {
+  console.log('getNextData');
+
+  //type이 매년, 매월이면서
+  //startDate가 2월29일이면 2월28일로 수정
+
+  //type이 매월이면서
+  //시작 일정이 31일이라면 매월 마지막 날짜로 지정
+
+  return '';
+};

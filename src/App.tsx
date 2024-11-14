@@ -53,6 +53,7 @@ import {
   getEventsForDay,
   getWeekDates,
   getWeeksAtMonth,
+  getNextData,
 } from './utils/dateUtils';
 import { findOverlappingEvents } from './utils/eventOverlap';
 import { getTimeErrorMessage } from './utils/timeValidation';
@@ -167,16 +168,24 @@ function App() {
 
   const handleSaveMultipleEvent = (eventData: Event | EventForm) => {
     console.log('handleSaveMultipleEvent');
-    //반복 유형 설정
-
-    //타입 = 매년 or 매월 이면서, 시작 일정이 윤년 29일인지 체크
-    //윤년이 맞다면 for문 돌 때 윤년이 아닐 때, 28일로 날짜 지정
-
-    //타입 = 매월이면서, 시작 일정이 31일 이라면 > for문 돌 때 해당 달의 마지막 날자로 지정
-
-    //반복 간격 설정
+    const eventDatas: Event[] | EventForm[] = []; //최종 eventDate;
 
     //반복 종료 설정
+    const startDate = eventData.startTime;
+    const endDate = eventData.repeat.endDate || '2025-06-30'; //없을수도 있음 > 없으면  2025-06-30까지까지
+
+    //반복 유형 설정
+    const type = eventData.repeat.type;
+
+    //반복 간격 설정
+    const interval = eventData.repeat.interval;
+
+    //시작날짜 - 종료날짜만큼 반복문 돌면서 넣을 날짜들 eventDates에 넣기
+    let currentDate = new Date(startDate);
+    while (currentDate < new Date(endDate)) {
+      const nextDate = getNextData(currentDate, type, interval);
+      // eventDatas.push({ ...eventData });
+    }
 
     //반복문으로 saveMultipleEvent 호출
   };
