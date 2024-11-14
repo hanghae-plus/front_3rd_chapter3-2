@@ -10,6 +10,7 @@ import {
   getWeeksAtMonth,
   isDateInRange,
   getRecurringDates,
+  getNextRecurringDate,
 } from '../../utils/dateUtils';
 
 describe('getDaysInMonth', () => {
@@ -384,6 +385,51 @@ describe('getRecurringDates', () => {
       expect(dates).toContainEqual(new Date('2024-02-29')); // 윤년 2월
       expect(dates).toContainEqual(new Date('2024-03-31'));
       expect(dates).toContainEqual(new Date('2024-04-30'));
+    });
+  });
+});
+
+describe('getNextRecurringDate', () => {
+  const baseDate = new Date('2024-01-01');
+
+  it('일간 반복에서 다음 날짜를 계산한다', () => {
+    expect(getNextRecurringDate(baseDate, 'daily', 1)).toEqual(new Date('2024-01-02'));
+    expect(getNextRecurringDate(baseDate, 'daily', 2)).toEqual(new Date('2024-01-03'));
+    expect(getNextRecurringDate(baseDate, 'daily', 5)).toEqual(new Date('2024-01-06'));
+  });
+
+  it('주간 반복에서 다음 날짜를 계산한다', () => {
+    expect(getNextRecurringDate(baseDate, 'weekly', 1)).toEqual(new Date('2024-01-08'));
+    expect(getNextRecurringDate(baseDate, 'weekly', 2)).toEqual(new Date('2024-01-15'));
+    expect(getNextRecurringDate(baseDate, 'weekly', 3)).toEqual(new Date('2024-01-22'));
+  });
+
+  it('월간 반복에서 다음 날짜를 계산한다', () => {
+    expect(getNextRecurringDate(baseDate, 'monthly', 1)).toEqual(new Date('2024-02-01'));
+    expect(getNextRecurringDate(baseDate, 'monthly', 2)).toEqual(new Date('2024-03-01'));
+    expect(getNextRecurringDate(baseDate, 'monthly', 6)).toEqual(new Date('2024-07-01'));
+  });
+
+  describe('엣지 케이스 처리', () => {
+    it('월말 날짜에 대한 월간 반복을 처리한다', () => {
+      const endOfMonth = new Date('2024-01-31');
+      expect(getNextRecurringDate(endOfMonth, 'monthly', 1)).toEqual(new Date('2024-02-29')); // 윤년
+      expect(getNextRecurringDate(endOfMonth, 'monthly', 2)).toEqual(new Date('2024-03-31'));
+    });
+
+    it('윤년의 2월 29일에 대한 월간 반복을 처리한다', () => {
+      const leapDay = new Date('2024-02-29');
+      expect(getNextRecurringDate(leapDay, 'monthly', 1)).toEqual(new Date('2024-03-29'));
+      expect(getNextRecurringDate(leapDay, 'monthly', 12)).toEqual(new Date('2025-02-28')); // 평년
+    });
+
+    it('잘못된 간격에 대해 null을 반환한다', () => {
+      expect(getNextRecurringDate(baseDate, 'daily', 0)).toBeNull();
+      expect(getNextRecurringDate(baseDate, 'daily', -1)).toBeNull();
+    });
+
+    it('잘못된 반복 타입에 대해 null을 반환한다', () => {
+      expect(getNextRecurringDate(baseDate, 'invalid' as any, 1)).toBeNull();
     });
   });
 });
