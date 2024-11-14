@@ -1,4 +1,4 @@
-import { Event } from '../types.ts';
+import { Event, EventForm } from '../types.ts';
 
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
@@ -107,4 +107,147 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(currentDate.getMonth() + 1),
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
+}
+
+/**
+ * 주어진 날짜를 기준으로 반복 날짜를 계산합니다.
+ */
+export function calculateNextDate(
+  currentDate: string,
+  repeatType: 'daily' | 'weekly' | 'monthly' | 'yearly',
+  interval: number = 1
+): string {
+  // 현재 날짜 문자열을 연, 월, 일로 분리
+  const [yearStr, monthStr, dayStr] = currentDate.split('-');
+  let year = parseInt(yearStr, 10);
+  let month = parseInt(monthStr, 10) - 1;
+  let day = parseInt(dayStr, 10);
+
+  // Date 객체 생성
+  let date = new Date(year, month, day);
+
+  switch (repeatType) {
+    case 'daily':
+      // 하루 추가
+      date.setDate(date.getDate() + interval);
+      break;
+
+    case 'weekly':
+      // 일주일 추가
+      date.setDate(date.getDate() + 7 * interval);
+      break;
+
+    case 'monthly':
+      {
+        // 현재 날짜를 유지
+        const currentDay = date.getDate();
+        // 다음 달의 일수 확인
+        const daysInNextMonth = getDaysInMonth(date.getFullYear(), date.getMonth() + interval + 1);
+
+        // 현재 일이 다음 달에 존재하지 않으면 마지막 날로 조정
+        if (currentDay > daysInNextMonth) {
+          date.setDate(daysInNextMonth);
+        } else {
+          date.setDate(currentDay);
+        }
+        // 한 달 추가
+        date.setMonth(date.getMonth() + interval);
+      }
+      break;
+
+    case 'yearly':
+      {
+        // 현재 날짜를 유지
+        const currentMonth = date.getMonth();
+        const currentDay = date.getDate();
+        // 다음 해의 해당 월 일수 확인
+        const daysInNextYearMonth = getDaysInMonth(date.getFullYear() + interval, currentMonth + 1);
+
+        // 현재 일이 다음 해의 해당 월에 존재하지 않으면 마지막 날로 조정
+        if (currentDay > daysInNextYearMonth) {
+          date.setDate(daysInNextYearMonth);
+        } else {
+          date.setDate(currentDay);
+        }
+        // 한 해 추가
+        date.setFullYear(date.getFullYear() + interval);
+      }
+      break;
+
+    default:
+      throw new Error('유효하지 않은 반복 유형입니다.');
+  }
+  // 반복 간격이 1 이상인지 확인
+  if (interval < 1) {
+    throw new Error('반복 간격은 1 이상의 정수여야 합니다.');
+  }
+  // 'YYYY-MM-DD' 형식으로 날짜를 포맷
+  return formatDate(date);
+}
+
+/**
+ * 주어진 이벤트 데이터를 기반으로 반복 이벤트를 생성합니다.
+ */
+export function generateRepeatingEvents(eventData: Event | EventForm): Event | EventForm[] {
+  const { repeat } = eventData;
+
+  // 반복 유형이 'none'인 경우, 원본 이벤트만 반환
+  if (repeat.type === 'none') {
+    return [eventData];
+  }
+
+  // 반복 간격이 1 이상인지 확인
+  if (repeat.interval < 1) {
+    throw new Error('반복 간격은 1 이상의 정수여야 합니다.');
+  }
+
+  // 종료 날짜가 설정되어 있는지 확인
+  if (!repeat.endDate) {
+    // throw new Error('반복 종료 날짜가 필요합니다.');
+    // 종료 날짜가 없을 경우 기본 종료 날짜 설정
+    repeat.endDate = '2025-06-30';
+  }
+
+  const dates: string[] = [];
+  let currentDate = eventData.date;
+  let occurrences = 0; // 반복 횟수 카운터
+
+  if (repeat.count !== undefined && repeat.count > 0) {
+    // 반복 횟수가 지정된 경우, count를 우선시하여 이벤트 생성
+    while (occurrences < repeat.count) {
+      dates.push(currentDate);
+      occurrences++;
+
+      const nextDate = calculateNextDate(currentDate, repeat.type, repeat.interval);
+
+      // 다음 날짜가 유효하지 않거나 현재 날짜와 같거나 이전 날짜인 경우 루프 종료
+      if (!nextDate || nextDate <= currentDate) {
+        break;
+      }
+
+      currentDate = nextDate;
+    }
+  } else {
+    // 반복 횟수가 지정되지 않은 경우, endDate를 기준으로 이벤트 생성
+    while (currentDate <= repeat.endDate) {
+      dates.push(currentDate);
+      occurrences++;
+
+      const nextDate = calculateNextDate(currentDate, repeat.type, repeat.interval);
+
+      // 다음 날짜가 유효하지 않거나 현재 날짜와 같거나 이전 날짜인 경우 루프 종료
+      if (!nextDate || nextDate <= currentDate) {
+        break;
+      }
+
+      currentDate = nextDate;
+    }
+  }
+
+  // 생성된 날짜들을 기반으로 새로운 이벤트 데이터 리스트 생성
+  return dates.map((date) => ({
+    ...eventData,
+    date,
+    id: undefined,
+  }));
 }

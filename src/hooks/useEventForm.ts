@@ -26,6 +26,10 @@ export const useEventForm = (initialEvent?: Event) => {
     endTimeError: null,
   });
 
+  const [repeatIntervalError, setRepeatIntervalError] = useState<string | null>();
+  const [repeatCount, setRepeatCount] = useState<number | undefined>(
+    initialEvent?.repeat.count || 0
+  );
   const handleStartTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newStartTime = e.target.value;
     setStartTime(newStartTime);
@@ -36,6 +40,16 @@ export const useEventForm = (initialEvent?: Event) => {
     const newEndTime = e.target.value;
     setEndTime(newEndTime);
     setTimeError(getTimeErrorMessage(startTime, newEndTime));
+  };
+
+  const handleRepeatIntervalChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const newRepeatInterval = Number(e.target.value);
+    setRepeatInterval(newRepeatInterval);
+    if (newRepeatInterval < 1 || !Number.isInteger(newRepeatInterval)) {
+      setRepeatIntervalError('반복 주기는 정수로 입력해주세요.');
+      return;
+    }
+    setRepeatIntervalError(null);
   };
 
   const resetForm = () => {
@@ -51,6 +65,7 @@ export const useEventForm = (initialEvent?: Event) => {
     setRepeatInterval(1);
     setRepeatEndDate('');
     setNotificationTime(10);
+    setRepeatCount(0);
   };
 
   const editEvent = (event: Event) => {
@@ -64,9 +79,10 @@ export const useEventForm = (initialEvent?: Event) => {
     setCategory(event.category);
     setIsRepeating(event.repeat.type !== 'none');
     setRepeatType(event.repeat.type);
-    setRepeatInterval(event.repeat.interval);
+    setRepeatInterval(event.repeat.interval || 1);
     setRepeatEndDate(event.repeat.endDate || '');
     setNotificationTime(event.notificationTime);
+    setRepeatCount(event.repeat.count || 0);
   };
 
   return {
@@ -102,5 +118,9 @@ export const useEventForm = (initialEvent?: Event) => {
     handleEndTimeChange,
     resetForm,
     editEvent,
+    repeatIntervalError,
+    handleRepeatIntervalChange,
+    repeatCount,
+    setRepeatCount,
   };
 };

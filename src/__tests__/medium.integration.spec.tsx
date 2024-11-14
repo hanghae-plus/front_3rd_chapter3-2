@@ -182,7 +182,7 @@ describe('검색 기능', () => {
         return HttpResponse.json({
           events: [
             {
-              id: 1,
+              id: '1',
               title: '팀 회의',
               date: '2024-10-15',
               startTime: '09:00',
@@ -194,7 +194,7 @@ describe('검색 기능', () => {
               notificationTime: 10,
             },
             {
-              id: 2,
+              id: '2',
               title: '프로젝트 계획',
               date: '2024-10-16',
               startTime: '14:00',
