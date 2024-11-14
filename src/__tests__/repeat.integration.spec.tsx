@@ -5,7 +5,10 @@ import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
 import React from 'react';
 
-import { setupMockHandlerBulkCreation } from '../__mocks__/handlersUtils';
+import {
+  setupMockHandlerBulkCreation,
+  setupMockHandlerRepeatUpdating,
+} from '../__mocks__/handlersUtils';
 import App from '../App';
 import { EventForm } from '../components/eventForm/EventForm';
 
@@ -214,26 +217,15 @@ describe('반복 종료', () => {
 });
 describe('반복 일정 단일 수정', () => {
   it('반복일정을 수정하면 단일 일정으로 변경된다.', async () => {
-    renderEventForm();
-
-    await userEvent.type(screen.getByLabelText(/제목/), '단일 수정');
-    await userEvent.type(screen.getByLabelText(/날짜/), '2024-11-15');
-    await userEvent.type(screen.getByLabelText(/시작 시간/), '09:00');
-    await userEvent.type(screen.getByLabelText(/종료 시간/), '10:00');
-    await userEvent.type(screen.getByLabelText(/설명/), '설명');
-    await userEvent.type(screen.getByLabelText(/위치/), '위치');
-    await userEvent.selectOptions(screen.getByLabelText(/카테고리/), '업무');
-
-    await userEvent.click(screen.getByRole('checkbox', { name: /반복 일정/ }));
-    await userEvent.type(screen.getByLabelText(/반복 종료일/), '2024-11-17');
-
-    await userEvent.click(screen.getByRole('button', { name: /일정 추가/ }));
+    vi.setSystemTime(new Date('2024-11-15'));
+    setupMockHandlerRepeatUpdating();
+    renderApp();
 
     const eventList = await screen.findByTestId('event-list');
     expect(within(eventList).getAllByText('단일 수정')).toHaveLength(3);
     expect(within(eventList).getAllByLabelText('Repeat Event')).toHaveLength(3);
 
-    const editButton = within(eventList).getByLabelText('Edit event');
+    const editButton = within(eventList).getAllByLabelText('Edit event')[0];
     await userEvent.click(editButton);
 
     await userEvent.clear(screen.getByLabelText(/제목/));

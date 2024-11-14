@@ -120,31 +120,43 @@ export const setupMockHandlerBulkCreation = () => {
   );
 };
 
-export const setupMockHandlerBulkUpdating = () => {
-  const mockEvents: Event[] = [
+export const setupMockHandlerRepeatUpdating = () => {
+  let mockEvents: Event[] = [
     {
       id: '1',
-      title: '수정할 회의 1',
-      date: '2024-10-15',
+      title: '단일 수정',
+      date: '2024-11-15',
       startTime: '09:00',
       endTime: '10:00',
-      description: '수정할 팀 미팅 1',
-      location: '회의실 A',
+      description: '설명',
+      location: '위치',
       category: '업무',
-      repeat: { type: 'none', interval: 0 },
+      repeat: { type: 'daily', interval: 1, endDate: '2024-11-17', id: '1' },
       notificationTime: 10,
     },
     {
       id: '2',
-      title: '수정할 회의 2',
-      date: '2024-10-15',
-      startTime: '11:00',
-      endTime: '12:00',
-      description: '수정할 팀 미팅 2',
-      location: '회의실 B',
+      title: '단일 수정',
+      date: '2024-11-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '설명',
+      location: '위치',
       category: '업무',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 5,
+      repeat: { type: 'daily', interval: 1, endDate: '2024-11-17', id: '1' },
+      notificationTime: 10,
+    },
+    {
+      id: '3',
+      title: '단일 수정',
+      date: '2024-11-17',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '설명',
+      location: '위치',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-11-17', id: '1' },
+      notificationTime: 10,
     },
   ];
 
@@ -152,22 +164,14 @@ export const setupMockHandlerBulkUpdating = () => {
     http.get('/api/events', () => {
       return HttpResponse.json({ events: mockEvents });
     }),
-    http.put('/api/events-list', async ({ request }) => {
-      const body = (await request.json()) as { events: Event[] };
-      let isUpdated = false;
-
-      body.events.forEach((event) => {
-        const index = mockEvents.findIndex((target) => target.id === event.id);
-        if (index !== -1) {
-          isUpdated = true;
-          mockEvents[index] = { ...mockEvents[index], ...event };
-        }
-      });
-
-      if (isUpdated) {
-        return HttpResponse.json(mockEvents);
-      }
-      return HttpResponse.json({ message: 'Event not found' }, { status: 404 });
+    http.put('/api/events/:id', async ({ request }) => {
+      const updatedEvent = (await request.json()) as Event;
+      mockEvents = mockEvents.map((event) =>
+        event.id === updatedEvent.id
+          ? { ...updatedEvent, repeat: { type: 'none', interval: 0 } }
+          : event
+      );
+      return HttpResponse.json(mockEvents);
     })
   );
 };
