@@ -1,6 +1,6 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { render, screen, within, waitFor } from '@testing-library/react';
-import { UserEvent, userEvent } from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
 
@@ -17,35 +17,6 @@ const setup = (element: ReactElement) => {
   const user = userEvent.setup();
   return { ...render(<ChakraProvider>{element}</ChakraProvider>), user };
 };
-
-const saveSchedule = async (
-    user: UserEvent,
-    form: Omit<Event, 'id' | 'notificationTime'>
-  ) => {
-    const { title, date, startTime, endTime, location, description, category, repeat } = form;
-    
-    const { type, interval, endDate } = repeat;
-
-    await user.click(screen.getAllByText('일정 추가')[0]);
-
-    await user.type(screen.getByLabelText('제목'), title);
-    await user.type(screen.getByLabelText('날짜'), date);
-    await user.type(screen.getByLabelText('시작 시간'), startTime);
-    await user.type(screen.getByLabelText('종료 시간'), endTime);
-    await user.type(screen.getByLabelText('설명'), description);
-    await user.type(screen.getByLabelText('위치'), location);
-    await user.selectOptions(screen.getByLabelText('카테고리'), category);
-
-    if (type !== 'none') {
-        await user.selectOptions(screen.getByLabelText('반복 유형'), type);
-        await user.clear(screen.getByLabelText('반복 간격'));
-        await user.type(screen.getByLabelText('반복 간격'), interval.toString());
-        endDate && (await user.type(screen.getByLabelText('반복 종료일'), endDate));
-    }
-
-    await user.click(screen.getByTestId('event-submit-button'));
-};
-
 
 describe('일정 관리 기능', () => {
     beforeEach(() => {
@@ -107,7 +78,7 @@ describe('반복 일정 표시', () => {
       const mockEvent: Event = {
         id: '1',
         title: '반복 일정 테스트',
-        date: '2024-11-14',
+        date: '2024-10-14',
         startTime: '09:00',
         endTime: '10:00',
         description: '테스트 설명',
@@ -116,7 +87,7 @@ describe('반복 일정 표시', () => {
         repeat: {
           type: 'daily',
           interval: 1,
-          endDate: '2024-11-20',
+          endDate: '2024-10-20',
         },
         notificationTime: 10,
       };
@@ -130,8 +101,6 @@ describe('반복 일정 표시', () => {
       setup(<App />);
 
       await screen.findByText('일정 로딩 완료!');
-      const test = await screen.findAllByText('반복 일정 테스트');
-      console.log('test',test);
   
       const viewSelect = screen.getByLabelText('view');
       await userEvent.selectOptions(viewSelect, 'month');
@@ -155,14 +124,27 @@ describe('반복 종료 표시', () => {
     test('반복 종료 조건을 지정할 수 있다.', async () => {
       const { user } = setup(<App />);
     
-      await user.click(screen.getByText('일정 추가'));
-      await user.click(screen.getByLabelText('반복 설정'));
+      // 일정 추가 버튼 클릭 
+      await user.click(screen.getAllByText('일정 추가')[0]);
       
+      // 기본 정보 입력 (필수값)
+      await user.type(screen.getByLabelText('제목'), '반복 일정 테스트');
+      await user.type(screen.getByLabelText('날짜'), '2024-10-01');
+      await user.type(screen.getByLabelText('시작 시간'), '09:00');
+      await user.type(screen.getByLabelText('종료 시간'), '10:00');
+      
+      // 반복 유형 선택
+      const repeatTypeSelect = screen.getByLabelText('반복 유형');
+      const weeklyOption = within(repeatTypeSelect).getByText('매주');
+      await user.selectOptions(repeatTypeSelect, weeklyOption.getAttribute('value') || 'weekly');
+      
+      // 반복 종료일 입력
       const repeatEndDateInput = screen.getByLabelText('반복 종료일');
-      await user.type(repeatEndDateInput, '2024-12-31');
+      await user.clear(repeatEndDateInput); // 기존 값이 있을 수 있으므로 clear
+      await user.type(repeatEndDateInput, '2024-10-31');
       
-      expect(repeatEndDateInput).toHaveValue('2024-12-31');
-    })
+      expect(repeatEndDateInput).toHaveValue('2024-10-31');
+    });
 });
 
 describe('반복 일정 단일 수정', () => {

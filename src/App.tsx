@@ -406,7 +406,7 @@ function App() {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel>반복 종료일</FormLabel>
+                  <FormLabel htmlFor="repeat-end-date">반복 종료일</FormLabel>
                   <Input
                     type="date"
                     id="repeat-end-date"
