@@ -51,8 +51,15 @@ export function getWeeksAtMonth(currentDate: Date) {
   return weeks;
 }
 
-export function getEventsForDay(events: Event[], date: number): Event[] {
-  return events.filter((event) => new Date(event.date).getDate() === date);
+export function getEventsForDay(events: Event[], day: number): Event[] {
+  if (day <= 0 || day >= 32) {
+    return [];
+  }
+
+  return events.filter((event) => {
+    const eventDate = new Date(event.date);
+    return eventDate.getDate() === day;
+  });
 }
 
 export function formatWeek(targetDate: Date) {

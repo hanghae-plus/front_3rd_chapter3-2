@@ -39,7 +39,7 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
@@ -56,6 +56,7 @@ import {
   getWeeksAtMonth,
 } from './utils/dateUtils';
 import { findOverlappingEvents } from './utils/eventOverlap';
+import { createRecurringEvents } from './utils/recurringEventUtils';
 import { getTimeErrorMessage } from './utils/timeValidation';
 
 const categories = ['업무', '개인', '가족', '기타'];
@@ -258,7 +259,14 @@ function App() {
                               {holiday}
                             </Text>
                           )}
-                          {getEventsForDay(filteredEvents, day).map(renderEvent)}
+
+                          {getEventsForDay(
+                            filteredEvents.filter((event) => {
+                              const eventDate = new Date(event.date);
+                              return eventDate.getMonth() === currentDate.getMonth();
+                            }),
+                            day
+                          ).map(renderEvent)}
                         </>
                       )}
                     </Td>
