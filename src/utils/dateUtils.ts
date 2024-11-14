@@ -203,23 +203,45 @@ export function generateRepeatingEvents(eventData: Event | EventForm): Event | E
 
   // 종료 날짜가 설정되어 있는지 확인
   if (!repeat.endDate) {
-    throw new Error('반복 종료 날짜가 필요합니다.');
+    // throw new Error('반복 종료 날짜가 필요합니다.');
+    // 종료 날짜가 없을 경우 기본 종료 날짜 설정
+    repeat.endDate = '2025-06-30';
   }
 
   const dates: string[] = [];
   let currentDate = eventData.date;
+  let occurrences = 0; // 반복 횟수 카운터
 
-  // 반복 종료 조건을 명확히 설정하여 무한 루프 방지
-  while (currentDate <= repeat.endDate) {
-    dates.push(currentDate);
-    const nextDate = calculateNextDate(currentDate, repeat.type, repeat.interval);
+  if (repeat.count !== undefined && repeat.count > 0) {
+    // 반복 횟수가 지정된 경우, count를 우선시하여 이벤트 생성
+    while (occurrences < repeat.count) {
+      dates.push(currentDate);
+      occurrences++;
 
-    // 다음 날짜가 유효하지 않거나 현재 날짜와 같거나 이전 날짜인 경우 루프 종료
-    if (!nextDate || nextDate <= currentDate) {
-      break;
+      const nextDate = calculateNextDate(currentDate, repeat.type, repeat.interval);
+
+      // 다음 날짜가 유효하지 않거나 현재 날짜와 같거나 이전 날짜인 경우 루프 종료
+      if (!nextDate || nextDate <= currentDate) {
+        break;
+      }
+
+      currentDate = nextDate;
     }
+  } else {
+    // 반복 횟수가 지정되지 않은 경우, endDate를 기준으로 이벤트 생성
+    while (currentDate <= repeat.endDate) {
+      dates.push(currentDate);
+      occurrences++;
 
-    currentDate = nextDate;
+      const nextDate = calculateNextDate(currentDate, repeat.type, repeat.interval);
+
+      // 다음 날짜가 유효하지 않거나 현재 날짜와 같거나 이전 날짜인 경우 루프 종료
+      if (!nextDate || nextDate <= currentDate) {
+        break;
+      }
+
+      currentDate = nextDate;
+    }
   }
 
   // 생성된 날짜들을 기반으로 새로운 이벤트 데이터 리스트 생성

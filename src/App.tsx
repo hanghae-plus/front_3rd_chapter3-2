@@ -74,7 +74,6 @@ function App() {
     repeatType,
     setRepeatType,
     repeatInterval,
-    setRepeatInterval,
     repeatEndDate,
     setRepeatEndDate,
     notificationTime,
@@ -89,6 +88,8 @@ function App() {
     editEvent,
     repeatIntervalError,
     handleRepeatIntervalChange,
+    repeatCount,
+    setRepeatCount,
   } = useEventForm();
 
   const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
@@ -115,6 +116,7 @@ function App() {
       type: isRepeating ? repeatType : 'none',
       interval: repeatInterval,
       endDate: repeatEndDate || undefined,
+      count: repeatCount || 0,
     },
     notificationTime,
   };
@@ -244,6 +246,14 @@ function App() {
                   />
                 </FormControl>
               </HStack>
+              <FormControl>
+                <FormLabel>반복 횟수</FormLabel>
+                <Input
+                  type="number"
+                  value={repeatCount}
+                  onChange={(e) => setRepeatCount(Number(e.target.value))}
+                />
+              </FormControl>
             </VStack>
           )}
 
@@ -412,6 +422,7 @@ function App() {
                       type: isRepeating ? repeatType : 'none',
                       interval: repeatInterval,
                       endDate: repeatEndDate || undefined,
+                      count: repeatCount || 0,
                     },
                     notificationTime,
                   });
