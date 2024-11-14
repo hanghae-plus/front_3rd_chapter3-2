@@ -1,10 +1,10 @@
 import { FormControl, FormLabel, Input, VStack, Text } from '@chakra-ui/react';
 
+import { ScheduleSearched } from './ScheduleSearched';
+import { useCalendarViewContext } from '../../hooks/useCalendarViewContext';
 import { useNotifications } from '../../hooks/useNotifications';
 import { useSearch } from '../../hooks/useSearch';
 import { Event } from '../../types';
-import { ScheduleSearched } from './ScheduleSearched';
-import { useCalendarViewContext } from '../../hooks/useCalendarViewContext';
 
 type CalendarSearchProps = {
   events: Event[];
