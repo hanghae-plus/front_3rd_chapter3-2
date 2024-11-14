@@ -21,12 +21,11 @@
     "@emotion/styled": "^11.11.5",
     "express": "^4.19.2",
     "framer-motion": "^11.3.2",
-    "msw": "^2.3.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.4.5",
+    "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^15.0.7",
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.5.2",
@@ -48,10 +47,11 @@
     "eslint-plugin-storybook": "^0.6.12",
     "eslint-plugin-vitest": "^0.2.6",
     "jsdom": "^25.0.1",
+    "msw": "^2.5.1",
     "react-test-renderer": "^18.3.1",
     "typescript": "^5.2.2",
     "vite": "^5.3.1",
     "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^2.0.2"
+    "vitest": "^2.1.3"
   }
 }
