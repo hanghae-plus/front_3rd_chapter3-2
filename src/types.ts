@@ -1,9 +1,16 @@
+import { MonthType, WeekType } from './utils/dateUtils';
+
 export type RepeatType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
 
 export interface RepeatInfo {
   type: RepeatType;
   interval: number;
   endDate?: string;
+  monthType?: MonthType;
+  weekType?: WeekType;
+  day?: number;
+  weekOrder?: number;
+  id?: string;
 }
 
 export interface EventForm {
