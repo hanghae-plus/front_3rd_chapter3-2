@@ -11,8 +11,9 @@ export function SearchBar() {
 
   return (
     <FormControl>
-      <FormLabel>일정 검색</FormLabel>
+      <FormLabel htmlFor="search">일정 검색</FormLabel>
       <Input
+        id="search"
         placeholder="검색어를 입력하세요"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
