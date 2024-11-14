@@ -81,7 +81,7 @@
       "description": "윤년 테스트",
       "location": "집",
       "category": "업무",
-      "repeat": { "type": "yearly", "interval": 1, "endDate": "2028-03-01" },
+      "repeat": { "type": "yearly", "interval": 1, "endDate": "2029-03-01" },
       "notificationTime": 10
     }
   ]
