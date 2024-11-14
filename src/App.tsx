@@ -5,6 +5,7 @@ import {
   DeleteIcon,
   EditIcon,
 } from '@chakra-ui/icons';
+import { CheckCircleIcon } from '@chakra-ui/icons/CheckCircle';
 import {
   Alert,
   AlertDialog,
@@ -106,7 +107,6 @@ function App() {
   const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
     setEditingEvent(null)
   );
-
   const { notifications, notifiedEvents, setNotifications } = useNotifications(events);
   const { view, setView, currentDate, holidays, navigate } = useCalendarView();
   const { searchTerm, filteredEvents, setSearchTerm } = useSearch(events, currentDate, view);
@@ -200,6 +200,9 @@ function App() {
                           color={isNotified ? 'red.500' : 'inherit'}
                         >
                           <HStack spacing={1}>
+                            {event.repeat.type !== 'none' && (
+                              <CheckCircleIcon data-testid="circle-icon" />
+                            )}
                             {isNotified && <BellIcon />}
                             <Text fontSize="sm" noOfLines={1}>
                               {event.title}
@@ -269,6 +272,9 @@ function App() {
                                 color={isNotified ? 'red.500' : 'inherit'}
                               >
                                 <HStack spacing={1}>
+                                  {event.repeat.type !== 'none' && (
+                                    <CheckCircleIcon data-testid="circle-icon" />
+                                  )}
                                   {isNotified && <BellIcon />}
                                   <Text fontSize="sm" noOfLines={1}>
                                     {event.title}
@@ -291,7 +297,7 @@ function App() {
   };
 
   return (
-    <Box w="full" h="100vh" m="auto" p={5}>
+    <Box w="full" h="100vh" m="auto" p={5} data-testid="form-box">
       <Flex gap={6} h="full">
         <VStack w="400px" spacing={5} align="stretch">
           <Heading>{editingEvent ? '일정 수정' : '일정 추가'}</Heading>
@@ -357,7 +363,19 @@ function App() {
 
           <FormControl>
             <FormLabel>반복 설정</FormLabel>
-            <Checkbox isChecked={isRepeating} onChange={(e) => setIsRepeating(e.target.checked)}>
+            <Checkbox
+              className="checkedBox"
+              isChecked={isRepeating}
+              onChange={(e) => {
+                setIsRepeating(e.target.checked);
+
+                if (isRepeating) {
+                  setRepeatType('daily');
+                  setRepeatInterval(1);
+                  setRepeatEndDate(new Date().toISOString().split('T')[0]);
+                }
+              }}
+            >
               반복 일정
             </Checkbox>
           </FormControl>
@@ -382,7 +400,9 @@ function App() {
                 <FormLabel>반복 유형</FormLabel>
                 <Select
                   value={repeatType}
-                  onChange={(e) => setRepeatType(e.target.value as RepeatType)}
+                  onChange={(e) => {
+                    setRepeatType(e.target.value as RepeatType);
+                  }}
                 >
                   <option value="daily">매일</option>
                   <option value="weekly">매주</option>
@@ -502,7 +522,9 @@ function App() {
                     <IconButton
                       aria-label="Edit event"
                       icon={<EditIcon />}
-                      onClick={() => editEvent(event)}
+                      onClick={() => {
+                        editEvent(event);
+                      }}
                     />
                     <IconButton
                       aria-label="Delete event"
