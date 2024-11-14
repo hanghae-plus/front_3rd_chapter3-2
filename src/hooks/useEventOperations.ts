@@ -28,20 +28,17 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
-      let response;
-      if (editing) {
-        response = await fetch(`/api/events/${(eventData as Event).id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
-      } else {
-        response = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
-      }
+      const isRepeatEvent = (eventData as EventForm).repeat.type !== 'none';
+      const fetchUrl = editing
+        ? `/api/events/${(eventData as Event).id}`
+        : isRepeatEvent
+          ? '/api/events-list'
+          : '/api/events';
+      const response = await fetch(fetchUrl, {
+        method: editing ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventData),
+      });
 
       if (!response.ok) {
         throw new Error('Failed to save event');
