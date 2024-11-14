@@ -1,4 +1,8 @@
-import { RepeatEndCondition, RepeatType } from '../../../entities/event/model/types';
+import {
+  NotificationTime,
+  RepeatEndCondition,
+  RepeatType,
+} from '../../../entities/event/model/types';
 
 export interface TimeErrorRecord {
   startTimeError: string | null;
@@ -18,8 +22,9 @@ export interface EventFormState {
   repeatInterval: number;
   repeatEndDate: string;
   repeatEndCondition?: RepeatEndCondition;
+  repeatCount?: number;
   repeatDate?: string[];
-  notificationTime: number;
+  notificationTime: NotificationTime;
 }
 
 export interface FormErrors {

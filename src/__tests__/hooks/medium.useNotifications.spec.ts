@@ -2,10 +2,6 @@ import { act, renderHook } from '@testing-library/react';
 
 import { Event } from '../../entities/event/model/types.ts';
 import { useNotifications } from '../../hooks/useNotifications.ts';
-import { formatDate } from '../../shared/lib/date.ts';
-
-const 초 = 1000;
-const 분 = 초 * 60;
 
 let currentCallback = () => {};
 vi.mock('@chakra-ui/react', () => ({

@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { Text } from '@chakra-ui/react';
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 
 import { Event } from '../../../entities/event/model/types';
 import { EventCard } from '../../../entities/event/ui/EventCard';

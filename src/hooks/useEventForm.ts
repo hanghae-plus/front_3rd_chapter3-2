@@ -29,7 +29,10 @@ export const useEventForm = (initialEvent: Event | null): UseEventFormReturn => 
     repeatType: initialEvent?.repeat.type || 'none',
     repeatInterval: initialEvent?.repeat.interval || 1,
     repeatEndDate: initialEvent?.repeat.endDate || '',
-    notificationTime: initialEvent?.notificationTime || 10,
+    notificationTime:
+      typeof initialEvent?.notificationTime === 'object'
+        ? initialEvent.notificationTime
+        : { value: 0, label: '0분 전' },
   });
 
   const [errors, setErrors] = useState<FormErrors>({

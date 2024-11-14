@@ -1,4 +1,4 @@
-import { Event } from '../../types';
+import { Event } from '../../entities/event/model/types';
 import { getFilteredEvents } from '../../utils/eventUtils';
 
 describe('getFilteredEvents', () => {
@@ -12,8 +12,9 @@ describe('getFilteredEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 0,
+      isRepeating: false,
+      repeat: { type: 'none', interval: 0, endCondition: 'never' },
+      notificationTime: { value: 0, label: '0분 전' },
     },
     {
       id: '2',
@@ -24,8 +25,9 @@ describe('getFilteredEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 0,
+      isRepeating: false,
+      repeat: { type: 'none', interval: 0, endCondition: 'never' },
+      notificationTime: { value: 0, label: '0분 전' },
     },
     {
       id: '3',
@@ -36,8 +38,9 @@ describe('getFilteredEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 0,
+      isRepeating: false,
+      repeat: { type: 'none', interval: 0, endCondition: 'never' },
+      notificationTime: { value: 0, label: '0분 전' },
     },
   ];
 
@@ -87,8 +90,9 @@ describe('getFilteredEvents', () => {
         description: '',
         location: '',
         category: '',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 0,
+        isRepeating: false,
+        repeat: { type: 'none', interval: 0, endCondition: 'never' },
+        notificationTime: { value: 0, label: '0분 전' },
       },
       ...events,
       {
@@ -100,8 +104,9 @@ describe('getFilteredEvents', () => {
         description: '',
         location: '',
         category: '',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 0,
+        isRepeating: false,
+        repeat: { type: 'none', interval: 0, endCondition: 'never' },
+        notificationTime: { value: 0, label: '0분 전' },
       },
     ];
     const result = getFilteredEvents(borderEvents, '', new Date('2024-07-01'), 'month');

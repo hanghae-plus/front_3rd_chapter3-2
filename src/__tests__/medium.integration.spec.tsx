@@ -1,14 +1,9 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act, waitFor } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { ReactElement } from 'react';
 
-import {
-  setupMockHandlerCreation,
-  setupMockHandlerDeletion,
-  setupMockHandlerUpdating,
-} from '../__mocks__/handlersUtils';
+import { setupMockHandlerCreation } from '../__mocks__/handlersUtils';
 import App from '../App';
 import { Event } from '../entities/event/model/types';
 import { server } from '../setupTests';
@@ -118,7 +113,6 @@ describe('일정 CRUD 및 기본 기능', () => {
     await user.selectOptions(screen.getByLabelText(/카테고리/), '개인');
 
     await user.click(screen.getByRole('button', { name: /수정/ }));
-    const updatedEventList = await screen.findByTestId('event-list');
     expect(await within(eventList).findByText('수정된 팀 회의 제목')).toBeInTheDocument();
   });
 
@@ -300,7 +294,6 @@ describe('일정 뷰', () => {
     vi.setSystemTime(new Date('2024-10-01'));
     setupMockHandlerCreation(mockEvents);
     renderApp();
-    const monthView = within(screen.getByTestId('month-view'));
     const searchInput = screen.getByTestId('search-input');
     await user.type(searchInput, '이번달 팀 회의');
     const eventList = screen.getByTestId('event-list');
@@ -437,6 +430,20 @@ describe('일정 충돌', () => {
     setupMockHandlerCreation(mockEvents);
     renderApp();
 
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({ events: mockEvents });
+      }),
+      http.put('/api/events/:id', async ({ params, request }) => {
+        const { id } = params;
+        const updatedEvent = (await request.json()) as Event;
+        const index = mockEvents.findIndex((event) => event.id === id);
+
+        mockEvents[index] = { ...mockEvents[index], ...updatedEvent };
+        return HttpResponse.json(mockEvents[index]);
+      })
+    );
+
     await user.type(screen.getByLabelText(/제목/), '충돌 이벤트');
     await user.type(screen.getByLabelText(/날짜/), '2024-11-03');
     await user.type(screen.getByLabelText(/시작 시간/), '09:30');
@@ -446,7 +453,8 @@ describe('일정 충돌', () => {
     await user.selectOptions(screen.getByLabelText(/카테고리/), '업무');
 
     await user.click(screen.getByRole('button', { name: /추가/ }));
-    expect(true).toBe(true);
+
+    expect(await screen.findAllByText('일정 겹침 경고')).toHaveLength(2);
   });
 
   it('기존 일정의 시간을 수정하여 충돌이 발생하면 경고가 노출된다', async () => {
@@ -495,6 +503,20 @@ describe('일정 충돌', () => {
     setupMockHandlerCreation(initEvents);
     renderApp();
 
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({ events: initEvents });
+      }),
+      http.put('/api/events/:id', async ({ params, request }) => {
+        const { id } = params;
+        const updatedEvent = (await request.json()) as Event;
+        const index = initEvents.findIndex((event) => event.id === id);
+
+        initEvents[index] = { ...initEvents[index], ...updatedEvent };
+        return HttpResponse.json(initEvents[index]);
+      })
+    );
+
     const eventList = await screen.findByTestId('event-list');
     expect(await within(eventList).findByText('충돌 이벤트')).toBeInTheDocument();
 
@@ -508,7 +530,7 @@ describe('일정 충돌', () => {
 
     await user.click(screen.getByRole('button', { name: /수정/ }));
 
-    expect(true).toBe(true);
+    expect(await screen.findAllByText('일정 겹침 경고')).toHaveLength(2);
   });
 });
 
@@ -539,8 +561,8 @@ describe('알림 기능', () => {
     ];
     setupMockHandlerCreation(initEvents);
     renderApp();
-    await vi.advanceTimersByTimeAsync(1000);
+    vi.setSystemTime(new Date('2024-10-15T08:50:00'));
 
-    expect(true).toBe(true);
+    expect(await screen.findAllByText('알람 이벤트')).toHaveLength(2);
   });
 });

@@ -16,7 +16,9 @@ export const useEventFormState = (initialEvent?: Event) => {
     repeatType: initialEvent?.repeat.type || 'none',
     repeatInterval: initialEvent?.repeat.interval || 1,
     repeatEndDate: initialEvent?.repeat.endDate || '',
-    notificationTime: initialEvent?.notificationTime || 10,
+    repeatEndCondition: initialEvent?.repeat.endCondition || 'never',
+    repeatCount: initialEvent?.repeat.count,
+    notificationTime: initialEvent?.notificationTime || { value: 0, label: '0분 전' },
   });
 
   const updateFormField = <K extends keyof EventFormState>(field: K, value: EventFormState[K]) => {
