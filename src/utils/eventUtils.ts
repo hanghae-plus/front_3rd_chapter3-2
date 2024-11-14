@@ -1,4 +1,4 @@
-import { Event, EventForm } from '../types';
+import { Event, EventForm, RepeatInfo } from '../types';
 import {
   formatDate,
   getRemainingDatesOfRepeatedEvent,
@@ -70,4 +70,18 @@ export function generateRepeatedEvents(event: Event | EventForm): EventForm[] {
     date: formatDate(date),
   }));
   return events;
+}
+
+export function hasChangeInRepeatInfo(repeatInfo1: RepeatInfo, repeatInfo2: RepeatInfo) {
+  const key1 = Object.keys(repeatInfo1);
+  const key2 = Object.keys(repeatInfo2);
+  if (key1.length !== key2.length) return true;
+
+  const keys = new Set([...key1, ...key2]);
+  for (const key of keys) {
+    if (repeatInfo1[key as keyof RepeatInfo] !== repeatInfo2[key as keyof RepeatInfo]) {
+      return true;
+    }
+  }
+  return false;
 }
