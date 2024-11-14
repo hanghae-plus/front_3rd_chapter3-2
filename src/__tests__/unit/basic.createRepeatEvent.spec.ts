@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { expect } from 'vitest';
 import { createRepeatEvent } from '../../utils/createRepeatEvent';
 

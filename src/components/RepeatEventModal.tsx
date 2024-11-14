@@ -18,7 +18,7 @@ interface RepeatEventModalProps {
   selectedEvent: Event | null;
 }
 
-const getRepeatTypeLabel = (type: RepeatType): string => {
+const getIntervalLabel = (type: RepeatType): string => {
   switch (type) {
     case 'daily':
       return '일';
@@ -44,7 +44,7 @@ const RepeatEventModal: React.FC<RepeatEventModalProps> = ({ isOpen, onClose, se
           {selectedEvent && (
             <Text>
               {selectedEvent.repeat.interval}
-              {getRepeatTypeLabel(selectedEvent.repeat.type)} 반복
+              {getIntervalLabel(selectedEvent.repeat.type)} 반복
               {selectedEvent.repeat.endDate ? ` (종료: ${selectedEvent.repeat.endDate})` : ''}
             </Text>
           )}

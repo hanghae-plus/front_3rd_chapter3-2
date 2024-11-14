@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { act, renderHook } from '@testing-library/react';
 
 import { useSearch } from '../../hooks/useSearch.ts';

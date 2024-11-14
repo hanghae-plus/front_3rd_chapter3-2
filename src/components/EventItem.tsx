@@ -12,7 +12,7 @@ interface EventItemProps {
   onRepeatIconClick: (event: Event) => void;
 }
 
-const getRepeatTypeLabel = (type: RepeatType): string => {
+const getIntervalLabel = (type: RepeatType): string => {
   switch (type) {
     case 'daily':
       return '일';
@@ -67,7 +67,7 @@ const EventItem: React.FC<EventItemProps> = ({
           {event.repeat.type !== 'none' && (
             <Text>
               반복: {event.repeat.interval}
-              {getRepeatTypeLabel(event.repeat.type)}마다
+              {getIntervalLabel(event.repeat.type)}마다
               {event.repeat.endDate && ` (종료: ${event.repeat.endDate})`}
             </Text>
           )}
