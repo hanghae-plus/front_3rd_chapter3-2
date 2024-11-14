@@ -16,12 +16,23 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
       newEvent.id = String(mockEvents.length + 1); // 간단한 ID 생성
       mockEvents.push(newEvent);
       return HttpResponse.json(newEvent, { status: 201 });
+    }),
+    http.post('/api/events-list', async ({ request }) => {
+      const { events } = (await request.json()) as { events: Event[] };
+
+      const newEvents = events.map((event, index) => ({
+        ...event,
+        id: String(mockEvents.length + index + 1),
+      }));
+      newEvents.forEach((event) => mockEvents.push(event));
+
+      return HttpResponse.json({ events: newEvents }, { status: 201 });
     })
   );
 };
 
-export const setupMockHandlerUpdating = () => {
-  const mockEvents: Event[] = [
+export const setupMockHandlerUpdating = (
+  mockEvents: Event[] = [
     {
       id: '1',
       title: '기존 회의',
@@ -46,8 +57,8 @@ export const setupMockHandlerUpdating = () => {
       repeat: { type: 'none', interval: 0 },
       notificationTime: 5,
     },
-  ];
-
+  ]
+) => {
   server.use(
     http.get('/api/events', () => {
       return HttpResponse.json({ events: mockEvents });
@@ -63,8 +74,8 @@ export const setupMockHandlerUpdating = () => {
   );
 };
 
-export const setupMockHandlerDeletion = () => {
-  const mockEvents: Event[] = [
+export const setupMockHandlerDeletion = (
+  mockEvents: Event[] = [
     {
       id: '1',
       title: '삭제할 이벤트',
@@ -77,8 +88,8 @@ export const setupMockHandlerDeletion = () => {
       repeat: { type: 'none', interval: 0 },
       notificationTime: 10,
     },
-  ];
-
+  ]
+) => {
   server.use(
     http.get('/api/events', () => {
       return HttpResponse.json({ events: mockEvents });

@@ -1,105 +1,109 @@
 import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
-import { Event, EventForm } from '../types';
+import { eventApi } from '../apis/eventApi';
+import { DEFAULT_REPEAT_INFO, Event, EventForm, EventId } from '../types';
+import { generateRepeatedEvents } from '../utils/RepeatedEventUtils';
+
+const isEvent = (eventData: Event | EventForm): eventData is Event => {
+  return (eventData as Event).id !== undefined;
+};
 
 export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const [events, setEvents] = useState<Event[]>([]);
-  const toast = useToast();
+  const toast = useToast({ duration: 3000, isClosable: true });
 
+  /** 이벤트 가져오기 */
   const fetchEvents = async () => {
     try {
-      const response = await fetch('/api/events');
-      if (!response.ok) {
-        throw new Error('Failed to fetch events');
-      }
-      const { events } = await response.json();
+      const events = await eventApi.fetchEvents();
       setEvents(events);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({
         title: '이벤트 로딩 실패',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
     }
   };
 
+  /** 단일 이벤트 저장 */
+  const saveSingleEvent = async (eventData: Event | EventForm) => {
+    const isEditing = editing && isEvent(eventData);
+    const successMessage = isEditing ? '일정이 수정되었습니다.' : '일정이 추가되었습니다.';
+
+    isEditing //
+      ? await eventApi.editEvent(eventData)
+      : await eventApi.addEvent(eventData);
+
+    toast({
+      title: successMessage,
+      status: 'success',
+    });
+  };
+
+  /** 반복 이벤트 저장 */
+  const saveRepeatedEvent = async (eventData: Event | EventForm) => {
+    const isEditing = editing && isEvent(eventData);
+
+    // 반복 이벤트를 수정하면 단일 일정으로 변경
+    if (isEditing) {
+      const singleEvent: Event = { ...eventData, repeat: DEFAULT_REPEAT_INFO };
+      await saveSingleEvent(singleEvent);
+      return;
+    }
+
+    const repeatedEvents: EventForm[] = generateRepeatedEvents(eventData);
+    await eventApi.addEventList(repeatedEvents);
+  };
+
+  /** 이벤트 저장 */
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
-      let response;
-      if (editing) {
-        response = await fetch(`/api/events/${(eventData as Event).id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
+      if (eventData.repeat.type !== 'none') {
+        await saveRepeatedEvent(eventData);
       } else {
-        response = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
-      }
-
-      if (!response.ok) {
-        throw new Error('Failed to save event');
+        await saveSingleEvent(eventData);
       }
 
       await fetchEvents();
       onSave?.();
-      toast({
-        title: editing ? '일정이 수정되었습니다.' : '일정이 추가되었습니다.',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
     } catch (error) {
       console.error('Error saving event:', error);
       toast({
         title: '일정 저장 실패',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
     }
   };
 
-  const deleteEvent = async (id: string) => {
+  /** 이벤트 삭제 */
+  const deleteEvent = async (id: EventId) => {
     try {
-      const response = await fetch(`/api/events/${id}`, { method: 'DELETE' });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete event');
-      }
-
+      await eventApi.deleteEvent(id);
       await fetchEvents();
       toast({
         title: '일정이 삭제되었습니다.',
         status: 'info',
-        duration: 3000,
-        isClosable: true,
       });
     } catch (error) {
       console.error('Error deleting event:', error);
       toast({
         title: '일정 삭제 실패',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
     }
   };
 
-  async function init() {
+  /** 초기화 */
+  const init = async () => {
     await fetchEvents();
     toast({
       title: '일정 로딩 완료!',
       status: 'info',
       duration: 1000,
     });
-  }
+  };
 
   useEffect(() => {
     init();

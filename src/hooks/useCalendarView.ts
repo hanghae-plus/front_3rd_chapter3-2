@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 
 import { fetchHolidays } from '../apis/fetchHolidays';
 
+export type Holidays = { [key: string]: string };
+
 export const useCalendarView = () => {
   const [view, setView] = useState<'week' | 'month'>('month');
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [holidays, setHolidays] = useState<{ [key: string]: string }>({});
+  const [holidays, setHolidays] = useState<Holidays>({});
 
   const navigate = (direction: 'prev' | 'next') => {
     setCurrentDate((prevDate) => {

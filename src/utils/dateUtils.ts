@@ -23,6 +23,7 @@ export function getWeekDates(date: Date): Date[] {
   return weekDates;
 }
 
+/** 주어진 날짜가 포함된 달의 모든 주를 반환합니다. */
 export function getWeeksAtMonth(currentDate: Date) {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -51,10 +52,12 @@ export function getWeeksAtMonth(currentDate: Date) {
   return weeks;
 }
 
+/** 주어진 날짜에 해당하는 이벤트들을 반환합니다. */
 export function getEventsForDay(events: Event[], date: number): Event[] {
   return events.filter((event) => new Date(event.date).getDate() === date);
 }
 
+/** 주어진 날짜를 "YYYY년 MM월 n주" 형식으로 반환합니다. */
 export function formatWeek(targetDate: Date) {
   const dayOfWeek = targetDate.getDay();
   const diffToThursday = 4 - dayOfWeek;
@@ -97,10 +100,12 @@ export function isDateInRange(date: Date, rangeStart: Date, rangeEnd: Date): boo
   return normalizedDate >= normalizedStart && normalizedDate <= normalizedEnd;
 }
 
+/** 숫자가 지정된 자리 수로 0을 채워 반환합니다. */
 export function fillZero(value: number, size = 2) {
   return String(value).padStart(size, '0');
 }
 
+/** 주어진 날짜를 "YYYY-MM-DD" 형식으로 포맷합니다. */
 export function formatDate(currentDate: Date, day?: number) {
   return [
     currentDate.getFullYear(),
@@ -108,3 +113,28 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+
+/** 해당 월의 마지막 날짜 반환 */
+export function getLastDayOfMonth(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+}
+
+/** 주어진 날짜에서 interval만큼 증가한 날짜의 마지막 날짜를 반환 */
+export const getNextDateLastDay = (
+  currentDate: Date,
+  interval: number,
+  unit: 'month' | 'year'
+): Date => {
+  const nextDate = new Date(currentDate);
+  nextDate.setDate(1); // 기준 날짜의 첫 날로 설정
+
+  // 월 또는 연도를 증가시킴
+  if (unit === 'month') {
+    nextDate.setMonth(currentDate.getMonth() + interval);
+  } else if (unit === 'year') {
+    nextDate.setFullYear(currentDate.getFullYear() + interval);
+  }
+
+  // 증가한 날짜의 마지막 날을 반환
+  return getLastDayOfMonth(nextDate);
+};
