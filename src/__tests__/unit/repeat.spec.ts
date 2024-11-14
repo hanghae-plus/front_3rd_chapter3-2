@@ -45,7 +45,7 @@ describe('반복 일정 유틸리티 함수 테스트', () => {
         repeat: { ...baseEvent.repeat, type: 'monthly', interval: 1 },
       } as Event;
       const result = getNextDate(monthlyEvent, new Date('2024-11-30'));
-      expect(result).toEqual(new Date('2024-12-30'));
+      expect(result).toEqual(new Date('2024-12-31'));
     });
 
     it('윤년의 2월 29일 반복 일정을 처리한다', () => {
@@ -56,6 +56,60 @@ describe('반복 일정 유틸리티 함수 테스트', () => {
       } as Event;
       const result = getNextDate(yearlyEvent, new Date('2024-02-29'));
       expect(result).toEqual(new Date('2028-02-29'));
+    });
+
+    describe('월간 반복 엣지 케이스', () => {
+      it('31일에서 시작하는 월간 반복은 다음달이 30일인 경우 30일에 생성된다', () => {
+        const monthlyEvent = {
+          ...baseEvent,
+          date: '2024-03-31',
+          repeat: { ...baseEvent.repeat, type: 'monthly', interval: 1 },
+        } as Event;
+        const result = getNextDate(monthlyEvent, new Date('2024-03-31'));
+        expect(result).toEqual(new Date('2024-04-30'));
+      });
+
+      it('31일에서 시작하는 월간 반복은 2월인 경우 29일(윤년)에 생성된다', () => {
+        const monthlyEvent = {
+          ...baseEvent,
+          date: '2024-01-31',
+          repeat: { ...baseEvent.repeat, type: 'monthly', interval: 1 },
+        } as Event;
+        const result = getNextDate(monthlyEvent, new Date('2024-01-31'));
+        expect(result).toEqual(new Date('2024-02-29'));
+      });
+
+      it('31일에서 시작하는 월간 반복은 2월인 경우 28일(평년)에 생성된다', () => {
+        const monthlyEvent = {
+          ...baseEvent,
+          date: '2025-01-31',
+          repeat: { ...baseEvent.repeat, type: 'monthly', interval: 1 },
+        } as Event;
+        const result = getNextDate(monthlyEvent, new Date('2025-01-31'));
+        expect(result).toEqual(new Date('2025-02-28'));
+      });
+    });
+
+    describe('연간 반복 엣지 케이스', () => {
+      it('2월 29일에서 시작하는 연간 반복은 다음 윤년까지 건너뛴다', () => {
+        const yearlyEvent = {
+          ...baseEvent,
+          date: '2024-02-29',
+          repeat: { ...baseEvent.repeat, type: 'yearly', interval: 1 },
+        } as Event;
+        const result = getNextDate(yearlyEvent, new Date('2024-02-29'));
+        expect(result).toEqual(new Date('2028-02-29'));
+      });
+
+      it('2월 29일에서 시작하는 2년 간격 연간 반복은 다다음 윤년에 생성된다', () => {
+        const yearlyEvent = {
+          ...baseEvent,
+          date: '2024-02-29',
+          repeat: { ...baseEvent.repeat, type: 'yearly', interval: 2 },
+        } as Event;
+        const result = getNextDate(yearlyEvent, new Date('2024-02-29'));
+        expect(result).toEqual(new Date('2032-02-29'));
+      });
     });
   });
 
@@ -97,6 +151,23 @@ describe('반복 일정 유틸리티 함수 테스트', () => {
       const events = getRepeatEvents(nonRepeatEvent);
       expect(events).toHaveLength(1);
       expect(events[0].date).toBe('2024-11-15');
+    });
+
+    it('월간 반복에서 월말 일정이 정확히 생성된다', () => {
+      const monthlyEvent = {
+        ...baseEvent,
+        date: '2024-01-31',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2024-03-31',
+        },
+      } as Event;
+      const events = getRepeatEvents(monthlyEvent);
+      expect(events).toHaveLength(3);
+      expect(events[0].date).toBe('2024-01-31');
+      expect(events[1].date).toBe('2024-02-29');
+      expect(events[2].date).toBe('2024-03-31');
     });
   });
 });
