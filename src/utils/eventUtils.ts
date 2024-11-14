@@ -1,5 +1,11 @@
-import { Event } from '../types';
 import { getWeekDates, isDateInRange } from './dateUtils';
+import { Event } from '../types';
+
+interface EventDisplay {
+  icon: string | null;
+  badge: string | null;
+  className: string;
+}
 
 function filterEventsByDateRange(events: Event[], start: Date, end: Date): Event[] {
   return events.filter((event) => {
@@ -47,12 +53,6 @@ export function getFilteredEvents(
   }
 
   return searchedEvents;
-}
-
-interface EventDisplay {
-  icon: string | null;
-  badge: string | null;
-  className: string;
 }
 
 export function getRecurringEventDisplay(event: Event): EventDisplay {
@@ -157,8 +157,6 @@ export function isRecurringEventEnded(event: Event, currentDate: Date = new Date
       return true;
   }
 }
-
-import { Event } from '../types';
 
 export function convertToSingleEvent(originalEvent: Event, updatedEvent: Event): Event | null {
   // 원본 이벤트가 없는 경우
