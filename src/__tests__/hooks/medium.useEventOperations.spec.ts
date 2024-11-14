@@ -5,6 +5,8 @@ import {
   setupMockHandlerCreation,
   setupMockHandlerDeletion,
   setupMockHandlerUpdating,
+  setupMockHandlerCreationWithNewRepeatedEvents,
+  setupMockHandlerUpdatingWithNewRepeatedEvents,
 } from '../../__mocks__/handlersUtils.ts';
 import { useEventOperations } from '../../hooks/useEventOperations.ts';
 import { server } from '../../setupTests.ts';
@@ -183,4 +185,154 @@ it("네트워크 오류 시 '일정 삭제 실패'라는 텍스트가 노출되�
   });
 
   expect(result.current.events).toHaveLength(1);
+});
+
+it('🟢 반복 일정 정보가 담긴 이벤트를 저장하면 반복 일정 이벤트 목록까지 같이 추가되어 저장된다.', async () => {
+  setupMockHandlerCreationWithNewRepeatedEvents();
+
+  const { result } = renderHook(() => useEventOperations(false));
+
+  await act(() => Promise.resolve(null));
+
+  const newEvent: Event = {
+    id: '1',
+    title: '새 회의',
+    date: '2024-10-16',
+    startTime: '11:00',
+    endTime: '12:00',
+    description: '새로운 팀 미팅',
+    location: '회의실 A',
+    category: '업무',
+    repeat: { type: 'daily', interval: 1, endDate: '2024-10-18' },
+    notificationTime: 5,
+  };
+
+  const repeatedEvent: Event[] = [
+    {
+      ...newEvent,
+      id: '2',
+      date: '2024-10-17',
+      repeat: {
+        ...newEvent.repeat,
+        id: newEvent.id,
+      },
+    },
+    {
+      ...newEvent,
+      id: '3',
+      date: '2024-10-18',
+      repeat: {
+        ...newEvent.repeat,
+        id: newEvent.id,
+      },
+    },
+  ];
+
+  await act(async () => {
+    await result.current.addEventWithNewRepeatedInfo(newEvent, repeatedEvent);
+  });
+
+  expect(result.current.events).toHaveLength(3);
+  expect(result.current.events).toEqual([
+    { ...newEvent, id: '1' },
+    {
+      ...newEvent,
+      id: '2',
+      date: '2024-10-17',
+      repeat: {
+        ...newEvent.repeat,
+        id: newEvent.id,
+      },
+    },
+    {
+      ...newEvent,
+      id: '3',
+      date: '2024-10-18',
+      repeat: {
+        ...newEvent.repeat,
+        id: newEvent.id,
+      },
+    },
+  ]);
+});
+
+it('🟢 반복 일정이 없던 이벤트에 반복일정을 추가하고 저장하면 반복 일정 이벤트 목록까지 같이 추가되어 저장된다.', async () => {
+  setupMockHandlerUpdatingWithNewRepeatedEvents();
+
+  const { result } = renderHook(() => useEventOperations(false));
+
+  await act(() => Promise.resolve(null));
+
+  const updatedEvent: Event = {
+    id: '2',
+    date: '2024-10-15',
+    startTime: '11:00',
+    description: '기존 팀 미팅 2',
+    location: '회의실 C',
+    category: '업무 회의',
+    repeat: { type: 'monthly', interval: 1, endDate: '2024-12-31' },
+    notificationTime: 5,
+    title: '수정된 회의',
+    endTime: '12:00',
+  };
+
+  const repeatedEvent: Event[] = [
+    {
+      ...updatedEvent,
+      id: '3',
+      date: '2024-11-15',
+      repeat: {
+        ...updatedEvent.repeat,
+        id: updatedEvent.id,
+      },
+    },
+    {
+      ...updatedEvent,
+      id: '4',
+      date: '2024-12-15',
+      repeat: {
+        ...updatedEvent.repeat,
+        id: updatedEvent.id,
+      },
+    },
+  ];
+
+  await act(async () => {
+    await result.current.updateEventWithNewRepeatedInfo(updatedEvent, repeatedEvent);
+  });
+
+  expect(result.current.events).toHaveLength(4);
+  expect(result.current.events).toEqual([
+    {
+      id: '1',
+      title: '기존 회의',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+    { ...updatedEvent, id: '2' },
+    {
+      ...updatedEvent,
+      id: '3',
+      date: '2024-11-15',
+      repeat: {
+        ...updatedEvent.repeat,
+        id: updatedEvent.id,
+      },
+    },
+    {
+      ...updatedEvent,
+      id: '4',
+      date: '2024-12-15',
+      repeat: {
+        ...updatedEvent.repeat,
+        id: updatedEvent.id,
+      },
+    },
+  ]);
 });
