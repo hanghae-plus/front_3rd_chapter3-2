@@ -1,6 +1,8 @@
 export const TEST_ID = {
   SUBMIT_BUTTON: 'event-submit-button',
   SPLIT_RECURRING_EVENT_BUTTON: 'split-recurring-event-button',
+  REMOVE_RECURRING_EVENT_BUTTON: 'remove-recurring-event-button',
+  REMOVE_EVENT_BUTTON: 'remove-event-button',
   RESET_EVENT_FORM_BUTTON: 'reset-event-form-button',
 
   EDIT_AREA: 'edit-schedule',
@@ -15,6 +17,7 @@ export const TEST_ID = {
 
   ALERT: 'notification-alert',
 
+  FORCE_SAVE: 'force-save',
   FORM: {
     TITLE: 'schedule-title',
     DATE: 'schedule-date',

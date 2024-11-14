@@ -1,8 +1,5 @@
 import { useToast, UseToastOptions } from '@chakra-ui/react';
-import { useCreateEvent } from '@hooks/events/useCreateEvent';
-import { useDeleteEvent } from '@hooks/events/useDeleteEvent';
 import { useFetchEvents } from '@hooks/events/useFetchEvents';
-import { useUpdateEvent } from '@hooks/events/useUpdateEvent';
 import useScheduleForm from '@stores/useScheduleForm';
 import { findOverlappingEvents } from '@utils/eventOverlap';
 import { useMemo } from 'react';
@@ -10,12 +7,11 @@ import { useMemo } from 'react';
 import { useDialogContext } from '@/context/useDialog';
 import { eventFormValidation } from '@/services/eventValidation';
 import { Event } from '@/types';
+import { useEventOperations } from './useEventOperations';
 
 export const useSaveEvent = () => {
   const toast = useToast();
-  const { createEvent } = useCreateEvent();
-  const { updateEvent } = useUpdateEvent();
-  const { deleteEvent } = useDeleteEvent();
+  const { create, update, deleted } = useEventOperations();
 
   const { events } = useFetchEvents();
 
@@ -93,7 +89,7 @@ export const useSaveEvent = () => {
   // 일정 분할 저장
   const splitRecurringEvent = async () => {
     // 새 일정 생성
-    await createEvent(memoForm);
+    await create.createEvent(memoForm);
     // 기존 일정에서 해당 날짜 제외
     await updateEventExceptionList();
     resetForm();
@@ -109,9 +105,10 @@ export const useSaveEvent = () => {
   // 반복 일정 분할 삭제
   const updateEventExceptionList = async () => {
     const updatedEvent = events.find((event: Event) => event.id === id);
+    if (!updatedEvent) return;
     const updatedExceptionList: string[] = [...updatedEvent.exceptionList, memoForm.date];
 
-    await updateEvent({ id, ...updatedEvent, exceptionList: updatedExceptionList });
+    await update.updateEvent({ id, ...updatedEvent, exceptionList: updatedExceptionList });
   };
 
   // 인풋 validate
@@ -133,19 +130,19 @@ export const useSaveEvent = () => {
 
   // 일정 생성
   const createSchedule = async () => {
-    await createEvent(memoForm);
+    await create.createEvent(memoForm);
     resetForm();
   };
 
   // 일정 삭제
   const deleteEventSchedule = async () => {
-    await deleteEvent(id);
+    await deleted.deleteEvent(id);
     resetForm();
   };
 
   // 일정 편집
   const updateSchedule = async () => {
-    await updateEvent({ id, ...memoForm });
+    await update.updateEvent({ id, ...memoForm });
     resetForm();
   };
 
@@ -159,6 +156,7 @@ export const useSaveEvent = () => {
     isRecurring,
     createSchedule,
     updateSchedule,
+    deleteEventSchedule,
     resetForm,
     isRepeat,
   };

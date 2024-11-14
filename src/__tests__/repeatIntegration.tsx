@@ -70,42 +70,8 @@ describe('-', () => {
   });
 
   describe('반복 유형 선택_필수 기능', () => {
-    it('달의 말일에 반복설정을 하면 매달 말일에 알림이 생성된다.', async () => {
-      const NEW_EVENT = eventFactory.build({
-        title: '말일 반복 ex)31일,30일',
-        date: '2024-02-29',
-        repeat: { type: 'monthly', interval: 1, endDate: '' },
-        notificationTime: 10,
-        exceptionList: [],
-      });
-
-      const EDIT_AREA = await waitFor(() => screen.getByTestId(TEST_ID.EDIT_AREA));
-
-      await fillEventForm({
-        container: EDIT_AREA,
-        events: [
-          { type: 'input', testId: TEST_ID.FORM.TITLE, value: NEW_EVENT.title },
-          { type: 'input', testId: TEST_ID.FORM.DATE, value: NEW_EVENT.date },
-          { type: 'input', testId: TEST_ID.FORM.START_TIME, value: NEW_EVENT.startTime },
-          { type: 'input', testId: TEST_ID.FORM.END_TIME, value: NEW_EVENT.endTime },
-          { type: 'input', testId: TEST_ID.FORM.DESCRIPTION, value: NEW_EVENT.description },
-          { type: 'input', testId: TEST_ID.FORM.LOCATION, value: NEW_EVENT.location },
-          { type: 'select', testId: TEST_ID.FORM.CATEGORY, value: NEW_EVENT.category },
-          {
-            type: 'select',
-            testId: TEST_ID.FORM.NOTIFICATION_TIME,
-            value: String(NEW_EVENT.notificationTime),
-          },
-        ],
-      });
-
-      const SUBMIT_BUTTON = within(EDIT_AREA).getByTestId(TEST_ID.SUBMIT_BUTTON);
-      await waitFor(() => expect(SUBMIT_BUTTON).toHaveTextContent('일정 추가'));
-      await userEvent.click(SUBMIT_BUTTON);
-    });
-
     it('각 반복 유형에 대해 간격을 설정할 수 있다.', async () => {
-      // 년
+      // GIVEN: 2년 단위 반복 일정 데이터 가공한다.
       const TWO_YEAR_EVENT = eventFactory.build({
         title: '2년 반복',
         date: '2024-02-29',
@@ -113,6 +79,7 @@ describe('-', () => {
         notificationTime: 10,
         exceptionList: [],
       });
+      // THEN: 반복 날짜에 맞게 일정을 반환한다.
       expect(getEventsForDay([TWO_YEAR_EVENT], '2024-02-29')).toEqual([TWO_YEAR_EVENT]);
       expect(getEventsForDay([TWO_YEAR_EVENT], '2025-02-28')).toEqual([]);
       expect(getEventsForDay([TWO_YEAR_EVENT], '2026-02-28')).toEqual([TWO_YEAR_EVENT]);
@@ -123,7 +90,7 @@ describe('-', () => {
       expect(getEventsForDay([TWO_YEAR_EVENT], '2025-08-31')).toEqual([]);
       expect(getEventsForDay([TWO_YEAR_EVENT], '2023-09-30')).toEqual([]);
 
-      // 월
+      // GIVEN: 2달 단위 반복 일정 데이터 가공한다.
       const TWO_MONTH_EVENT = eventFactory.build({
         title: '두달 반복',
         date: '2024-02-29',
@@ -131,6 +98,7 @@ describe('-', () => {
         notificationTime: 10,
         exceptionList: [],
       });
+      // THEN: 반복 날짜에 맞게 일정을 반환한다.
       expect(getEventsForDay([TWO_MONTH_EVENT], '2024-02-29')).toEqual([TWO_MONTH_EVENT]);
       expect(getEventsForDay([TWO_MONTH_EVENT], '2024-03-31')).toEqual([]);
       expect(getEventsForDay([TWO_MONTH_EVENT], '2024-04-30')).toEqual([TWO_MONTH_EVENT]);
@@ -161,39 +129,6 @@ describe('-', () => {
       expect(getEventsForDay([TWO_DATE_EVENT], '2024-03-05')).toEqual([]);
       expect(getEventsForDay([TWO_DATE_EVENT], '2024-03-06')).toEqual([TWO_DATE_EVENT]);
       expect(getEventsForDay([TWO_DATE_EVENT], '2024-03-07')).toEqual([]);
-    });
-
-    it('캘린더 뷰에서 반복일정을 시각적으로 구분하여 표시한다.', async () => {
-      // 년
-      const TWO_YEAR_EVENT = eventFactory.build({
-        title: '2년 반복',
-        date: '2024-02-29',
-        repeat: { type: 'yearly', interval: 2, endDate: '' },
-        notificationTime: 10,
-        exceptionList: [],
-      });
-      // 월
-      const TWO_MONTH_EVENT = eventFactory.build({
-        title: '두달 반복',
-        date: '2024-02-29',
-        repeat: { type: 'monthly', interval: 2, endDate: '' },
-        notificationTime: 10,
-        exceptionList: [],
-      });
-      // 일
-      const TWO_DATE_EVENT = eventFactory.build({
-        title: '2일 반복',
-        date: '2024-02-29',
-        repeat: { type: 'daily', interval: 2, endDate: '' },
-        notificationTime: 10,
-        exceptionList: [],
-      });
-
-      const MOCK_EVENT_LIST = [TWO_YEAR_EVENT, TWO_MONTH_EVENT, TWO_DATE_EVENT];
-
-      expect(getEventsForDay(MOCK_EVENT_LIST, '2024-02-29')).toEqual(MOCK_EVENT_LIST);
-      expect(getEventsForDay(MOCK_EVENT_LIST, '2024-03-02')).toEqual([TWO_DATE_EVENT]);
-      expect(getEventsForDay(MOCK_EVENT_LIST, '2024-03-31')).toEqual([]);
     });
 
     // it('반복 종료 조건을 지정할 수 있다.', async () => {

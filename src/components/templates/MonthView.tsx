@@ -1,4 +1,4 @@
-import { BellIcon, RepeatClockIcon } from '@chakra-ui/icons';
+import { BellIcon, NotAllowedIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import {
   Box,
   Heading,
@@ -104,7 +104,14 @@ export const MonthView: React.FC<PropsType> = ({ currentDate, holidays }) => {
                               >
                                 {isRepeat && (
                                   <Text color="red.400">
-                                    <RepeatClockIcon />
+                                    {event.repeat.endDate === formatDate(currentDate, day) ? (
+                                      <>
+                                        <NotAllowedIcon />
+                                        반복 종료
+                                      </>
+                                    ) : (
+                                      <RepeatClockIcon />
+                                    )}
                                     {event.repeat.type}
                                   </Text>
                                 )}

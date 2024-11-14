@@ -1,4 +1,4 @@
-import { BellIcon, RepeatClockIcon } from '@chakra-ui/icons';
+import { BellIcon, NotAllowedIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import {
   Box,
   Heading,
@@ -84,6 +84,7 @@ export const WeekView: React.FC<PropsType> = ({ currentDate, holidays }) => {
 
                   {getEventsForDay(filteredEvents, formatDate(currentDate, date.getDate())).map(
                     (event) => {
+                      const fomattedDate = formatDate(currentDate, date.getDate());
                       const isNotified = notifiedEvents.has(event.id);
                       const isRepeat = event.repeat.type !== 'none';
                       return (
@@ -96,13 +97,18 @@ export const WeekView: React.FC<PropsType> = ({ currentDate, holidays }) => {
                           fontWeight={isNotified || isRepeat ? 'bold' : 'normal'}
                           color={isNotified ? 'red.500' : 'inherit'}
                           cursor="pointer"
-                          onClick={() =>
-                            setEditingForm(event, formatDate(currentDate, date.getDate()))
-                          }
+                          onClick={() => setEditingForm(event, fomattedDate)}
                         >
                           {isRepeat && (
                             <Text color="red.400">
-                              <RepeatClockIcon />
+                              {event.repeat.endDate === fomattedDate ? (
+                                <>
+                                  <NotAllowedIcon />
+                                  반복 종료
+                                </>
+                              ) : (
+                                <RepeatClockIcon />
+                              )}
                               {event.repeat.type}
                             </Text>
                           )}

@@ -9,6 +9,7 @@ type PropsType = {};
 
 export const CalendarController: React.FC<PropsType> = () => {
   const { navigate, view, setView } = useCalendarView();
+
   return (
     <HStack mx="auto" justifyContent="space-between">
       <IconButton
@@ -32,6 +33,7 @@ export const CalendarController: React.FC<PropsType> = () => {
         icon={<ChevronRightIcon />}
         onClick={() => navigate('next')}
       />
+      {view}
     </HStack>
   );
 };

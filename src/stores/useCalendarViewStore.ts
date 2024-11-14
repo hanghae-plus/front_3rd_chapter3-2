@@ -44,5 +44,4 @@ const useCalendarViewStore = create<CalendarView>((set) => ({
       holidays: {},
     })),
 }));
-
 export default useCalendarViewStore;

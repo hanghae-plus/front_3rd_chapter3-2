@@ -10,13 +10,14 @@ export const EditingEventButton = () => {
     splitRecurringEventWithValidation,
     splitEventRemove,
     resetForm,
+    deleteEventSchedule,
     isRepeat,
   } = useSaveEvent();
 
   return (
     <Flex direction="column" gap={1} flex={1} m={1}>
       <Button data-testid={TEST_ID.SUBMIT_BUTTON} onClick={saveWithValidation} colorScheme="blue">
-        {isEditing ? '일정 수정' : '일정 추가'}
+        {isEditing ? '모든 일정 수정' : '일정 추가'}
       </Button>
 
       {isEditing && isRepeat && (
@@ -30,11 +31,19 @@ export const EditingEventButton = () => {
           </Button>
 
           <Button
-            data-testid={TEST_ID.SPLIT_RECURRING_EVENT_BUTTON}
+            data-testid={TEST_ID.REMOVE_RECURRING_EVENT_BUTTON}
             onClick={splitEventRemove}
             colorScheme="green"
           >
             해당 일정만 삭제
+          </Button>
+
+          <Button
+            data-testid={TEST_ID.REMOVE_EVENT_BUTTON}
+            onClick={deleteEventSchedule}
+            colorScheme="red"
+          >
+            전체 일정 삭제
           </Button>
         </>
       )}

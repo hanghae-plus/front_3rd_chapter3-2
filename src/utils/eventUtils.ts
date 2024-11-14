@@ -7,8 +7,6 @@ function filterEventsByDateRange(events: Event[], start: Date, end: Date): Event
 
     if (eventDate > end) return false;
 
-    if (repeat.endDate && !isDateInRange(new Date(repeat.endDate), start, end)) return false;
-
     if (repeat.type === 'none') return isDateInRange(eventDate, start, end);
 
     switch (repeat.type) {

@@ -12,6 +12,7 @@ import React, { useRef } from 'react';
 
 import { useDialogContext } from '@/context/useDialog';
 import { useSaveEvent } from '@/hooks/useSaveEvent';
+import { TEST_ID } from '@/constants/testID';
 
 export const AlertDuplicateSchedule: React.FC = () => {
   const { dialogName, setDialogName, overlapEvents, setOverlapEvents } = useDialogContext();
@@ -50,6 +51,7 @@ export const AlertDuplicateSchedule: React.FC = () => {
               취소
             </Button>
             <Button
+              data-testid={TEST_ID.FORCE_SAVE}
               colorScheme="red"
               onClick={() => {
                 setDialogName('');
