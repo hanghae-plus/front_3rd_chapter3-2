@@ -7,6 +7,7 @@ import { ReactElement } from 'react';
 import {
   setupMockHandlerCreation,
   setupMockHandlerDeletion,
+  setupMockHandlerDeletionRepeat,
   setupMockHandlerUpdating,
   setupMockHandlerUpdatingRepeat,
 } from '../__mocks__/handlersUtils';
@@ -537,4 +538,21 @@ describe('반복 일정 단일 수정', () => {
   });
 });
 
-describe('반복 일정 단일 삭제', () => {});
+describe('반복 일정 단일 삭제', () => {
+  // 반복일정을 삭제하면 해당 일정만 삭제합니다.
+  it('반복 일정을 삭제하면 해당 일정만 삭제된다', async () => {
+    setupMockHandlerDeletionRepeat();
+
+    const { user } = setup(<App />);
+
+    const allDeleteButton = await screen.findAllByLabelText('Delete event');
+    await user.click(allDeleteButton[0]);
+
+    const monthView = within(screen.getByTestId('month-view'));
+    const date15Td = monthView.getByText('15').closest('td')!;
+    const date16Td = monthView.getByText('16').closest('td')!;
+
+    expect(within(date15Td).queryByText('반복 회의')).not.toBeInTheDocument();
+    expect(within(date16Td).getByText('반복 회의')).toBeInTheDocument();
+  });
+});

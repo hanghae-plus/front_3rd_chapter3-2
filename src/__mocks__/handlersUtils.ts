@@ -141,3 +141,45 @@ export const setupMockHandlerDeletion = () => {
     })
   );
 };
+
+export const setupMockHandlerDeletionRepeat = () => {
+  const mockEvents: Event[] = [
+    {
+      id: '1',
+      title: '반복 회의',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '반복 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-16' },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '반복 회의',
+      date: '2024-10-16',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '반복 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-16' },
+      notificationTime: 10,
+    },
+  ];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+    http.delete('/api/events/:id', ({ params }) => {
+      const { id } = params;
+      const index = mockEvents.findIndex((event) => event.id === id);
+
+      mockEvents.splice(index, 1);
+      return new HttpResponse(null, { status: 204 });
+    })
+  );
+};
