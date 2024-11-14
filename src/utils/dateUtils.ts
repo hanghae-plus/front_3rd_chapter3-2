@@ -250,12 +250,31 @@ export function getRemainingDatesByWeek(
     return dates;
   }
 
-  // 요일를 설정하지 않은 경우 빈 배열을 반환합니다.
-  if (weekType === 'none') {
-    return dates;
+  const targetWeekType = weekType === 'none' ? getWeekday(currentDate) : weekType;
+
+  let current = new Date(currentDate);
+  const currentDayIndex = current.getDay();
+  const targetDayIndex = dayMap[targetWeekType];
+
+  // 지정된 요일까지의 날짜 차이 계산
+  let daysToAdd = targetDayIndex - currentDayIndex;
+  if (daysToAdd <= 0) {
+    daysToAdd += NUM_OF_WEEK; // 다음 주로 이동
   }
 
-  return getRemainingDatesByDay(currentDate, endDate, NUM_OF_WEEK);
+  // 첫 번째 해당 요일로 이동
+  current.setDate(current.getDate() + daysToAdd);
+
+  // interval 주 간격으로 날짜 추가
+  while (current <= endDate) {
+    // 현재 날짜가 시작일 이후인 경우만 추가
+    if (current.getTime() > currentDate.getTime()) {
+      dates.push(new Date(current));
+    }
+    // interval 주 후로 이동
+    current.setDate(current.getDate() + NUM_OF_WEEK * interval);
+  }
+  return dates;
 }
 
 /**
@@ -319,11 +338,6 @@ export function getRemainingDatesByMonth(
     return dates;
   }
 
-  // 요일를 설정하지 않은 경우 빈 배열을 반환합니다.
-  if (weekType === 'none') {
-    return dates;
-  }
-
   // day가 0이나 음수인 경우 빈 배열을 반환합니다.
   if (day !== undefined && day <= 0) {
     return dates;
@@ -337,7 +351,7 @@ export function getRemainingDatesByMonth(
   while (current <= endDate) {
     let dateToAdd: Date | null = null;
 
-    if (weekOrder !== undefined) {
+    if (weekType !== 'none' && weekOrder !== undefined) {
       // N번째 요일 처리
       dateToAdd = getNthWeekday(current, weekOrder, weekType);
     } else if (day !== undefined) {
@@ -408,21 +422,17 @@ export function getRemainingDatesByYear(
     return dates;
   }
 
-  if (monthType === 'none') {
-    return dates;
-  }
-
-  if (weekType === 'none') {
-    return dates;
-  }
-
   // day가 0이나 음수인 경우 빈 배열을 반환합니다.
   if (day !== undefined && day <= 0) {
     return dates;
   }
 
-  const targetMonth = monthMap[monthType];
-  if (targetMonth === -1) return dates;
+  // weekOrder 가 0이나 음수인 경우 빈 배열을 반환합니다.
+  if (weekOrder != undefined && weekOrder <= 0) {
+    return dates;
+  }
+
+  const targetMonth = monthType === 'none' ? monthMap[getMonth(currentDate)] : monthMap[monthType];
 
   // 시작일의 연도를 기준으로 처리
   let current = new Date(currentDate);
@@ -431,7 +441,7 @@ export function getRemainingDatesByYear(
   while (new Date(year, targetMonth, 1) <= endDate) {
     let dateToAdd: Date | null = null;
 
-    if (weekOrder !== undefined) {
+    if (weekType !== 'none' && weekOrder !== undefined) {
       // N번째 요일 처리
       const firstDayOfMonth = new Date(year, targetMonth, 1);
       dateToAdd = getNthWeekday(firstDayOfMonth, weekOrder, weekType);
