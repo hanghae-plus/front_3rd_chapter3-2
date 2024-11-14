@@ -1,11 +1,27 @@
-import { RepeatInfo } from '../types';
+import { RepeatInfo, RepeatType } from '../types';
+
+const WEEKLY = 7;
 
 const formatDateToString = (date: Date) => date.toISOString().split('T')[0];
 const formatStringToDate = (dateString: string) => new Date(dateString);
 
-const addWeeks = (date: Date, weeks: number) => {
+const addRepeatDate = (date: Date, repeatType: RepeatType, interval: number) => {
   const newDate = new Date(date);
-  newDate.setDate(date.getDate() + weeks * 7);
+
+  switch (repeatType) {
+    case 'daily':
+      newDate.setDate(date.getDate() + interval);
+      break;
+    case 'weekly':
+      newDate.setDate(date.getDate() + interval * WEEKLY);
+      break;
+    case 'monthly':
+      newDate.setMonth(date.getMonth() + interval);
+      break;
+    case 'yearly':
+      newDate.setFullYear(date.getFullYear() + interval);
+      break;
+  }
   return newDate;
 };
 
@@ -25,18 +41,7 @@ export const generateRepeatEventDates = (baseDate: string, repeat: RepeatInfo) =
 
   while (currentDate <= endDate) {
     stringDateList.push(formatDateToString(currentDate));
-
-    switch (repeat.type) {
-      case 'daily':
-        break;
-      case 'weekly':
-        currentDate = addWeeks(currentDate, repeat.interval);
-        break;
-      case 'monthly':
-        break;
-      case 'yearly':
-        break;
-    }
+    currentDate = addRepeatDate(currentDate, repeat.type, repeat.interval);
   }
 
   return stringDateList;
