@@ -28,7 +28,8 @@ function App() {
     setEventForm: eventFormState.setEventForm,
     setIsRepeating: eventFormState.setIsRepeating,
   });
-  const { repeatEvent, updateRepeatEvent } = useRepeatEvent();
+  const { repeatEvent, repeatExceptDate, handleChangeExceptDate, updateRepeatEvent } =
+    useRepeatEvent();
   const { events, saveEvent, deleteEvent } = useEventOperations(
     Boolean(editingEvent),
     updateRepeatEvent,
@@ -52,6 +53,8 @@ function App() {
           saveEvent={saveEvent}
           editingEvent={editingEvent}
           eventFormState={eventFormState}
+          repeatExceptDate={repeatExceptDate}
+          handleChangeExceptDate={handleChangeExceptDate}
         />
 
         <VStack flex={1} spacing={5} align="stretch" aria-label="calendar-wrap">

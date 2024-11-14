@@ -9,7 +9,10 @@ const formatRepeatType = {
   yearly: 'year',
 };
 
-export const getRepeatingEvent = (event: Event | EventForm): Event[] | EventForm[] => {
+export const getRepeatingEvent = (
+  event: Event | EventForm,
+  exceptDate?: string
+): Event[] | EventForm[] => {
   if (event.repeat.type === 'none') {
     return [];
   }
@@ -23,11 +26,14 @@ export const getRepeatingEvent = (event: Event | EventForm): Event[] | EventForm
   const repeatEvents = [];
 
   while (isBeforeEndDate(currentDate, endDate)) {
-    repeatEvents.push({
-      ...event,
-      id: crypto.randomUUID(),
-      date: currentDate,
-    });
+    if (currentDate !== exceptDate) {
+      repeatEvents.push({
+        ...event,
+        id: crypto.randomUUID(),
+        date: currentDate,
+      });
+    }
+
     repeatInterval += event.repeat.interval;
     currentDate = addDate(event.date, repeatInterval, repeatType);
   }

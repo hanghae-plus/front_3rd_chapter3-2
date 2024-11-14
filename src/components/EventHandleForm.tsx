@@ -35,9 +35,11 @@ interface EventFormStateProps {
 
 interface EventHandleFormProps {
   events: Event[];
-  saveEvent: (eventData: Event | EventForm) => Promise<void>;
+  saveEvent: (eventData: Event | EventForm, exceptDate?: string) => Promise<void>;
   editingEvent: Event | null;
   eventFormState: EventFormStateProps;
+  repeatExceptDate: string;
+  handleChangeExceptDate: (date: string) => void;
 }
 
 const categories = ['업무', '개인', '가족', '기타'];
@@ -55,6 +57,8 @@ export const EventHandleForm = ({
   saveEvent,
   editingEvent,
   eventFormState,
+  repeatExceptDate,
+  handleChangeExceptDate,
 }: EventHandleFormProps) => {
   const toast = useToast();
   const {
@@ -113,15 +117,17 @@ export const EventHandleForm = ({
         );
       });
     } else {
-      await saveEvent(eventData);
+      await saveEvent(eventData, repeatExceptDate);
       resetForm();
     }
   };
   return (
-    <VStack w="400px" spacing={5} align="stretch">
-      <Heading>{editingEvent ? '일정 수정' : '일정 추가'}</Heading>
+    <VStack w="400px" spacing={5} align="stretch" overflowY="auto">
+      <Heading position="fixed" zIndex={10} bg="white" w="full">
+        {editingEvent ? '일정 수정' : '일정 추가'}
+      </Heading>
 
-      <FormControl>
+      <FormControl mt={20}>
         <FormLabel>제목</FormLabel>
         <Input
           value={eventForm.title}
@@ -253,10 +259,23 @@ export const EventHandleForm = ({
               />
             </FormControl>
           </HStack>
+          <FormControl>
+            <FormLabel>반복 제외 날짜</FormLabel>
+            <Input
+              type="date"
+              value={repeatExceptDate}
+              onChange={(e) => handleChangeExceptDate(e.target.value)}
+            />
+          </FormControl>
         </VStack>
       )}
 
-      <Button data-testid="event-submit-button" onClick={addOrUpdateEvent} colorScheme="blue">
+      <Button
+        data-testid="event-submit-button"
+        onClick={addOrUpdateEvent}
+        colorScheme="blue"
+        h={10}
+      >
         {editingEvent ? '일정 수정' : '일정 추가'}
       </Button>
     </VStack>

@@ -4,6 +4,7 @@ import { Event } from '../types';
 
 export const useRepeatEvent = () => {
   const [repeatEvent, setRepeatEvent] = useState<Event[]>([]);
+  const [repeatExceptDate, setRepeatExceptDate] = useState<string>('');
 
   // 반복일정 상태저장
   const updateRepeatEvent = (events: Event[]) => {
@@ -17,10 +18,20 @@ export const useRepeatEvent = () => {
     deleteEvent(repeatId);
   };
 
+  const handleChangeExceptDate = (date: string) => {
+    setRepeatExceptDate(date);
+  };
+
   const expectTargetRepeat = (prev: Event[], repeatId: string) => {
     const repeatEvents = prev.filter((event) => event.id !== repeatId);
     return repeatEvents;
   };
 
-  return { repeatEvent, updateRepeatEvent, deleteRepeatInstance };
+  return {
+    repeatEvent,
+    repeatExceptDate,
+    handleChangeExceptDate,
+    updateRepeatEvent,
+    deleteRepeatInstance,
+  };
 };
