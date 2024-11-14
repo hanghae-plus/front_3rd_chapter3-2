@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { useRepeatEvent } from '../../hooks/useRepeatEvent';
+import useRepeatEvent from '../../hooks/useRepeatEvent';
 
 describe('useRepeatEvent', () => {
   describe('초기 상태', () => {
