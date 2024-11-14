@@ -117,3 +117,43 @@ export function getRecurringEventDisplay(event: Event): EventDisplay {
     className: className.trim(),
   };
 }
+export function isRecurringEventEnded(event: Event, currentDate: Date = new Date()): boolean {
+  // 반복 설정이 없는 경우
+  if (!event.repeat) {
+    return true;
+  }
+
+  const { endType } = event.repeat;
+
+  // 종료 타입에 따른 처리
+  switch (endType) {
+    case 'date': {
+      // 종료 날짜가 없거나 유효하지 않은 형식인 경우
+      if (!event.repeat.endDate || isNaN(new Date(event.repeat.endDate).getTime())) {
+        return true;
+      }
+
+      const endDate = new Date(event.repeat.endDate);
+      return currentDate > endDate;
+    }
+
+    case 'count': {
+      // 종료 횟수나 현재 횟수가 없는 경우
+      if (!event.repeat.endCount || !event.repeat.currentCount) {
+        return true;
+      }
+
+      return event.repeat.currentCount >= event.repeat.endCount;
+    }
+
+    case 'never': {
+      // 예제 특성상 2025-06-30까지만 허용
+      const maxDate = new Date('2025-06-30');
+      return currentDate > maxDate;
+    }
+
+    default:
+      // 잘못된 종료 타입인 경우
+      return true;
+  }
+}
