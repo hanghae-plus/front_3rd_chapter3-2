@@ -1,5 +1,8 @@
+import {
+  createNotificationMessage,
+  getUpcomingEvents,
+} from '../../entities/notification/lib/notificationUtils.ts';
 import { Event } from '../../types';
-import { createNotificationMessage, getUpcomingEvents } from '../../utils/notificationUtils';
 
 describe('getUpcomingEvents', () => {
   const events: Event[] = [

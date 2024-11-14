@@ -2,9 +2,9 @@ import { act, renderHook } from '@testing-library/react';
 import { describe, vi } from 'vitest';
 
 import { setupMockHandlerCreation, setupMockHandlerUpdating } from '../__mocks__/handlersUtils.ts';
+import { generateRecurringEvents } from '../features/calendar/lib/dateUtils.ts';
 import { useEventForm } from '../features/event/model/useEventForm.ts';
 import { Event, RepeatType } from '../types.ts';
-import { generateRecurringEvents } from '../utils/eventUtils.ts';
 
 describe('editDate', () => {
   it('반복 일정을 수정하면 단일 일정으로 변경된다', () => {

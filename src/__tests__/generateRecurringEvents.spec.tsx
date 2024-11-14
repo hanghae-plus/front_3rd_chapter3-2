@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 
+import { generateRecurringEvents } from '../features/calendar/lib/dateUtils.ts';
 import { RepeatType } from '../types.ts';
-import { generateRecurringEvents } from '../utils/eventUtils.ts';
 
 describe('generateRecurringEvents', () => {
   it('매일 반복: 간격 1, 시작 날짜와 종료 날짜 포함', () => {

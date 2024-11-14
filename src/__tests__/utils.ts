@@ -1,4 +1,4 @@
-import { fillZero } from '../utils/dateUtils';
+import { fillZero } from '../features/calendar/lib/dateUtils.ts';
 
 export const assertDate = (date1: Date, date2: Date) => {
   expect(date1.toISOString()).toBe(date2.toISOString());

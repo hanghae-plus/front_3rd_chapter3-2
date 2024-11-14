@@ -21,6 +21,7 @@ import { validateEventForm } from '../entities/event/lib/eventUtils.ts';
 import { getTimeErrorMessage } from '../entities/event/lib/timeValidation.ts';
 import { EventForm, Event, RepeatType } from '../entities/event/model/type.ts';
 import { notificationOptions } from '../entities/notification/config/constant.ts';
+import { generateRecurringEvents } from '../features/calendar/lib/dateUtils.ts';
 import { useCalendarView } from '../features/calendar/model/useCalendarView.ts';
 import CalendarView from '../features/calendar/ui/CalendarView.tsx';
 import { useEventForm } from '../features/event/model/useEventForm.ts';
@@ -28,7 +29,6 @@ import { useEventOperations } from '../features/event/model/useEventOperations.t
 import useOverlapDialog from '../features/event/model/useOverlapDialog.ts';
 import { useSearch } from '../features/event/model/useSearch.ts';
 import EventSearch from '../features/event/ui/EventSearch.tsx';
-import { generateRecurringEvents } from '../utils/eventUtils.ts';
 import NotificationDialog from '../widgets/notification/ui/NotificationDialog.tsx';
 import NotificationMessage from '../widgets/notification/ui/NotificationMessage.tsx';
 
