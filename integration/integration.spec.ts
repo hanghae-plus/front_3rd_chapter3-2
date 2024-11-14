@@ -101,6 +101,81 @@ test.describe.serial('통합 테스트', () => {
       await page.getByRole('cell', { name: '29 매일 생성되는 일정' }).click();
     });
 
+    test('3. 반복 유형을 매주로 선택하면, 매주 반복되는 일정이 생성되어야한다.', async ({ page }) => {
+      test.setTimeout(100000);
+      await page.goto('http://localhost:5173/');
+      await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+      await page.reload();
+    
+      {/* 반복 유형을 매주로 하는 일정 등록 */}
+      await page.getByLabel('제목').click();
+      await page.getByLabel('제목').fill('매주 반복되는 일정');
+      await page.getByLabel('날짜').fill('2024-11-15');
+      await page.getByLabel('시작 시간').click();
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowRight');
+      await page.getByLabel('시작 시간').fill('01:00');
+      await page.getByLabel('종료 시간').click();
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowRight');
+      await page.getByLabel('종료 시간').fill('13:00');
+      await page.getByLabel('설명').click();
+      await page.getByLabel('설명').fill('매주 반복되는 일정이라고!~??');
+      await page.getByLabel('위치').click();
+      await page.getByLabel('위치').fill('우리집');
+      await page.getByLabel('카테고리').selectOption('개인');
+      await page.locator('span').first().click();
+    
+      {/* 반복 유형을 매주로 선택 */}
+      await page.getByLabel('반복 유형').selectOption('weekly');
+      await page.getByTestId('event-submit-button').click();
+    
+      {/* 24년 11월 14일부터 계속 매주 반복되는 일정이 존재함 */}
+      await page.getByRole('cell', { name: '14 매주 반복되는 일정' }).click();
+      await page.getByRole('cell', { name: '21 매주 반복되는 일정' } ).click();
+      await page.getByRole('cell', { name: '28 매주 반복되는 일정' }).click();
+    });
+    
+    test('4. 반복 유형을 매월로 선택하면, 매월 반복되는 일정이 생성되어야한다.', async ({ page }) => {
+      await page.goto('http://localhost:5173/');
+      await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+      await page.reload();
+    
+      {/* 반복 유형을 매월로 하는 일정 등록 */}
+      await page.getByLabel('제목').click();
+      await page.getByLabel('제목').fill('매월 반복되는 일정');
+      await page.getByLabel('날짜').fill('2024-11-15');
+      await page.getByLabel('시작 시간').click();
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowRight');
+      await page.getByLabel('시작 시간').fill('01:00');
+      await page.getByLabel('종료 시간').click();
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowRight');
+      await page.getByLabel('종료 시간').fill('02:00');
+      await page.getByLabel('설명').click();
+      await page.getByLabel('설명').fill('매월 반복되는 일정이라니....');
+      await page.getByLabel('위치').click();
+      await page.getByLabel('위치').fill('우리집');
+      await page.getByLabel('카테고리').selectOption('개인');
+      await page.getByText('반복 일정').click();
+    
+      {/* 반복 유형을 매월로 선택 */}
+      await page.getByLabel('반복 유형').selectOption('monthly');
+      await page.getByTestId('event-submit-button').click();
+    
+      {/* 24년 11월 15일부터 계속 매월 반복되는 일정이 존재함 */}
+      await page.getByRole('heading', { name: '년 11월' }).click();
+      await page.getByTestId('event-list').locator('div').filter({ hasText: '매월 반복되는 일정2024-11-1401:00 -' }).nth(1).click();
+      await page.getByLabel('Next').click();
+      await page.getByRole('heading', { name: '년 12월' }).click();
+      await page.getByTestId('event-list').locator('div').filter({ hasText: '매월 반복되는 일정2024-12-1401:00 -' }).nth(1).click();
+      await page.getByLabel('Next').click();
+      await page.getByRole('heading', { name: '년 1월' }).click();
+      await page.getByTestId('event-list').locator('div').filter({ hasText: '매월 반복되는 일정2025-01-1401:00 -' }).nth(1).click();
+    });
+
   });
   test.afterAll(() => {
     if (serverProcess) {
