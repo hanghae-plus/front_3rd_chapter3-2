@@ -422,6 +422,55 @@ test.describe.serial('통합 테스트', () => {
       await page.getByText('검색 결과가 없습니다').click();
     });
   });
+  test.describe('반복 일정 관리', () => {
+    test('1. 반복 일정 중에 특정 하루의 일정만 반복을 해제하면 단일 일정으로 남아있어야한다.', async ({ page }) => {
+      await page.goto('http://localhost:5173/');
+      await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+      await page.reload();
+  
+      {/* 반복 일정 등록하기 */}
+      await page.getByLabel('제목').fill('매일 정원이랑 운동하기');
+      await page.getByLabel('날짜').fill('2024-11-15');
+      await page.getByLabel('시작 시간').click();
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowRight');
+      await page.getByLabel('시작 시간').fill('18:00');
+      await page.getByLabel('종료 시간').click();
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowRight');
+      await page.getByLabel('종료 시간').fill('20:00');
+      await page.getByLabel('설명').click();
+      await page.getByLabel('설명').fill('매일 광나루한강공원에서 운동하기');
+      await page.getByLabel('위치').click();
+      await page.getByLabel('위치').fill('광나루한강공원');
+      await page.getByLabel('카테고리').selectOption('개인');
+      await page.locator('span').first().click();
+      await page.getByTestId('event-submit-button').click();
+      
+      {/* 반복 일정 (매일 운동하기)이 제대로 등록되었는지 확인하기 14, 15, 16일 모두 확인됨 */}
+      await page.getByTestId('event-list').locator('div').filter({ hasText: '매일 정원이랑 운동하기2024-11-1418:00' }).first().click();
+      await page.getByTestId('event-list').locator('div').filter({ hasText: '매일 정원이랑 운동하기2024-11-1518:00' }).first().click();
+      await page.getByTestId('event-list').locator('div').filter({ hasText: '매일 정원이랑 운동하기2024-11-1618:00' }).first().click();
+  
+      {/* 15일날에는 운동을 안하고 데이트 하기로 일정을 수정하기 */}
+      await page.locator('div:nth-child(3) > div > div:nth-child(2) > button').first().click();
+      await page.getByLabel('제목').click();
+      await page.getByLabel('제목').fill('정원이랑 데이트하기');
+      await page.getByLabel('설명').fill('잠실에서 영화보기');
+      await page.getByLabel('위치').click();
+      await page.getByLabel('위치').fill('롯데월드몰');
+      await page.locator('label').filter({ hasText: '반복 일정' }).locator('svg').click();
+      await page.getByTestId('event-submit-button').click();
+  
+      {/* 15일은 단일일정으로, 14, 16일은 반복일정으로 남아있는지 확인하기 */}
+      await page.getByRole('cell', { name: '14 매일 정원이랑 운동하기' }).click();
+      await page.getByRole('cell', { name: '15 정원이랑 데이트하기' }).click();
+      await page.getByRole('cell', { name: '16 매일 정원이랑 운동하기' }).click();
+  
+    });
+  });
 
   test.afterAll(() => {
     if (serverProcess) {
