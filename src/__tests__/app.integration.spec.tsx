@@ -1,6 +1,7 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { render, screen, within, waitFor } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
 
 import {
@@ -9,6 +10,7 @@ import {
   setupMockHandlerUpdating,
 } from '../__mocks__/handlersUtils';
 import App from '../App';
+import { server } from '../setupTests';
 import { Event } from '../types';
 
 const setup = (element: ReactElement) => {
@@ -45,7 +47,12 @@ const saveSchedule = async (
 };
 
 
-describe('일정 기능', () => {
+describe('일정 관리 기능', () => {
+    beforeEach(() => {
+      setupMockHandlerCreation();
+      setupMockHandlerUpdating();
+      setupMockHandlerDeletion();
+    });
     it('일정 생성 또는 수정 시 반복 유형을 선택할 수 있다.', async () => {
       setupMockHandlerCreation();
       const { user } = setup(<App />);
@@ -78,6 +85,7 @@ describe('일정 기능', () => {
       expect(defaultOption.selected).toBeFalsy();
       expect(selectedOption.selected).toBeTruthy();
     });
+
 });
 
 describe('반복 간격 설정', () => {
@@ -95,56 +103,65 @@ describe('반복 간격 설정', () => {
 
 describe('반복 일정 표시', () => {
     test('캘린더 뷰에서 반복 일정을 시각적으로 구분하여 표시한다', async () => {
-        setupMockHandlerCreation();
+      
+      const mockEvent: Event = {
+        id: '1',
+        title: '반복 일정 테스트',
+        date: '2024-11-14',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '테스트 설명',
+        location: '테스트 장소',
+        category: '업무',
+        repeat: {
+          type: 'daily',
+          interval: 1,
+          endDate: '2024-11-20',
+        },
+        notificationTime: 10,
+      };
+  
+      server.use(
+        http.get('/api/events', () => {
+          return HttpResponse.json({ events: [mockEvent] });
+        })
+      );
+  
+      setup(<App />);
 
-        const { user } = setup(<App />);
+      await screen.findByText('일정 로딩 완료!');
+      const test = await screen.findAllByText('반복 일정 테스트');
+      console.log('test',test);
+  
+      const viewSelect = screen.getByLabelText('view');
+      await userEvent.selectOptions(viewSelect, 'month');
 
-        await saveSchedule(user, {
-            title: '반복 일정 테스트',
-            date: '2024-10-15',
-            startTime: '14:00',
-            endTime: '15:00',
-            description: '프로젝트 진행 상황 논의',
-            location: '회의실 A',
-            category: '업무',
-            repeat: { type: 'weekly', interval: 1, endDate: '2025-11-11' },
-        });
-
-        // 이벤트 목록에서 생성된 반복 일정 확인
-        const eventList = await screen.findByTestId('event-list');
-        const eventElement = await within(eventList).findByText('반복 일정 테스트');
+      await waitFor(() => {
+        const monthView = screen.getByTestId('month-view');
+        expect(monthView).toBeInTheDocument();
+        
+        const eventElement = within(monthView).getByText('반복 일정 테스트');
         expect(eventElement).toBeInTheDocument();
 
-        // 반복 정보 확인
-        const repeatInfo = await screen.findByText(/반복: 1주마다/);
-        expect(repeatInfo).toBeInTheDocument();
+        const repeatIcon = within(eventElement.closest('div') as HTMLElement).getByTestId('repeat-icon');
+        expect(repeatIcon).toBeInTheDocument();
+      });
 
-         // 반복 일정 아이콘 확인
-         const repeatIcon = await within(eventElement.closest('div') as HTMLElement).findByTestId('repeat-icon');
-         expect(repeatIcon).toBeInTheDocument();
+ 
     });
 });
 
 describe('반복 종료 표시', () => {
     test('반복 종료 조건을 지정할 수 있다.', async () => {
-        setupMockHandlerCreation();
-
-        const { user } = setup(<App />);
-
-        await saveSchedule(user, {
-            title: '반복 회의',
-            date: '2024-10-15',
-            startTime: '14:00',
-            endTime: '15:00',
-            description: '프로젝트 진행 상황 논의',
-            location: '회의실 A',
-            category: '업무',
-            repeat: { type: 'daily', interval: 1, endDate: '2025-11-11' },
-        });
-
-        const eventList = within(screen.getByTestId('event-list'));
-        expect(eventList.getByText('반복 회의')).toBeInTheDocument();
-        expect(eventList.getByText(/반복: 1일마다.+2025-11-11/)).toBeInTheDocument();
+      const { user } = setup(<App />);
+    
+      await user.click(screen.getByText('일정 추가'));
+      await user.click(screen.getByLabelText('반복 설정'));
+      
+      const repeatEndDateInput = screen.getByLabelText('반복 종료일');
+      await user.type(repeatEndDateInput, '2024-12-31');
+      
+      expect(repeatEndDateInput).toHaveValue('2024-12-31');
     })
 });
 

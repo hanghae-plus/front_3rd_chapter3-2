@@ -409,6 +409,7 @@ function App() {
                   <FormLabel>반복 종료일</FormLabel>
                   <Input
                     type="date"
+                    id="repeat-end-date"
                     value={repeatEndDate}
                     onChange={(e) => setRepeatEndDate(e.target.value)}
                   />
