@@ -1,4 +1,4 @@
-import { Event } from '../types.ts';
+import { Event, RepeatInfo } from '../types.ts';
 
 const MAX_END_DATE = '2025-06-30';
 const NUM_OF_WEEK = 7;
@@ -459,4 +459,44 @@ export function getRemainingDatesByYear(
   }
 
   return dates;
+}
+
+export function getRemainingDatesOfRepeatedEvent(date: string, repeatInfo: RepeatInfo): Date[] {
+  if (date === '') {
+    return [];
+  }
+  const currentDate = new Date(date);
+  const endDate = repeatInfo?.endDate ? new Date(repeatInfo?.endDate) : undefined;
+  switch (repeatInfo.type) {
+    case 'daily':
+      return getRemainingDatesByDay(currentDate, endDate, repeatInfo.interval);
+    case 'weekly':
+      return getRemainingDatesByWeek(
+        currentDate,
+        endDate,
+        repeatInfo.interval,
+        repeatInfo.weekType
+      );
+    case 'monthly':
+      return getRemainingDatesByMonth(
+        currentDate,
+        endDate,
+        repeatInfo.interval,
+        repeatInfo.weekType,
+        repeatInfo.day,
+        repeatInfo.weekOrder
+      );
+    case 'yearly':
+      return getRemainingDatesByYear(
+        currentDate,
+        endDate,
+        repeatInfo.interval,
+        repeatInfo.monthType,
+        repeatInfo.weekType,
+        repeatInfo.day,
+        repeatInfo.weekOrder
+      );
+    default:
+      return [];
+  }
 }
