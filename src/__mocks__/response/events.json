@@ -10,7 +10,47 @@
       "location": "회의실 B",
       "category": "업무",
       "repeat": { "type": "none", "interval": 0 },
-      "notificationTime": 10
+      "notificationTime": 10,
+      "exceptionList": []
+    },
+    {
+      "id": "2",
+      "title": "팀원 회의",
+      "date": "2024-10-15",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "description": "코드 리뷰",
+      "location": "회의실 C",
+      "category": "업무",
+      "repeat": { "type": "none", "interval": 0 },
+      "notificationTime": 10,
+      "exceptionList": []
+    },
+    {
+      "id": "3",
+      "title": "점심 약속",
+      "date": "2024-10-01",
+      "startTime": "19:00",
+      "endTime": "22:00",
+      "description": "스시 예약",
+      "location": "식당 A",
+      "category": "개인",
+      "repeat": { "type": "none", "interval": 0 },
+      "notificationTime": 10,
+      "exceptionList": []
+    },
+    {
+      "id": "4",
+      "title": "팀 회의",
+      "date": "2024-10-24",
+      "startTime": "14:00",
+      "endTime": "15:00",
+      "description": "리뷰",
+      "location": "회의실 D",
+      "category": "업무",
+      "repeat": { "type": "none", "interval": 0 },
+      "notificationTime": 10,
+      "exceptionList": []
     }
   ]
 }
