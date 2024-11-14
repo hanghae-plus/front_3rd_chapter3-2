@@ -20,6 +20,7 @@ export function getRecurringEventList({
   let currentDate = new Date(start);
 
   while (currentDate <= end) {
+    const targetDay = currentDate.getDate();
     recurringDates.push(currentDate.toISOString().split('T')[0]);
 
     switch (type) {
@@ -32,13 +33,11 @@ export function getRecurringEventList({
         break;
       }
       case 'monthly': {
-        const targetMonth = currentDate.getMonth() + 1;
-
-        currentDate.setMonth(currentDate.getMonth() + interval);
+        currentDate = getMonthlyNextEventDate(currentDate, interval, targetDay);
         break;
       }
       case 'yearly': {
-        currentDate.setFullYear(currentDate.getFullYear() + interval);
+        currentDate = getYearlyNextEventDate(currentDate, interval);
         break;
       }
       default:
@@ -47,3 +46,38 @@ export function getRecurringEventList({
 
   return recurringDates;
 }
+
+const getMonthlyNextEventDate = (date: Date, interval: number, targetDay: number): Date => {
+  const originalDay = targetDay;
+  let targetMonth = date.getMonth() + interval;
+  let targetYear = date.getFullYear();
+
+  if (targetMonth > 11) {
+    targetYear += Math.floor(targetMonth / 12);
+    targetMonth %= 12;
+  }
+
+  const lastDayOfTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+  const adjustedDay = Math.min(originalDay, lastDayOfTargetMonth);
+
+  return new Date(targetYear, targetMonth, adjustedDay);
+};
+
+const getYearlyNextEventDate = (date: Date, interval: number): Date => {
+  const month = date.getMonth();
+  const day = date.getDate();
+  let targetYear = date.getFullYear() + interval;
+
+  if (month === 1 && day === 29 && !isLeapYear(targetYear)) {
+    return new Date(targetYear, 1, 28);
+  }
+  return new Date(targetYear, month, day);
+};
+
+export const isLeapYear = (year: number): boolean => {
+  if (year % 400 === 0) return true;
+
+  if (year % 100 === 0) return false;
+
+  return year % 4 === 0;
+};

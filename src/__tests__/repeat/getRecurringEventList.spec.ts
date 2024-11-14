@@ -208,10 +208,10 @@ describe('getRecurringEventList 테스트', () => {
         ]);
       });
 
-      it('시작일은 2024년 2월 29일, 반복 간격은 1달, 종료일은 2025년 3월 01일', () => {
+      it('시작일은 2024년 2월 29일, 반복 간격은 1달, 종료일은 2025년 4월 01일', () => {
         const result = getRecurringEventList({
           startDate: '2024-02-29',
-          endDate: '2025-03-01',
+          endDate: '2025-04-01',
           interval: 1,
           type: 'monthly',
         });
@@ -229,6 +229,7 @@ describe('getRecurringEventList 테스트', () => {
           '2024-12-29',
           '2025-01-29',
           '2025-02-28',
+          '2025-03-28',
         ]);
       });
 
@@ -239,7 +240,19 @@ describe('getRecurringEventList 테스트', () => {
           interval: 1,
           type: 'monthly',
         });
-        expect(result).toEqual([]);
+        expect(result).toEqual([
+          '2023-02-28',
+          '2023-03-28',
+          '2023-04-28',
+          '2023-05-28',
+          '2023-06-28',
+          '2023-07-28',
+          '2023-08-28',
+          '2023-09-28',
+          '2023-10-28',
+          '2023-11-28',
+          '2023-12-28',
+        ]);
       });
 
       it('시작일은 2024년 3월 31일, 반복 간격은 1달, 종료일은 2025년 3월 01일', () => {
@@ -249,7 +262,19 @@ describe('getRecurringEventList 테스트', () => {
           interval: 1,
           type: 'monthly',
         });
-        expect(result).toEqual([]);
+        expect(result).toEqual([
+          '2023-02-28',
+          '2023-03-28',
+          '2023-04-28',
+          '2023-05-28',
+          '2023-06-28',
+          '2023-07-28',
+          '2023-08-28',
+          '2023-09-28',
+          '2023-10-28',
+          '2023-11-28',
+          '2023-12-28',
+        ]);
       });
     });
   });
@@ -257,15 +282,44 @@ describe('getRecurringEventList 테스트', () => {
   describe('"연" 기준 반복 일정 설정', () => {
     describe('기준주에 대해 올바르게 처리한다.', () => {
       it('시작일은 2024년 11월 01일 반복 간격은 1년, 종료일은 2030년 11월 01일로 설정', () => {
-        expect(true).toBe(true);
+        const result = getRecurringEventList({
+          startDate: '2024-11-01',
+          endDate: '2030-11-01',
+          interval: 1,
+          type: 'yearly',
+        });
+
+        expect(result).toEqual([
+          '2024-11-01',
+          '2025-11-01',
+          '2026-11-01',
+          '2027-11-01',
+          '2028-11-01',
+          '2029-11-01',
+          '2030-11-01',
+        ]);
       });
 
       it('시작일은 2024년 11월 01일 반복 간격은 2년, 종료일은 2030년 11월 01일로 설정', () => {
-        expect(true).toBe(true);
+        const result = getRecurringEventList({
+          startDate: '2024-11-01',
+          endDate: '2030-11-01',
+          interval: 2,
+          type: 'yearly',
+        });
+
+        expect(result).toEqual(['2024-11-01', '2026-11-01', '2028-11-01', '2030-11-01']);
       });
 
       it('시작일은 2024년 11월 01일 반복 간격은 3년, 종료일은 2030년 11월 01일로 설정', () => {
-        expect(true).toBe(true);
+        const result = getRecurringEventList({
+          startDate: '2024-11-01',
+          endDate: '2030-11-01',
+          interval: 3,
+          type: 'yearly',
+        });
+
+        expect(result).toEqual(['2024-11-01', '2027-11-01', '2030-11-01']);
       });
     });
   });
