@@ -54,6 +54,7 @@ import {
   getWeekDates,
   getWeeksAtMonth,
 } from './utils/dateUtils';
+import { getEventsRepeats } from './utils/repeatUtils.ts'
 import { findOverlappingEvents } from './utils/eventOverlap';
 import { getTimeErrorMessage } from './utils/timeValidation';
 
@@ -182,12 +183,12 @@ function App() {
           </Thead>
           <Tbody>
             <Tr>
-              {weekDates.map((date) => (
-                <Td key={date.toISOString()} height="100px" verticalAlign="top" width="14.28%">
+              {weekDates.map((date) => {
+                const dateEvents = getEventsRepeats(filteredEvents, date.getTime());
+                return (
+                  <Td key={date.toISOString()} height="100px" verticalAlign="top" width="14.28%">
                   <Text fontWeight="bold">{date.getDate()}</Text>
-                  {filteredEvents
-                    .filter((event) => new Date(event.date).toDateString() === date.toDateString())
-                    .map((event) => {
+                  {dateEvents.map((event) => {
                       const isNotified = notifiedEvents.includes(event.id);
                       return (
                         <Box
@@ -209,7 +210,8 @@ function App() {
                       );
                     })}
                 </Td>
-              ))}
+                )
+              })}
             </Tr>
           </Tbody>
         </Table>
