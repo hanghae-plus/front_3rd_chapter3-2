@@ -25,6 +25,8 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+vi.mock('zustand');
+
 afterAll(() => {
   vi.resetAllMocks();
   vi.useRealTimers();
