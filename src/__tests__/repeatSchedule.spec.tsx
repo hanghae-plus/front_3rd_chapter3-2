@@ -1,5 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
@@ -211,9 +211,10 @@ describe('반복 일정 단일 수정', () => {
     );
     const { user } = setup(<App />);
     // ! 일정 로딩 완료 후 테스트
-    await waitFor(() => {
-      expect(screen.findByText('일정 로딩 완료!'));
-    });
+    // await waitFor(() => {
+    await act(() => null);
+    expect(screen.findByText('일정 로딩 완료!'));
+    // });
     const eventList = screen.getByTestId('event-list');
     // 반복일정인지 확인
     const repeatIcon = within(eventList).getByTestId('repeat-icon-1');
