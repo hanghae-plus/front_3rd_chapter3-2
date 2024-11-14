@@ -39,10 +39,11 @@ export const handlers = [
 
   http.post('/api/events-list', async ({ request }) => {
     const newEvents = (await request.json()) as Event[];
-    newEvents.forEach((event, index) => {
+    const repeatId = String(events.length);
+    newEvents.forEach((event) => {
       const isRepeatEvent = event.repeat.type !== 'none';
-      event.id = String(events.length + index + 1);
-      event.repeat.id = isRepeatEvent ? String(events.length + index + 1) : undefined;
+      event.id = String(events.length + 1);
+      event.repeat.id = isRepeatEvent ? repeatId : undefined;
     });
     return HttpResponse.json(newEvents, { status: 201 });
   }),
