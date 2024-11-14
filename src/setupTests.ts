@@ -16,6 +16,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   expect.hasAssertions(); // ? Med: 이걸 왜 써야하는지 물어보자
+  // Assertion하지않는 비어있는 테스트 작성을 방지한다.
 
   vi.setSystemTime(new Date('2024-10-01')); // ? Med: 이걸 왜 써야하는지 물어보자
 });
