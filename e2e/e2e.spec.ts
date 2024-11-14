@@ -86,6 +86,81 @@ test.describe.serial('e2e 테스트', () => {
   await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 공부하기2024-11-2111:00 - 23' }).nth(1).click();
   });
 
+  test('3. 사용자가 2일, 3일 간격의 일정을 등록했을 때, 두 개의 일정이 겹치는 날짜는 서로 최소공배수 날짜 간격으로 겹쳐야하고 해당 날짜에 두 일정이 모두 표시되어야 한다.', async ({ page }) => {
+    test.setTimeout(100000);
+    await page.goto('http://localhost:5173/');
+    await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+    await page.reload();
+
+    await page.getByLabel('제목').fill('정원이랑 밥먹기');
+    await page.getByLabel('날짜').fill('2024-11-15');
+    await page.getByLabel('시작 시간').click();
+    await page.getByLabel('시작 시간').press('ArrowUp');
+    await page.getByLabel('시작 시간').press('ArrowUp');
+    await page.getByLabel('시작 시간').press('ArrowRight');
+    await page.getByLabel('시작 시간').fill('18:00');
+    await page.getByLabel('종료 시간').click();
+    await page.getByLabel('종료 시간').press('ArrowUp');
+    await page.getByLabel('종료 시간').press('ArrowUp');
+    await page.getByLabel('종료 시간').press('ArrowRight');
+    await page.getByLabel('종료 시간').fill('20:00');
+    await page.getByLabel('설명').click();
+    await page.getByLabel('설명').fill('정원이랑 2일에 1번은 밥먹자...');
+    await page.getByLabel('위치').click();
+    await page.getByLabel('위치').fill('서울 어딘가');
+    await page.getByLabel('카테고리').selectOption('개인');
+    await page.locator('span').first().click();
+
+    await page.getByLabel('반복 간격').click();
+    await page.getByLabel('반복 간격').fill('02');
+    await page.getByTestId('event-submit-button').click();
+
+    {/* 첫 번째로 2일 간격으로 발생하는 반복 일정에 대해 캘린더에 일정이 존재함 */}
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 밥먹기2024-11-1418:00 - 20:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 밥먹기2024-11-1618:00 - 20:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 밥먹기2024-11-1818:00 - 20:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 밥먹기2024-11-2018:00 - 20:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 밥먹기2024-11-2218:00 - 20:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 밥먹기2024-11-2418:00 - 20:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 밥먹기2024-11-2618:00 - 20:' }).first().click();
+
+    {/* 두 번째로 3일 간격으로 발생하는 반복 일정 등록 */}
+    await page.getByLabel('제목').click();
+    await page.getByLabel('제목').fill('정원이랑 운동하기');
+    await page.getByLabel('날짜').fill('2024-11-12');
+    await page.getByLabel('시작 시간').click();
+    await page.getByLabel('시작 시간').press('ArrowLeft');
+    await page.getByLabel('시작 시간').press('ArrowLeft');
+    await page.getByLabel('시작 시간').press('ArrowUp');
+    await page.getByLabel('시작 시간').press('ArrowUp');
+    await page.getByLabel('시작 시간').press('ArrowRight');
+    await page.getByLabel('시작 시간').fill('14:00');
+    await page.getByLabel('종료 시간').click();
+    await page.getByLabel('종료 시간').press('ArrowUp');
+    await page.getByLabel('종료 시간').press('ArrowLeft');
+    await page.getByLabel('종료 시간').press('ArrowLeft');
+    await page.getByLabel('종료 시간').press('ArrowUp');
+    await page.getByLabel('종료 시간').press('ArrowUp');
+    await page.getByLabel('종료 시간').press('ArrowRight');
+    await page.getByLabel('종료 시간').fill('12:00');
+    await page.getByLabel('종료 시간').press('ArrowLeft');
+    await page.getByLabel('종료 시간').fill('16:00');
+    await page.getByLabel('설명').click();
+    await page.getByLabel('설명').fill('3일에 한번은 정원이랑 운동하자');
+    await page.getByLabel('위치').click();
+    await page.getByLabel('위치').fill('광나루 한강 공원');
+    await page.getByLabel('카테고리').selectOption('개인');
+    await page.locator('span').first().click();
+    await page.getByLabel('반복 간격').click();
+    await page.getByLabel('반복 간격').fill('03');
+    await page.getByTestId('event-submit-button').click();
+
+    {/* 두 반복 일정이 겹치는 날짜의 특징은 서로 6일 간격으로 겹침 */}
+    await page.getByRole('cell', { name: '14 정원이랑 밥먹기 정원이랑 운동하기' }).click();
+    await page.getByRole('cell', { name: '20 정원이랑 밥먹기 정원이랑 운동하기' }).click();
+    await page.getByRole('cell', { name: '26 정원이랑 밥먹기 정원이랑 운동하기' }).click();
+  });
+
   test.afterAll(() => {
     if (serverProcess) {
       serverProcess.kill();
