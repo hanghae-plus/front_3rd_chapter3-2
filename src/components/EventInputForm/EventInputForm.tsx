@@ -166,7 +166,7 @@ export const EventInputForm = (props: UseAddOrUpdateEventProps) => {
               <FormLabel>반복 종료일</FormLabel>
               <Input
                 type="date"
-                value={repeatEndDate}
+                value={repeatEndDate || ''}
                 onChange={(e) => setEventForm({ repeat: { endDate: e.target.value } })}
                 disabled={Boolean(editingEvent)}
               />
