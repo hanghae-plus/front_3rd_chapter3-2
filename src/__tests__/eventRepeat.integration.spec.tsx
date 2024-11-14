@@ -85,6 +85,73 @@ describe('이벤트 > 반복과 관련된 통합테스트', () => {
     });
   });
 
+  it('반복 유형 > 윤년 2월 29일에 등록된 이벤트는 윤년이 아닌해에는 2월 28일에 등록된다.', async () => {
+    vi.setSystemTime('2024-02-01');
+
+    const result = generateRecurringEvents('2024-02-29', 1, 'yearly' as RepeatType, '2026-02-28');
+
+    const eventData: Event = {
+      id: '1',
+      title: '매년 반복 2월 29일',
+      date: '2024-02-29',
+      startTime: '21:25',
+      endTime: '23:31',
+      description: '',
+      location: '',
+      category: '',
+      repeat: {
+        type: 'yearly',
+        interval: 1,
+        endDate: '2026-02-28',
+      },
+      notificationTime: 10,
+    };
+
+    const recurringEvents = result.map((eventDate, index) => ({
+      ...eventData,
+      id: index.toString(),
+      date: eventDate,
+    }));
+
+    setupMockHandlerBatchCreation(recurringEvents);
+
+    render(
+      <ChakraProvider>
+        <App />
+      </ChakraProvider>
+    );
+
+    const nextButton = screen.getByLabelText(/Next/);
+    const monthView = await screen.findByTestId('month-view');
+
+    const twentyNinth = screen.getByTestId('29');
+
+    await waitFor(() => {
+      expect(within(monthView).getByText('2024년 2월')).toBeInTheDocument();
+      expect(within(twentyNinth).findAllByText('매년 반복 2월 29일')).toBeTruthy();
+    });
+
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+    await user.click(nextButton);
+
+    const twentyEighth = screen.getByTestId('28');
+
+    await waitFor(() => {
+      expect(within(monthView).getByText('2025년 2월')).toBeInTheDocument();
+      expect(within(twentyEighth).findAllByText('매년 반복 2월 29일')).toBeTruthy();
+    });
+  });
+
   it('반복 간격 > 반복 간격을 0을 입력할 경우 1로 변경된다.', async () => {
     render(
       <ChakraProvider>
