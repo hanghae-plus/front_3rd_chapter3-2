@@ -357,7 +357,12 @@ function App() {
 
           <FormControl>
             <FormLabel>반복 설정</FormLabel>
-            <Checkbox isChecked={isRepeating} onChange={(e) => setIsRepeating(e.target.checked)}>
+            <Checkbox
+              isChecked={isRepeating}
+              onChange={(e) => setIsRepeating(e.target.checked)}
+              aria-label="repeat setting"
+              defaultChecked={true}
+            >
               반복 일정
             </Checkbox>
           </FormControl>
@@ -379,8 +384,9 @@ function App() {
           {isRepeating && (
             <VStack width="100%">
               <FormControl>
-                <FormLabel>반복 유형</FormLabel>
+                <FormLabel htmlFor="repeat-type">반복 유형</FormLabel>
                 <Select
+                  id="repeat-type"
                   value={repeatType}
                   onChange={(e) => setRepeatType(e.target.value as RepeatType)}
                 >
@@ -403,6 +409,7 @@ function App() {
                 <FormControl>
                   <FormLabel>반복 종료일</FormLabel>
                   <Input
+                    data-testid="test001"
                     type="date"
                     value={repeatEndDate}
                     onChange={(e) => setRepeatEndDate(e.target.value)}
@@ -417,7 +424,7 @@ function App() {
           </Button>
         </VStack>
 
-        <VStack flex={1} spacing={5} align="stretch">
+        <VStack data-testid="event-calendar-view" flex={1} spacing={5} align="stretch">
           <Heading>일정 보기</Heading>
 
           <HStack mx="auto" justifyContent="space-between">
@@ -445,7 +452,7 @@ function App() {
           {view === 'month' && renderMonthView()}
         </VStack>
 
-        <VStack data-testid="event-list" w="500px" h="full" overflowY="auto">
+        <VStack data-testid="event-list-view" w="500px" h="full" overflowY="auto">
           <FormControl>
             <FormLabel>일정 검색</FormLabel>
             <Input

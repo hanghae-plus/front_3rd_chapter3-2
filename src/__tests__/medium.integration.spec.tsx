@@ -56,7 +56,7 @@ describe('일정 CRUD 및 기본 기능', () => {
       category: '업무',
     });
 
-    const eventList = within(screen.getByTestId('event-list'));
+    const eventList = within(screen.getByTestId('event-list-view'));
     expect(eventList.getByText('새 회의')).toBeInTheDocument();
     expect(eventList.getByText('2024-10-15')).toBeInTheDocument();
     expect(eventList.getByText('14:00 - 15:00')).toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('일정 CRUD 및 기본 기능', () => {
 
     await user.click(screen.getByTestId('event-submit-button'));
 
-    const eventList = within(screen.getByTestId('event-list'));
+    const eventList = within(screen.getByTestId('event-list-view'));
     expect(eventList.getByText('수정된 회의')).toBeInTheDocument();
     expect(eventList.getByText('회의 내용 변경')).toBeInTheDocument();
   });
@@ -88,7 +88,7 @@ describe('일정 CRUD 및 기본 기능', () => {
     setupMockHandlerDeletion();
 
     const { user } = setup(<App />);
-    const eventList = within(screen.getByTestId('event-list'));
+    const eventList = within(screen.getByTestId('event-list-view'));
     expect(await eventList.findByText('삭제할 이벤트')).toBeInTheDocument();
 
     // 삭제 버튼 클릭
@@ -109,7 +109,7 @@ describe('일정 뷰', () => {
     // ! 일정 로딩 완료 후 테스트
     await screen.findByText('일정 로딩 완료!');
 
-    const eventList = within(screen.getByTestId('event-list'));
+    const eventList = within(screen.getByTestId('event-list-view'));
     expect(eventList.getByText('검색 결과가 없습니다.')).toBeInTheDocument();
   });
 
@@ -141,7 +141,7 @@ describe('일정 뷰', () => {
     // ! 일정 로딩 완료 후 테스트
     await screen.findByText('일정 로딩 완료!');
 
-    const eventList = within(screen.getByTestId('event-list'));
+    const eventList = within(screen.getByTestId('event-list-view'));
     expect(eventList.getByText('검색 결과가 없습니다.')).toBeInTheDocument();
   });
 
@@ -221,7 +221,7 @@ describe('검색 기능', () => {
     const searchInput = screen.getByPlaceholderText('검색어를 입력하세요');
     await user.type(searchInput, '존재하지 않는 일정');
 
-    const eventList = within(screen.getByTestId('event-list'));
+    const eventList = within(screen.getByTestId('event-list-view'));
     expect(eventList.getByText('검색 결과가 없습니다.')).toBeInTheDocument();
   });
 
@@ -231,7 +231,7 @@ describe('검색 기능', () => {
     const searchInput = screen.getByPlaceholderText('검색어를 입력하세요');
     await user.type(searchInput, '팀 회의');
 
-    const eventList = within(screen.getByTestId('event-list'));
+    const eventList = within(screen.getByTestId('event-list-view'));
     expect(eventList.getByText('팀 회의')).toBeInTheDocument();
   });
 
@@ -242,7 +242,7 @@ describe('검색 기능', () => {
     await user.type(searchInput, '팀 회의');
     await user.clear(searchInput);
 
-    const eventList = within(screen.getByTestId('event-list'));
+    const eventList = within(screen.getByTestId('event-list-view'));
     expect(eventList.getByText('팀 회의')).toBeInTheDocument();
     expect(eventList.getByText('프로젝트 계획')).toBeInTheDocument();
   });
