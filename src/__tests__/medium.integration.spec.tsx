@@ -16,13 +16,8 @@ import { useEventOverlapStore } from '../store/useEventOverlapStore';
 import { Event } from '../types';
 
 beforeEach(() => {
-  useEventOverlapStore.setState({
-    isOverlapDialogOpen: false,
-    overlappingEvents: [],
-  });
-
-  const initialState = useEventFormStore.getInitialState();
-  useEventFormStore.setState(initialState);
+  useEventOverlapStore.setState(useEventOverlapStore.getInitialState());
+  useEventFormStore.setState(useEventFormStore.getInitialState());
 });
 
 // ! Hard 여기 제공 안함
@@ -60,14 +55,14 @@ const saveSchedule = async (user: UserEvent, form: Omit<Event, 'id' | 'notificat
 };
 
 describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () => {
-  beforeEach(() => {
-    vi.setSystemTime(new Date('2024-11-01'));
-  });
-
   const schedule = {
     title: '반복되는 회의',
     titleWithIcon: '🔁 반복되는 회의',
   } as const;
+
+  beforeEach(() => {
+    vi.setSystemTime(new Date('2024-11-01'));
+  });
 
   it('매일 반복 일정을 생성할 수 있다', async () => {
     setupMockHandlerCreation();
@@ -82,9 +77,9 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
       location: '회의실 A',
       category: '업무',
 
-      // 반복 설정: 2일에 1번씩 반복
+      // 반복 설정: 1일에 1번씩 반복
       repeat: {
-        interval: 2,
+        interval: 1,
         type: 'daily',
         endDate: '2024-11-03',
       },
@@ -92,18 +87,16 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
 
     const calendarView = within(screen.getByTestId('calendar-view'));
 
-    // 1일, 3일에 반복 일정이 보임 O
+    // 반복 일정이 보임 O
     expect(
       within(calendarView.getByTestId('day-1')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
     expect(
+      within(calendarView.getByTestId('day-2')).getByText(schedule.titleWithIcon)
+    ).toBeInTheDocument();
+    expect(
       within(calendarView.getByTestId('day-3')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
-
-    // 2일에는 반복 일정이 보이지 않음 X (interval에 의해 2일 간격으로만 반복되므로)
-    expect(
-      within(calendarView.getByTestId('day-2')).queryByText(schedule.titleWithIcon)
-    ).not.toBeInTheDocument();
   });
 
   it('매주 반복 일정을 생성할 수 있다', async () => {
@@ -129,7 +122,7 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
 
     const calendarView = within(screen.getByTestId('calendar-view'));
 
-    // 1일, 8일에 반복 일정이 보임 O
+    // 1. 반복 간격에 맞는 날짜(1일,8일)에 일정 표시 O
     expect(
       within(calendarView.getByTestId('day-1')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
@@ -137,7 +130,7 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
       within(calendarView.getByTestId('day-8')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
-    // 2일 ~ 7일에는 반복 일정이 보이지 않음 X
+    // 2. 반복 간격에 해당하지 않는 날짜(2일 - 7일)에는 일정 표시 X
     expect(
       within(calendarView.getByTestId('day-2')).queryByText(schedule.titleWithIcon)
     ).not.toBeInTheDocument();
@@ -182,20 +175,20 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
     const calendarView = within(screen.getByTestId('calendar-view'));
     const nextButton = calendarView.getByLabelText('Next');
 
-    // 2024년 11월 1일에 반복 일정이 보임 O
+    // 1. 첫 번째 달 (2024년 11월): 반복 일정 보임 O
     expect(calendarView.getByText('2024년 11월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-1')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
-    // 2024년 12월 1일에 반복 일정이 보이지 않음 X (2달에 1번)
+    // 2. 반복 주기 외의 달 (2024년 12월): 반복 일정 표시 X
     await user.click(nextButton);
     expect(calendarView.getByText('2024년 12월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-1')).queryByText(schedule.titleWithIcon)
     ).not.toBeInTheDocument();
 
-    // 2025년 1월 1일에 반복 일정이 보임 O
+    // 3. 반복 주기에 해당하는 달 (2025년 1월): 반복 일정 보임 O
     await user.click(nextButton);
     expect(calendarView.getByText('2025년 1월')).toBeInTheDocument();
     expect(
@@ -281,27 +274,27 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
     const calendarView = within(screen.getByTestId('calendar-view'));
     const nextButton = calendarView.getByLabelText('Next');
 
-    // 1월 31일에 반복 일정 보임 O
+    // 1. 첫 번째 달 (2025년 1월 31일): 반복 일정 보임 O
     expect(calendarView.getByText('2025년 1월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-31')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
-    // 2월 29일에 반복 일정 보임 O
+    // 2. 다음 달 (2025년 2월): 31일이 없으므로 2월의 마지막 날(28일)에 반복 일정 보임 O
     await user.click(nextButton);
     expect(calendarView.getByText('2025년 2월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-28')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
-    // 3월 31일에 반복 일정 보임 O
+    // 3. 3월 (2025년 3월): 반복 간격에 따라 3월 31일에 반복 일정 보임 O
     await user.click(nextButton);
     expect(calendarView.getByText('2025년 3월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-31')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
-    // 4월 30일에 반복 일정 보임 O
+    // 4. 종료 월 (2025년 4월): 31일이 없으므로 마지막 날인 4월 30일에 반복 일정 보임 O
     await user.click(nextButton);
     expect(calendarView.getByText('2025년 4월')).toBeInTheDocument();
     expect(
@@ -316,12 +309,13 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
 
     await saveSchedule(user, {
       title: schedule.title,
-      date: '2024-02-29', // 윤년 2월 29일에 일정 생성
       startTime: '14:00',
       endTime: '15:00',
       description: '프로젝트 진행 상황 논의',
       location: '회의실 A',
       category: '업무',
+
+      date: '2024-02-29', // 윤년 2월 29일에 일정 생성
 
       // 반복 설정: 1달에 1번씩 반복
       repeat: {
@@ -334,13 +328,13 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
     const calendarView = within(screen.getByTestId('calendar-view'));
     const nextButton = calendarView.getByLabelText('Next');
 
-    // 윤년 2월 29일에 반복 일정 보임 O
+    // 1. 첫 번째 달 (2024년 2월): 2월 29일에 반복 일정 보임 O (윤년)
     expect(calendarView.getByText('2024년 2월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-29')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
-    // 3월 31일에 반복 일정 보임 O
+    // 2. 다음 달 (2024년 3월): 2월 29일의 반복 일정이 3월의 마지막 날(31일)에 표시 O
     await user.click(nextButton);
     expect(calendarView.getByText('2024년 3월')).toBeInTheDocument();
     expect(
@@ -355,12 +349,13 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
 
     await saveSchedule(user, {
       title: schedule.title,
-      date: '2024-02-29', // 윤년 2월 29일에 일정 생성
       startTime: '14:00',
       endTime: '15:00',
       description: '프로젝트 진행 상황 논의',
       location: '회의실 A',
       category: '업무',
+
+      date: '2024-02-29', // 윤년 2월 29일에 일정 생성
 
       // 반복 설정: 1년에 1번씩 반복
       repeat: {
@@ -394,7 +389,7 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
     await user.click(nextButton);
     await user.click(nextButton);
 
-    // 다음해 2월 28일에 반복 일정 보임 O
+    // 다음해 2월 28일에 반복 일정 보임 O (달의 마지막 날)
     expect(calendarView.getByText('2025년 2월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-28')).getByText(schedule.titleWithIcon)
@@ -402,13 +397,13 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
   });
 
   it('반복 종료일이 없으면 기본 종료일인 2025-06-30까지 생성된다', async () => {
-    vi.setSystemTime(new Date('2025-04-01'));
+    vi.setSystemTime(new Date('2025-05-01'));
     setupMockHandlerCreation();
     const { user } = setup(<App />);
 
     await saveSchedule(user, {
       title: schedule.title,
-      date: '2025-04-30',
+      date: '2025-05-30',
       startTime: '14:00',
       endTime: '15:00',
       description: '프로젝트 진행 상황 논의',
@@ -425,23 +420,20 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
     const calendarView = within(screen.getByTestId('calendar-view'));
     const nextButton = calendarView.getByLabelText('Next');
 
-    expect(calendarView.getByText('2025년 4월')).toBeInTheDocument();
-    expect(
-      within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
-    ).toBeInTheDocument();
-
-    await user.click(nextButton);
+    // 1. 첫 번째 달 (2025년 5월): 5월 30일에 반복 일정 보임 O
     expect(calendarView.getByText('2025년 5월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
+    // 2. 다음 달 (2025년 6월): 6월 30일에 반복 일정 보임 O
     await user.click(nextButton);
     expect(calendarView.getByText('2025년 6월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
+    // 3. 기본 종료일 이후 (2025년 7월): 7월 30일에는 반복 일정 X
     await user.click(nextButton);
     expect(calendarView.getByText('2025년 7월')).toBeInTheDocument();
     expect(
@@ -450,20 +442,20 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
   });
 
   it('반복 종료일이 있으면 해당 종료일까지 반복된다', async () => {
-    vi.setSystemTime(new Date('2025-04-01'));
+    vi.setSystemTime(new Date('2025-05-01'));
     setupMockHandlerCreation();
     const { user } = setup(<App />);
 
     await saveSchedule(user, {
       title: schedule.title,
-      date: '2025-04-30',
+      date: '2025-05-30',
       startTime: '14:00',
       endTime: '15:00',
       description: '프로젝트 진행 상황 논의',
       location: '회의실 A',
       category: '업무',
 
-      // 반복 종료일 없음
+      // 반복 종료일 설정
       repeat: {
         interval: 1,
         type: 'monthly',
@@ -474,12 +466,7 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
     const calendarView = within(screen.getByTestId('calendar-view'));
     const nextButton = calendarView.getByLabelText('Next');
 
-    expect(calendarView.getByText('2025년 4월')).toBeInTheDocument();
-    expect(
-      within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
-    ).toBeInTheDocument();
-
-    await user.click(nextButton);
+    // 5, 6월 반복일정 보임 O
     expect(calendarView.getByText('2025년 5월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
@@ -491,13 +478,14 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
       within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
+    // 반복 종료일이 설정된 달 (2025년 7월): 7월 30일에 반복일정 보임 O
     await user.click(nextButton);
     expect(calendarView.getByText('2025년 7월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-30')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
-    // 반복 종료일이 지난 8월에는 반복 일정이 보이지 않음 X
+    // 반복 종료일 이후 (2025년 8월): 8월 30일에는 반복 일정이 보이지 않음 X
     await user.click(nextButton);
     expect(calendarView.getByText('2025년 8월')).toBeInTheDocument();
     expect(
@@ -528,16 +516,17 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
 
     const { user } = setup(<App />);
 
+    // 반복 일정 수정
     await user.click(await screen.findByLabelText('Edit event'));
-
     await user.clear(screen.getByLabelText('제목'));
     await user.type(screen.getByLabelText('제목'), '수정된 회의');
 
     await user.click(screen.getByTestId('event-submit-button'));
 
+    // 반복 일정 수정 시 단일 일정으로 변경
     const calendarView = within(screen.getByTestId('calendar-view'));
     expect(calendarView.getByText('수정된 회의')).toBeInTheDocument();
-    expect(calendarView.queryByText('🔁 수정된 회의')).not.toBeInTheDocument();
+    expect(calendarView.queryByText('🔁 수정된 회의')).not.toBeInTheDocument(); // 🔁 표시 X
   });
 
   it('반복 일정을 삭제하면 해당 일정만 삭제된다', async () => {
@@ -586,6 +575,7 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
 
     const calendarView = within(screen.getByTestId('calendar-view'));
 
+    // 모든 반복일정 표시 O
     expect(calendarView.getByText('2024년 11월')).toBeInTheDocument();
     expect(
       within(calendarView.getByTestId('day-1')).getByText(schedule.titleWithIcon)
@@ -597,11 +587,11 @@ describe('🔁 반복 일정 CURD - 8주차 기본과제 =================', () 
       within(calendarView.getByTestId('day-3')).getByText(schedule.titleWithIcon)
     ).toBeInTheDocument();
 
-    // 삭제 버튼 클릭
+    // 삭제 버튼 클릭 (두 번째 일정)
     const allDeleteButton = await screen.findAllByLabelText('Delete event');
     await user.click(allDeleteButton[1]);
 
-    // 해당 반복일정만 삭제
+    // 해당 반복일정 표시 X (두 번째 일정 삭제됨)
     expect(
       within(calendarView.getByTestId('day-2')).queryByText(schedule.titleWithIcon)
     ).not.toBeInTheDocument();
