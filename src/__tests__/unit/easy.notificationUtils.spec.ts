@@ -2,7 +2,7 @@ import {
   createNotificationMessage,
   getUpcomingEvents,
 } from '../../entities/notification/lib/notificationUtils.ts';
-import { Event } from '../../types';
+import { Event } from '../../entities/event/model/type.ts';
 
 describe('getUpcomingEvents', () => {
   const events: Event[] = [

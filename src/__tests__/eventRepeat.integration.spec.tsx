@@ -11,8 +11,8 @@ import {
   setupMockHandlerUpdating,
 } from '../__mocks__/handlersUtils.ts';
 import App from '../App.tsx';
+import { Event, RepeatType } from '../entities/event/model/type.ts';
 import { generateRecurringEvents } from '../features/calendar/lib/dateUtils.ts';
-import { Event, RepeatType } from '../types.ts';
 
 let user: UserEvent;
 
