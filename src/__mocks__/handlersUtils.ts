@@ -92,3 +92,127 @@ export const setupMockHandlerDeletion = () => {
     })
   );
 };
+
+export const setupMockHandlerBulkCreation = () => {
+  const mockEvents: Event[] = [];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+    http.post('/api/events-list', async ({ request }) => {
+      const body = (await request.json()) as { events: Event[] };
+      const newEvents = body.events.map((event, index) => {
+        const isRepeatEvent = event.repeat.type !== 'none';
+        const repeatId = isRepeatEvent ? String(mockEvents.length + 1) : undefined;
+        return {
+          ...event,
+          id: String(mockEvents.length + index + 1),
+          repeat: {
+            ...event.repeat,
+            id: repeatId,
+          },
+        };
+      });
+      mockEvents.push(...newEvents);
+      return HttpResponse.json(newEvents, { status: 201 });
+    })
+  );
+};
+
+export const setupMockHandlerBulkUpdating = () => {
+  const mockEvents: Event[] = [
+    {
+      id: '1',
+      title: '수정할 회의 1',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '수정할 팀 미팅 1',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '수정할 회의 2',
+      date: '2024-10-15',
+      startTime: '11:00',
+      endTime: '12:00',
+      description: '수정할 팀 미팅 2',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 5,
+    },
+  ];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+    http.put('/api/events-list', async ({ request }) => {
+      const body = (await request.json()) as { events: Event[] };
+      let isUpdated = false;
+
+      body.events.forEach((event) => {
+        const index = mockEvents.findIndex((target) => target.id === event.id);
+        if (index !== -1) {
+          isUpdated = true;
+          mockEvents[index] = { ...mockEvents[index], ...event };
+        }
+      });
+
+      if (isUpdated) {
+        return HttpResponse.json(mockEvents);
+      }
+      return HttpResponse.json({ message: 'Event not found' }, { status: 404 });
+    })
+  );
+};
+
+export const setupMockHandlerBulkDeletion = () => {
+  const mockEvents: Event[] = [
+    {
+      id: '1',
+      title: '삭제할 회의 1',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '삭제할 팀 미팅 1',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '삭제할 회의 2',
+      date: '2024-10-15',
+      startTime: '11:00',
+      endTime: '12:00',
+      description: '삭제할 팀 미팅 2',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 5,
+    },
+  ];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+    http.delete('/api/events-list', async ({ request }) => {
+      const body = (await request.json()) as { eventIds: string[] };
+      const hasEvent = mockEvents.some((event) => body.eventIds.includes(event.id));
+
+      if (hasEvent) {
+        mockEvents.length = 0;
+        return new HttpResponse(null, { status: 204 });
+      }
+      return new HttpResponse(null, { status: 404 });
+    })
+  );
+};
