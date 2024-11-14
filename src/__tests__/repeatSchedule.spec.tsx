@@ -168,3 +168,26 @@ describe('반복 일정 표시', () => {
     expect(within(eventList).queryByTestId('repeat-icon-2')).not.toBeInTheDocument();
   });
 });
+
+// 4. 반복 종료 조건 설정
+describe('반복 종료 조건 설정', () => {
+  it('반복 일정 설정 시, 반복 종료일 날짜 입력 필드가 표시되어야 한다', () => {
+    const { user } = setup(<App />);
+    const repeatCheckbox = screen.getByLabelText('반복 일정');
+    user.click(repeatCheckbox);
+
+    const endConditionDateInput = screen.getByLabelText('반복 종료일');
+
+    expect(endConditionDateInput).toBeInTheDocument();
+  });
+
+  it('반복 일정 설정 시, 횟수 입력 필드가 표시되어야 한다', () => {
+    const { user } = setup(<App />);
+    const repeatCheckbox = screen.getByLabelText('반복 일정');
+    user.click(repeatCheckbox);
+
+    const endConditionCountInput = screen.getByLabelText('반복 횟수');
+
+    expect(endConditionCountInput).toBeInTheDocument();
+  });
+});
