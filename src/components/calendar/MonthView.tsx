@@ -11,7 +11,9 @@ export function MonthView() {
 
   return (
     <VStack data-testid="month-view" align="stretch" w="full" spacing={4}>
-      <Heading size="md">{formatMonth(currentDate)}</Heading>
+      <Heading size="md" data-testid="current-date">
+        {formatMonth(currentDate)}
+      </Heading>
       <Table>
         <Thead>
           <Tr>
@@ -41,6 +43,7 @@ export function MonthView() {
                             p={1}
                             my={1}
                             borderRadius="sm"
+                            data-testid="event-title"
                           >
                             {event.title}
                           </Text>
