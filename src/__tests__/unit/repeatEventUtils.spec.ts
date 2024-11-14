@@ -90,4 +90,25 @@ describe('getRepeatingEvent', () => {
     expect(repeatEventFeb?.date).toBe('2024-02-29');
     expect(repeatEventJune?.date).toBe('2024-06-30');
   });
+
+  // 요구사항 7-1
+
+  it('특정 날짜를 제외하고 반환할 수 있다.', () => {
+    const events: Event = {
+      id: '3b9487dd-b5e9-4ebe-8a9d-e85c46b89e0d',
+      title: '데클란 라이스',
+      date: '2024-01-31',
+      startTime: '04:25',
+      endTime: '16:25',
+      description: '아스날',
+      location: '런던',
+      category: '개인',
+      repeat: { type: 'monthly', interval: 1, endDate: '2024-12-31' },
+      notificationTime: 10,
+    };
+
+    const repeatEvents: EventForm[] = getRepeatingEvent(events, '2024-03-31');
+    const rpeeatEventMarch = repeatEvents.find((event) => event.date.includes('2024-03-31'));
+    expect(rpeeatEventMarch).toBeUndefined();
+  });
 });
