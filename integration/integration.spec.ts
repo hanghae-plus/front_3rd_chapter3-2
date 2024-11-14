@@ -307,8 +307,52 @@ test.describe.serial('통합 테스트', () => {
       await page.getByRole('cell', { name: '매년 반복되는 우리의 기념일 일정' }).click();
       await page.getByTestId('event-list').locator('div').filter({ hasText: '매년 반복되는 우리의 기념일 일정2025-03-' }).first().click();
     });
-
   });
+
+
+  test.describe('반복 일정 삭제', () => {
+    test('1. 반복 일정 중 특정 하루의 일정을 삭제하면 단일 일정만 삭제된다.', async ({ page }) => {
+    await page.goto('http://localhost:5173/');
+    await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+    await page.reload();
+
+    {/* 반복 일정 등록하기 */}
+    await page.getByLabel('제목').click();
+    await page.getByLabel('제목').fill('매일매일 코드리뷰');
+    await page.getByLabel('날짜').fill('2024-11-15');
+    await page.getByLabel('시작 시간').click();
+    await page.getByLabel('시작 시간').press('ArrowUp');
+    await page.getByLabel('시작 시간').press('ArrowUp');
+    await page.getByLabel('시작 시간').press('ArrowRight');
+    await page.getByLabel('시작 시간').fill('18:00');
+    await page.getByLabel('종료 시간').click();
+    await page.getByLabel('종료 시간').press('ArrowUp');
+    await page.getByLabel('종료 시간').press('ArrowUp');
+    await page.getByLabel('종료 시간').press('ArrowRight');
+    await page.getByLabel('종료 시간').fill('20:00');
+    await page.getByLabel('설명').click();
+    await page.getByLabel('설명').fill('코드리뷰 매일매일 해보자');
+    await page.getByLabel('위치').click();
+    await page.getByLabel('위치').fill('빗버킷');
+    await page.getByLabel('카테고리').selectOption('업무');
+    await page.locator('span').first().click();
+    await page.getByTestId('event-submit-button').click();
+
+    {/* 반복 일정이 제대로 등록되었는지 확인하기 14, 15, 16일 모두 확인됨 */}
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '매일매일 코드리뷰2024-11-1418:00 - 20' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '매일매일 코드리뷰2024-11-1518:00 - 20' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '매일매일 코드리뷰2024-11-1618:00 - 20' }).first().click();
+    
+    {/* 반복 일정이 15일 일정만 삭제하기 */} 
+    await page.locator('div:nth-child(3) > div > div:nth-child(2) > button:nth-child(2)').click();
+
+    {/* 15일 일정만 삭제 되었는지 확인하기 (14, 16일 일정이 남아있음) */}
+    await page.getByRole('cell', { name: '14 매일매일 코드리뷰' }).click();
+    await page.getByRole('cell', { name: '15' }).click();
+      await page.getByRole('cell', { name: '16 매일매일 코드리뷰' }).click();
+    });
+  });
+
   test.afterAll(() => {
     if (serverProcess) {
       serverProcess.kill();
