@@ -86,6 +86,7 @@ test.describe.serial('e2e 테스트', () => {
   await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 공부하기2024-11-2111:00 - 23' }).nth(1).click();
   });
 
+
   test('3. 사용자가 2일, 3일 간격의 일정을 등록했을 때, 두 개의 일정이 겹치는 날짜는 서로 최소공배수 날짜 간격으로 겹쳐야하고 해당 날짜에 두 일정이 모두 표시되어야 한다.', async ({ page }) => {
     test.setTimeout(100000);
     await page.goto('http://localhost:5173/');
@@ -159,6 +160,94 @@ test.describe.serial('e2e 테스트', () => {
     await page.getByRole('cell', { name: '14 정원이랑 밥먹기 정원이랑 운동하기' }).click();
     await page.getByRole('cell', { name: '20 정원이랑 밥먹기 정원이랑 운동하기' }).click();
     await page.getByRole('cell', { name: '26 정원이랑 밥먹기 정원이랑 운동하기' }).click();
+  });
+
+  test('4. 사용자가 첫 일정을 등록 후 일정이 겹치게 두 번째 일정을 등록해 경고창이 떴지만 그대로 일정을 등록하고, 겹치는 날짜에 특정 일정 중에 하나 수정해 겹치지 않도록 일정을 조율할 수 있어야한다.', async ({ page }) => {
+    test.setTimeout(100000);
+    await page.goto('http://localhost:5173/');
+    await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+    await page.reload();
+
+    {/* 첫 번째 일정 등록 */}
+    await page.getByLabel('제목').click();
+    await page.getByLabel('제목').fill('정원이랑 놀기');
+    await page.getByLabel('날짜').fill('2024-11-15');
+    await page.getByLabel('시작 시간').click();
+    await page.getByLabel('시작 시간').press('ArrowUp');
+    await page.getByLabel('시작 시간').press('ArrowRight');
+    await page.getByLabel('시작 시간').fill('01:00');
+    await page.getByLabel('종료 시간').click();
+    await page.getByLabel('종료 시간').press('ArrowUp');
+    await page.getByLabel('종료 시간').press('ArrowUp');
+    await page.getByLabel('종료 시간').press('ArrowDown');
+    await page.getByLabel('종료 시간').press('ArrowRight');
+    await page.getByLabel('종료 시간').press('ArrowLeft');
+    await page.getByLabel('종료 시간').press('ArrowLeft');
+    await page.getByLabel('종료 시간').fill('06:00');
+    await page.getByLabel('설명').click();
+    await page.getByLabel('설명').fill('정원이랑은 3일에 한번은 꾸준히 놀자..');
+    await page.getByLabel('위치').click();
+    await page.getByLabel('위치').fill('서울');
+    await page.getByLabel('카테고리').selectOption('개인');
+    await page.locator('span').first().click();
+    await page.getByLabel('반복 간격').click();
+    await page.getByLabel('반복 간격').fill('03');
+    await page.getByTestId('event-submit-button').click();
+
+    {/* 첫 번째 일정에 대해 캘린더에 일정이 존재함 */}
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 놀기2024-11-1401:00 - 06:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 놀기2024-11-1701:00 - 06:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 놀기2024-11-2001:00 - 06:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 놀기2024-11-2301:00 - 06:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 놀기2024-11-2601:00 - 06:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 놀기2024-11-2901:00 - 06:' }).first().click();
+
+    {/* 기존에 있는 첫 번째 일정과 겹치는 두 번째 일정 등록 */}
+    await page.getByLabel('제목').click();
+    await page.getByLabel('제목').fill('다은이랑 놀기');
+    await page.getByLabel('날짜').fill('2024-11-21');
+    await page.getByLabel('시작 시간').click();
+    await page.getByLabel('시작 시간').press('ArrowLeft');
+    await page.getByLabel('시작 시간').press('ArrowLeft');
+    await page.getByLabel('시작 시간').press('ArrowUp');
+    await page.getByLabel('시작 시간').press('ArrowRight');
+    await page.getByLabel('시작 시간').fill('01:00');
+    await page.getByLabel('시작 시간').press('ArrowRight');
+    await page.getByLabel('종료 시간').click();
+    await page.getByLabel('종료 시간').press('ArrowLeft');
+    await page.getByLabel('종료 시간').press('ArrowLeft');
+    await page.getByLabel('종료 시간').press('ArrowLeft');
+    await page.getByLabel('종료 시간').press('ArrowUp');
+    await page.getByLabel('종료 시간').press('ArrowRight');
+    await page.getByLabel('종료 시간').fill('02:00');
+    await page.getByLabel('설명').click();
+    await page.getByLabel('설명').fill('다은이랑 진짜 오랜만에 놀기');
+    await page.getByLabel('위치').click();
+    await page.getByLabel('위치').fill('천호');
+    await page.getByLabel('카테고리').selectOption('개인');
+    await page.getByTestId('event-submit-button').click();
+
+    {/* 겹치는 날짜와, 시간대라 경고창이 뜨고, 계속 진행 버튼을 눌러 일정을 등록 */}
+    await page.getByText('다음 일정과 겹칩니다:정원이랑 놀기 (2024-11-').click();
+    await page.getByRole('button', { name: '계속 진행' }).click();
+
+    {/* 우선 일정이 겹치지만 둘다 등록이 되어있음 */}
+    await page.getByRole('cell', { name: '정원이랑 놀기 다은이랑 놀기' }).click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 놀기2024-11-2001:00 - 06:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '다은이랑 놀기2024-11-2001:00 - 02:' }).first().click();
+
+    {/* 첫 번째 일정을 수정하여 두 번째 일정과 겹치지 않도록 시간대를 변경 */}
+    await page.locator('div:nth-child(4) > div > div:nth-child(2) > button').first().click();
+    await page.locator('label').filter({ hasText: '반복 일정' }).locator('svg').click();
+    await page.getByLabel('시작 시간').click();
+    await page.getByLabel('시작 시간').press('ArrowRight');
+    await page.getByLabel('시작 시간').fill('03:00');
+    await page.getByTestId('event-submit-button').click();
+
+    {/* 첫 번째 일정과 두 번째 일정이 겹치지 않도록 수정됨 */}
+    await page.getByRole('cell', { name: '정원이랑 놀기 다은이랑 놀기' }).click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '정원이랑 놀기2024-11-2003:00 - 06:' }).first().click();
+    await page.getByTestId('event-list').locator('div').filter({ hasText: '다은이랑 놀기2024-11-2001:00 - 02:' }).first().click();
   });
 
   test.afterAll(() => {
