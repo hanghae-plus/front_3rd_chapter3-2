@@ -1,4 +1,4 @@
-import { BellIcon } from '@chakra-ui/icons';
+import { BellIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import {
   VStack,
   Table,
@@ -42,6 +42,7 @@ export const CalendarView = ({
 }: CalendarViewProps) => {
   const renderWeekView = () => {
     const weekDates = getWeekDates(currentDate);
+
     return (
       <VStack data-testid="week-view" align="stretch" w="full" spacing={4}>
         <Heading size="md">{formatWeek(currentDate)}</Heading>
@@ -76,6 +77,9 @@ export const CalendarView = ({
                         >
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
+                            {event.repeat.type !== 'none' && (
+                              <RepeatClockIcon aria-label="Repeat Event" />
+                            )}
                             <Text fontSize="sm" noOfLines={1}>
                               {event.title}
                             </Text>
@@ -145,6 +149,9 @@ export const CalendarView = ({
                               >
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
+                                  {event.repeat.type !== 'none' && (
+                                    <RepeatClockIcon aria-label="Repeat Event" />
+                                  )}
                                   <Text fontSize="sm" noOfLines={1}>
                                     {event.title}
                                   </Text>
