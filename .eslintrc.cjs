@@ -54,6 +54,12 @@ module.exports = {
       extends: ['plugin:vitest/recommended'],
       rules: {
         'vitest/expect-expect': 'off',
+        'prettier/prettier': [
+          'warn',
+          {
+            endOfLine: 'auto',
+          },
+        ],
       },
       globals: {
         globalThis: true,
