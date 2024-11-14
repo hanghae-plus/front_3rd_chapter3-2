@@ -1,9 +1,10 @@
-import { Event } from '../types.ts';
+import { Event } from '../../../types.ts';
 
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
  */
 export function getDaysInMonth(year: number, month: number): number {
+  if (month > 12 || month < 1) return -1;
   return new Date(year, month, 0).getDate();
 }
 
@@ -84,11 +85,11 @@ export function formatMonth(date: Date): string {
   return `${year}년 ${month}월`;
 }
 
-const stripTime = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-
 /**
  * 주어진 날짜가 특정 범위 내에 있는지 확인합니다.
  */
+const stripTime = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
 export function isDateInRange(date: Date, rangeStart: Date, rangeEnd: Date): boolean {
   const normalizedDate = stripTime(date);
   const normalizedStart = stripTime(rangeStart);
@@ -107,4 +108,8 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(currentDate.getMonth() + 1),
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
+}
+
+export function isEqualDate(date1: Date, date2: Date) {
+  return date1.toDateString() === date2.toDateString();
 }

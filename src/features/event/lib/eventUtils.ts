@@ -1,5 +1,7 @@
-import { Event } from '../types';
 import { getWeekDates, isDateInRange } from './dateUtils';
+import { EventFormData, RepeatState } from '../model/types';
+
+import { Event, EventForm, RepeatInfo } from '@/types';
 
 function filterEventsByDateRange(events: Event[], start: Date, end: Date): Event[] {
   return events.filter((event) => {
@@ -48,3 +50,33 @@ export function getFilteredEvents(
 
   return searchedEvents;
 }
+
+export const createEventRepeatState = (repeatFormData: RepeatInfo) => {
+  const { type, interval, endDate } = repeatFormData;
+  return {
+    isRepeating: type !== 'none',
+    repeatType: type || 'none',
+    repeatInterval: interval || 1,
+    repeatEndDate: endDate || '',
+  };
+};
+
+export const createEventRepeatFormData = (repeatState: RepeatState): RepeatInfo => {
+  const { isRepeating, repeatType, repeatInterval, repeatEndDate } = repeatState;
+  return {
+    type: isRepeating ? (repeatType === 'none' ? 'daily' : repeatType) : 'none',
+    interval: repeatInterval,
+    endDate: repeatEndDate || undefined,
+  };
+};
+
+export const createEventFormData = (data: EventFormData): Event | EventForm => {
+  const { startTime, endTime, formState, repeatState } = data;
+  return {
+    ...formState,
+    id: data.editingEvent ? data.editingEvent.id : undefined,
+    startTime,
+    endTime,
+    repeat: createEventRepeatFormData(repeatState),
+  };
+};

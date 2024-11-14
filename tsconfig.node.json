@@ -7,7 +7,14 @@
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["cypress", "@testing-library/cypress"]
   },
-  "include": ["vite.config.ts"]
+
+  "baseUrl": "./",
+  "paths": {
+    "@/*": ["src/*"]
+  },
+
+  "include": ["vite.config.ts", "cypress/**/*"]
 }
