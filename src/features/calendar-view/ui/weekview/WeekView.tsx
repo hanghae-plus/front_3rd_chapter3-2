@@ -7,10 +7,14 @@ import { weekDays } from '../../../../shared/config/constant';
 import { formatWeek } from '../../../../shared/lib/date';
 import { VStack } from '../../../../shared/ui/Stack';
 
+interface NotifiedEventsState {
+  [key: string]: number;
+}
+
 interface WeekViewProps {
   currentDate: Date;
   events: Event[];
-  notifiedEvents: string[];
+  notifiedEvents: NotifiedEventsState;
 }
 
 export const WeekView = ({ currentDate, events, notifiedEvents }: WeekViewProps) => {
@@ -74,7 +78,7 @@ export const WeekView = ({ currentDate, events, notifiedEvents }: WeekViewProps)
                           ...event,
                           date: date.toISOString().split('T')[0], // 현재 표시되는 날짜로 설정
                         }}
-                        isNotified={notifiedEvents.includes(event.id)}
+                        isNotified={notifiedEvents[event.id] > 0}
                       />
                     ))}
                   </VStack>

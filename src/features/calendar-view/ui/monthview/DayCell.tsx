@@ -27,11 +27,7 @@ export const DayCell = memo(
             </Text>
           )}
           {events.map((event) => (
-            <EventItem
-              key={event.id}
-              event={event}
-              isNotified={notifiedEvents.includes(event.id)}
-            />
+            <EventItem key={event.id} event={event} isNotified={notifiedEvents[event.id] > 0} />
           ))}
         </VStack>
       </Td>

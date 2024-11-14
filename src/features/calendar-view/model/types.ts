@@ -1,10 +1,14 @@
 import { Event } from '../../../entities/event/model/types';
 
+interface NotifiedEventsState {
+  [key: string]: number;
+}
+
 export interface MonthViewProps {
   currentDate: Date;
   events: Event[];
   holidays: Record<string, string>;
-  notifiedEvents: string[];
+  notifiedEvents: NotifiedEventsState;
 }
 
 export interface DayCellProps {
@@ -12,7 +16,7 @@ export interface DayCellProps {
   dateString: string;
   holiday: string | undefined;
   events: Event[];
-  notifiedEvents: string[];
+  notifiedEvents: NotifiedEventsState;
 }
 
 export interface EventItemProps {

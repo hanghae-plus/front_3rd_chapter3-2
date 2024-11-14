@@ -47,6 +47,7 @@ export const useEventList = ({
       return;
     }
     setEditingEvent(event);
+    console.log(event);
   };
 
   // 이벤트 삭제

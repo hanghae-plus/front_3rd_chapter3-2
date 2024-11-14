@@ -9,8 +9,12 @@ import Input from '../../../shared/ui/Input';
 import { VStack } from '../../../shared/ui/Stack';
 import { useEventList } from '../hooks/useEventList';
 
+interface NotifiedEventsState {
+  [key: string]: number;
+}
+
 interface EventListProps {
-  notifiedEvents: string[];
+  notifiedEvents: NotifiedEventsState;
   setEditingEvent: Dispatch<SetStateAction<Event | null>>;
   events: Event[];
   fetchEvents: () => void;
@@ -50,7 +54,7 @@ export const EventList = ({
           <EventCard
             key={event.id}
             event={event}
-            isNotified={notifiedEvents.includes(event.id)}
+            isNotified={notifiedEvents[event.id] > 0}
             onEdit={handleEdit}
             onDelete={handleDelete}
           />

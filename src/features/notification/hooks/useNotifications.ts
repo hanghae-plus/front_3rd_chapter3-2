@@ -5,11 +5,16 @@ import { Event } from '../../../entities/event/model/types';
 interface Notification {
   id: string;
   message: string;
+  repeatCount: number;
+}
+
+interface NotifiedEventsState {
+  [key: string]: number;
 }
 
 export const useNotifications = (events: Event[]) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [notifiedEvents, setNotifiedEvents] = useState<string[]>([]);
+  const [notifiedEvents, setNotifiedEvents] = useState<NotifiedEventsState>({});
 
   useEffect(() => {
     const checkNotifications = () => {
@@ -20,54 +25,55 @@ export const useNotifications = (events: Event[]) => {
         );
         const now = new Date();
 
-        if (now >= notificationTime && now <= eventDate && !notifiedEvents.includes(event.id)) {
-          // 새로운 알림 추가
-          setNotifiedEvents((prev) => [...prev, event.id]);
+        const currentRepeatCount = notifiedEvents[event.id] || 0;
+        const maxRepeatCount = event.repeat.endCondition === 'count' ? event.repeat.count || 1 : 1;
+
+        if (now >= notificationTime && now <= eventDate && currentRepeatCount < maxRepeatCount) {
+          setNotifiedEvents((prev) => ({
+            ...prev,
+            [event.id]: currentRepeatCount + 1,
+          }));
+
           setNotifications((prev) => [
             ...prev,
             {
               id: `${event.id}-${Date.now()}`,
               message: `${event.title} 일정이 곧 시작됩니다.`,
+              repeatCount: currentRepeatCount + 1,
             },
           ]);
         }
       });
     };
 
-    // 1분마다 알림 체크
     const interval = setInterval(checkNotifications, 60000);
-
-    // 초기 체크
     checkNotifications();
 
     return () => clearInterval(interval);
   }, [events, notifiedEvents]);
 
-  // 알림 제거
-  const removeNotification = (notificationId: string) => {
+  const clearNotification = (notificationId: string) => {
     setNotifications((prev) => prev.filter((notification) => notification.id !== notificationId));
   };
 
-  // 모든 알림 제거
   const clearAllNotifications = () => {
     setNotifications([]);
+    setNotifiedEvents({});
   };
 
-  // 이벤트 알림 상태 초기화
   const resetNotifiedEvent = (eventId: string) => {
-    setNotifiedEvents((prev) => prev.filter((id) => id !== eventId));
-  };
-
-  const clearNotification = (notificationId: string) => {
-    removeNotification(notificationId);
+    setNotifiedEvents((prev) => {
+      const newState = { ...prev };
+      delete newState[eventId];
+      return newState;
+    });
   };
 
   return {
     notifications,
     notifiedEvents,
-    removeNotification,
+    clearNotification,
     clearAllNotifications,
     resetNotifiedEvent,
-    clearNotification,
   };
 };

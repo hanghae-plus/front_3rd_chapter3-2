@@ -23,8 +23,8 @@ export default function Schedule() {
     Boolean(editingEvent),
     () => setEditingEvent(null)
   );
-  const { notifiedEvents, notifications, clearNotification } = useNotifications(events);
-
+  const { notifiedEvents, notifications, clearAllNotifications } = useNotifications(events);
+  console.log(editingEvent);
   const { view, setView, currentDate, holidays, navigate } = useCalendarView();
   const { filteredEvents } = useSearch(events, currentDate, view);
 
@@ -92,7 +92,7 @@ export default function Schedule() {
       />
 
       {notifications.length > 0 && (
-        <NotificationList notifications={notifications} clearNotification={clearNotification} />
+        <NotificationList notifications={notifications} clearNotification={clearAllNotifications} />
       )}
     </Box>
   );

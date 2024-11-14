@@ -117,10 +117,9 @@ describe('일정 CRUD 및 기본 기능', () => {
     await user.type(screen.getByLabelText(/위치/), '수정된 회의실');
     await user.selectOptions(screen.getByLabelText(/카테고리/), '개인');
 
-    const editSubmitButton = await screen.findByTestId('event-submit-button');
-    await user.click(editSubmitButton);
+    await user.click(screen.getByRole('button', { name: /수정/ }));
     const updatedEventList = await screen.findByTestId('event-list');
-    expect(within(updatedEventList).getByText('수정된 팀 회의 제목')).toBeInTheDocument();
+    expect(await within(eventList).findByText('수정된 팀 회의 제목')).toBeInTheDocument();
   });
 
   it('일정을 삭제하고 더 이상 조회되지 않는지 확인한다', async () => {

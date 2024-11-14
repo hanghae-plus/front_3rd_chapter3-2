@@ -49,7 +49,7 @@ export const EventForm = memo(
     const bgColor = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.600');
     const headingColor = useColorModeValue('blue.600', 'blue.300');
-
+    console.log(formState);
     const handleSubmitClick = () => {
       if (initialEvent?.isRepeating) {
         onOpen();
@@ -89,15 +89,16 @@ export const EventForm = memo(
     useEffect(() => {
       if (!initialEvent) return;
       if (!formState.isRepeating) {
-        setFormState((prev) => ({
-          ...prev,
-          repeatType: 'none',
-          repeatInterval: 1,
-          repeatEndDate: '',
-          repeatEndCondition: 'never',
-        }));
+        setFormState({
+          ...initialEvent,
+          repeatType: initialEvent.repeat.type,
+          repeatInterval: initialEvent.repeat.interval,
+          repeatEndDate: initialEvent.repeat.endDate || '',
+          repeatEndCondition: initialEvent.repeat.endCondition,
+          repeatCount: initialEvent.repeat.count,
+        });
       }
-    }, [initialEvent, formState.isRepeating, setFormState]);
+    }, [initialEvent]);
 
     useEffect(() => {
       if (!formState.isRepeating) return;
@@ -110,7 +111,15 @@ export const EventForm = memo(
           formState.repeatType
         ),
       }));
-    }, [formState.date, formState.repeatEndDate, formState.repeatInterval, formState.isRepeating]);
+    }, [
+      formState.date,
+      formState.repeatEndDate,
+      formState.repeatInterval,
+      formState.repeatType,
+      formState.isRepeating,
+      formState.repeatEndCondition,
+      formState.repeatCount,
+    ]);
 
     return (
       <VStack
@@ -132,7 +141,7 @@ export const EventForm = memo(
           <Heading size="lg" color={headingColor}>
             {initialEvent ? '일정 수정' : '일정 추가'}
           </Heading>
-          {initialEvent?.isRepeating && (
+          {formState?.isRepeating && (
             <Tooltip label="반복 일정">
               <RepeatIcon boxSize={6} />
             </Tooltip>
@@ -211,7 +220,7 @@ export const EventForm = memo(
           <FormLabel fontWeight="medium">카테고리</FormLabel>
           <Select
             name="category"
-            value={formState?.category}
+            value={initialEvent?.category}
             onChange={handleInputChange}
             size="lg"
           >
@@ -331,6 +340,7 @@ export const EventForm = memo(
                       max="99"
                       inputMode="numeric"
                       name="repeatCount"
+                      value={formState.repeatCount}
                       onChange={handleInputChange}
                       size="lg"
                     />
