@@ -1,45 +1,14 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import {
-  Heading,
-  HStack,
-  IconButton,
-  Select,
-  Table,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  VStack,
-} from '@chakra-ui/react';
-import React from 'react';
+import { Heading, HStack, IconButton, Select, VStack } from '@chakra-ui/react';
 
-import { EventItem } from './EventItem';
+import { MonthView } from './MonthView';
+import { WeekView } from './WeekView';
+import { useCalendarView } from '../../hooks/useCalendarView';
 import { Event, EventId } from '../../types';
-import {
-  formatDate,
-  formatMonth,
-  formatWeek,
-  getEventsForDay,
-  getWeekDates,
-  getWeeksAtMonth,
-} from '../../utils/dateUtils';
 
-const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
-
-type Props = {
-  notifiedEvents: EventId[];
-
+type Props = ReturnType<typeof useCalendarView> & {
   filteredEvents: Event[];
-
-  currentDate: Date;
-  holidays: {
-    [key: string]: string;
-  };
-  view: 'week' | 'month';
-  setView: React.Dispatch<React.SetStateAction<'week' | 'month'>>;
-  navigate: (direction: 'prev' | 'next') => void;
+  notifiedEvents: EventId[];
 };
 
 export const Calendar = ({
@@ -52,105 +21,6 @@ export const Calendar = ({
   setView,
   navigate,
 }: Props) => {
-  const renderWeekView = () => {
-    const weekDates = getWeekDates(currentDate);
-
-    return (
-      <VStack data-testid="week-view" align="stretch" w="full" spacing={4}>
-        <Heading size="md">{formatWeek(currentDate)}</Heading>
-        <Table variant="simple" w="full">
-          <Thead>
-            <Tr>
-              {weekDays.map((day) => (
-                <Th key={day} width="14.28%">
-                  {day}
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            <Tr>
-              {weekDates.map((date) => (
-                <Td key={date.toISOString()} height="100px" verticalAlign="top" width="14.28%">
-                  <Text fontWeight="bold">{date.getDate()}</Text>
-                  {filteredEvents
-                    .filter((event) => new Date(event.date).toDateString() === date.toDateString())
-                    .map((event) => (
-                      <EventItem
-                        key={event.id}
-                        isNotified={notifiedEvents.includes(event.id)}
-                        event={event}
-                      />
-                    ))}
-                </Td>
-              ))}
-            </Tr>
-          </Tbody>
-        </Table>
-      </VStack>
-    );
-  };
-
-  const renderMonthView = () => {
-    const weeks = getWeeksAtMonth(currentDate);
-
-    return (
-      <VStack data-testid="month-view" align="stretch" w="full" spacing={4}>
-        <Heading size="md">{formatMonth(currentDate)}</Heading>
-        <Table variant="simple" w="full">
-          <Thead>
-            <Tr>
-              {weekDays.map((day) => (
-                <Th key={day} width="14.28%">
-                  {day}
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {weeks.map((week, weekIndex) => (
-              <Tr key={weekIndex}>
-                {week.map((day, dayIndex) => {
-                  const dateString = day ? formatDate(currentDate, day) : '';
-                  const holiday = holidays[dateString];
-
-                  return (
-                    <Td
-                      key={dayIndex}
-                      height="100px"
-                      verticalAlign="top"
-                      width="14.28%"
-                      position="relative"
-                      data-testid={`day-${day}`}
-                    >
-                      {day && (
-                        <>
-                          <Text fontWeight="bold">{day}</Text>
-                          {holiday && (
-                            <Text color="red.500" fontSize="sm">
-                              {holiday}
-                            </Text>
-                          )}
-                          {getEventsForDay(filteredEvents, day).map((event) => (
-                            <EventItem
-                              key={event.id}
-                              isNotified={notifiedEvents.includes(event.id)}
-                              event={event}
-                            />
-                          ))}
-                        </>
-                      )}
-                    </Td>
-                  );
-                })}
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </VStack>
-    );
-  };
-
   return (
     <VStack flex={1} spacing={5} align="stretch" data-testid="calendar-view">
       <Heading>일정 보기</Heading>
@@ -176,8 +46,21 @@ export const Calendar = ({
         />
       </HStack>
 
-      {view === 'week' && renderWeekView()}
-      {view === 'month' && renderMonthView()}
+      {view === 'week' && (
+        <WeekView
+          currentDate={currentDate}
+          filteredEvents={filteredEvents}
+          notifiedEvents={notifiedEvents}
+        />
+      )}
+      {view === 'month' && (
+        <MonthView
+          currentDate={currentDate}
+          filteredEvents={filteredEvents}
+          holidays={holidays}
+          notifiedEvents={notifiedEvents}
+        />
+      )}
     </VStack>
   );
 };

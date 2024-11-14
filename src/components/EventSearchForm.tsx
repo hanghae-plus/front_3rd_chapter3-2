@@ -9,17 +9,13 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import React from 'react';
 
 import { notificationOptions } from '../constants/notification';
+import { useSearch } from '../hooks/useSearch';
 import { useEventFormStore } from '../store/useEventFormStore';
-import { Event, EventId } from '../types';
+import { EventId } from '../types';
 
-type Props = {
-  filteredEvents: Event[];
-  searchTerm: string;
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
-
+type Props = ReturnType<typeof useSearch> & {
   notifiedEvents: EventId[];
 
   deleteEvent: (id: EventId) => Promise<void>;
