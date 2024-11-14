@@ -155,7 +155,22 @@ describe('반복 일정 표시', () => {
 
 describe('반복 종료', () => {
   // 옵션: 특정 날짜까지, 특정 횟수만큼, 또는 종료 없음 (예제 특성상, 2025-06-30까지)
-  it('반복 종료 조건을 지정할 수 있다.', () => {});
+  it('반복 종료 조건을 지정할 수 있다.', async () => {
+    const { user } = setup(<App />);
+
+    const checkbox = screen.getByRole('checkbox', { name: 'repeat setting' });
+    await user.click(checkbox);
+
+    const repeatEndDate = screen.getByLabelText('반복 종료일');
+    await user.type(repeatEndDate, '2025-06-30');
+
+    const submitButton = screen.getByTestId('event-submit-button');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/종료: 2025-06-30/)).toBeInTheDocument();
+    });
+  });
 });
 
 describe('반복 일정 단일 수정', () => {
