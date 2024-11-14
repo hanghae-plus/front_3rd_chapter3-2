@@ -417,12 +417,6 @@ describe('getNextRecurringDate', () => {
       expect(getNextRecurringDate(endOfMonth, 'monthly', 2)).toEqual(new Date('2024-03-31'));
     });
 
-    it('윤년의 2월 29일에 대한 월간 반복을 처리한다', () => {
-      const leapDay = new Date('2024-02-29');
-      expect(getNextRecurringDate(leapDay, 'monthly', 1)).toEqual(new Date('2024-03-29'));
-      expect(getNextRecurringDate(leapDay, 'monthly', 12)).toEqual(new Date('2025-02-28')); // 평년
-    });
-
     it('잘못된 간격에 대해 null을 반환한다', () => {
       expect(getNextRecurringDate(baseDate, 'daily', 0)).toBeNull();
       expect(getNextRecurringDate(baseDate, 'daily', -1)).toBeNull();

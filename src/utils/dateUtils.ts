@@ -261,3 +261,67 @@ export function getEventTime(date: Date) {
     endTime: `${fillZero(date.getHours())}:${fillZero(date.getMinutes())}`,
   };
 }
+
+export type RepeatType = 'daily' | 'weekly' | 'monthly';
+export function getNextRecurringDate(
+  baseDate: Date,
+  repeatType: RepeatType,
+  interval: number
+): Date | null {
+  // 유효하지 않은 입력값 처리
+  if (interval <= 0 || !['daily', 'weekly', 'monthly'].includes(repeatType)) {
+    return null;
+  }
+
+  const result = new Date(baseDate);
+
+  switch (repeatType) {
+    case 'daily':
+      result.setDate(baseDate.getDate() + interval);
+      break;
+
+    case 'weekly':
+      result.setDate(baseDate.getDate() + interval * 7);
+      break;
+
+    case 'monthly': {
+      const originalDay = baseDate.getDate();
+      const originalMonth = baseDate.getMonth();
+      const originalYear = baseDate.getFullYear();
+
+      // 먼저 월을 변경
+      const targetMonth = originalMonth + interval;
+      const targetYear = originalYear + Math.floor(targetMonth / 12);
+      const normalizedMonth = targetMonth % 12;
+
+      // 타겟 월의 마지막 날짜 계산
+      const lastDayOfTargetMonth = new Date(targetYear, normalizedMonth + 1, 0).getDate();
+
+      // 2월 29일 특별 처리
+      if (originalDay === 29 && originalMonth === 1) {
+        // 2월 29일인 경우
+        if (lastDayOfTargetMonth === 28) {
+          // 목표 월이 평년의 2월인 경우
+          result.setFullYear(targetYear, normalizedMonth, 28);
+          break;
+        }
+      }
+
+      // 원본이 월말일 경우
+      const isLastDayOfMonth =
+        originalDay === new Date(originalYear, originalMonth + 1, 0).getDate();
+
+      if (isLastDayOfMonth) {
+        // 원본이 월말이었다면 타겟 월의 마지막 날로 설정
+        result.setFullYear(targetYear, normalizedMonth, lastDayOfTargetMonth);
+      } else {
+        // 원본 날짜와 타겟 월의 마지막 날짜 중 작은 값 사용
+        const targetDay = Math.min(originalDay, lastDayOfTargetMonth);
+        result.setFullYear(targetYear, normalizedMonth, targetDay);
+      }
+      break;
+    }
+  }
+
+  return result;
+}
