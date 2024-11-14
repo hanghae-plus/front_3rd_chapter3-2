@@ -221,4 +221,33 @@ describe('반복 일정 단일 수정', () => {
     expect(within(eventList).getAllByLabelText('Repeat Event')).toHaveLength(2);
   });
 });
-describe('반복 일정 단일 삭제', () => {});
+describe('반복 일정 단일 삭제', () => {
+  describe('반복 일정 단일 삭제', () => {
+    it('반복일정을 삭제하면 해당 일정만 삭제된다.', async () => {
+      renderEventForm();
+
+      await userEvent.type(screen.getByLabelText(/제목/), '단일 삭제');
+      await userEvent.type(screen.getByLabelText(/날짜/), '2024-11-15');
+      await userEvent.type(screen.getByLabelText(/시작 시간/), '09:00');
+      await userEvent.type(screen.getByLabelText(/종료 시간/), '10:00');
+      await userEvent.type(screen.getByLabelText(/설명/), '설명');
+      await userEvent.type(screen.getByLabelText(/위치/), '위치');
+      await userEvent.selectOptions(screen.getByLabelText(/카테고리/), '업무');
+
+      await userEvent.click(screen.getByRole('checkbox', { name: /반복 일정/ }));
+      await userEvent.type(screen.getByLabelText(/반복 종료일/), '2024-11-17');
+
+      await userEvent.click(screen.getByRole('button', { name: /일정 추가/ }));
+
+      const eventList = await screen.findByTestId('event-list');
+      expect(within(eventList).getAllByText('단일 삭제')).toHaveLength(3);
+      expect(within(eventList).getAllByLabelText('Repeat Event')).toHaveLength(3);
+
+      const deleteButton = within(eventList).getByLabelText('Delete event');
+      await userEvent.click(deleteButton);
+
+      expect(within(eventList).getAllByText('단일 삭제')).toHaveLength(2);
+      expect(within(eventList).getAllByLabelText('Repeat Event')).toHaveLength(2);
+    });
+  });
+});
