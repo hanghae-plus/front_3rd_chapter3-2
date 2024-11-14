@@ -138,10 +138,10 @@ describe('calculateMonthlyNext', () => {
     expect(formatDateToString(nextDate!)).toBe('2024-02-15');
   });
 
-  it('2월 29일인 경우 null을 반환한다', () => {
+  it('2월 29일인 경우 3월 29일을 반환한다', () => {
     const date = new Date('2024-02-29');
     const nextDate = calculateMonthlyNext(date, 1);
-    expect(nextDate).toBeNull();
+    expect(formatDateToString(nextDate!)).toBe('2024-03-29');
   });
 
   it('연도를 넘어가는 월간 반복을 처리한다', () => {

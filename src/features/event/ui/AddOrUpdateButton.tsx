@@ -26,6 +26,7 @@ export const AddOrUpdateButton = ({ events, saveEvent }: AddOrUpdateButtonProps)
     startTimeError,
     endTimeError,
     editingEvent,
+    repeatDepth,
     resetForm,
   } = useEventFormStore();
 
@@ -65,7 +66,7 @@ export const AddOrUpdateButton = ({ events, saveEvent }: AddOrUpdateButtonProps)
 
     if (isRepeating && date > repeatEndDate) {
       toast({
-        title: '반복 종료일은 시작일보다 빨라야 합니다.',
+        title: '반복 종료일은 시작일 보다 이후여야 합니다.',
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -86,6 +87,7 @@ export const AddOrUpdateButton = ({ events, saveEvent }: AddOrUpdateButtonProps)
         type: isRepeating ? repeatType : 'none',
         interval: repeatInterval,
         endDate: repeatEndDate || undefined,
+        depth: repeatDepth || 'fix',
       },
       notificationTime,
     };

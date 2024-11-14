@@ -15,7 +15,7 @@ export const handlers = [
   }),
 
   http.post('/api/events-list', async ({ request }) => {
-    const { events: newEvents } = await request.json();
+    const { events: newEvents } = (await request.json()) as { events: Event[] };
     // 각 이벤트에 ID 부여
     const eventsWithIds = newEvents.map((event: Event, index: number) => ({
       ...event,

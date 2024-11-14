@@ -38,25 +38,25 @@ export const useEventOperations = () => {
       body: JSON.stringify({ events }),
     });
 
-    toast({
-      title: '일정이 추가되었습니다.',
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
-
     if (!response.ok) {
       throw new Error('Failed to save event');
     }
-
-    await fetchEvents();
-    setEditingEvent(null);
   };
 
   const saveEvent = async (eventData: Event | EventForm, isEditing: boolean) => {
     if (eventData.repeat.type !== 'none') {
       const repeatedEvents = generateRepeatedEvents(eventData);
       await createRepeatEvents(repeatedEvents);
+      await fetchEvents();
+      setEditingEvent(null);
+
+      toast({
+        title: '일정이 추가되었습니다.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+
       return;
     }
 
@@ -95,6 +95,7 @@ export const useEventOperations = () => {
       }
 
       await fetchEvents();
+
       setEditingEvent(null);
     } catch (error) {
       console.error('Error saving event:', error);

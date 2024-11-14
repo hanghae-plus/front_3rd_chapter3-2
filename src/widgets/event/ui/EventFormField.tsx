@@ -39,7 +39,7 @@ export const EventFormField = ({ events, saveEvent }: EventFormProps) => {
   } = useEventFormStore();
 
   return (
-    <VStack w="290px" spacing={5} align="stretch">
+    <VStack w="290px" spacing={3} align="stretch">
       <Heading>{editingEvent ? '일정 수정' : '일정 추가'}</Heading>
 
       <InputField label="제목" value={title} onChange={setTitle} />
