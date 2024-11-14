@@ -1,9 +1,9 @@
-import { RepeatType } from '../types';
-import { Event } from '../types';
+import { RepeatType, Event } from '../types';
+import { formatDate } from './dateUtils';
 
-export function createRepeatEvent(event: Event, maxOccurrences?: number): string[] {
+export function createRepeatEvent(event: Event, maxOccurrences?: number): Event[] {
   const { date: startDateStr, repeat: { interval, type: repeatType, endDate: endDateStr } } = event;
-  const eventDates: string[] = [];
+  const eventInstances: Event[] = [];
   let currentEventDate = new Date(startDateStr);
   const defaultEndDate = new Date('2025-06-30');
   const endEventDate = endDateStr ? new Date(endDateStr) : defaultEndDate;
@@ -31,10 +31,13 @@ export function createRepeatEvent(event: Event, maxOccurrences?: number): string
   };
 
   while (currentEventDate <= endEventDate && (maxOccurrences === undefined || occurrences < maxOccurrences)) {
-    eventDates.push(currentEventDate.toISOString().split('T')[0]);
+    eventInstances.push({
+      ...event,
+      date: formatDate(currentEventDate),
+    });
     adjustDateByInterval(currentEventDate, repeatType, interval);
     occurrences++;
   }
 
-  return eventDates;
+  return eventInstances;
 }
