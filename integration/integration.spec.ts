@@ -215,6 +215,99 @@ test.describe.serial('통합 테스트', () => {
       await page.getByTestId('event-list').locator('div').filter({ hasText: '매월 반복되는 일정2025-01-1401:00 -' }).nth(1).click();
     });
 
+    test('5. 반복 유형을 매년로 선택하면, 매년 반복되는 일정이 생성되어야한다.', async ({ page }) => {
+      await page.goto('http://localhost:5173/');
+      await page.getByRole('button', { name: '모든 일정 삭제' }).click();
+      await page.reload();
+    
+      await page.getByLabel('제목').click();
+      await page.getByLabel('제목').fill('매년 반복되는 우리의 기념일 일정');
+      await page.getByLabel('날짜').fill('2023-03-29');
+      await page.getByLabel('시작 시간').click();
+      await page.getByLabel('시작 시간').press('ArrowUp');
+      await page.getByLabel('시작 시간').press('ArrowRight');
+      await page.getByLabel('시작 시간').fill('01:00');
+      await page.getByLabel('종료 시간').click();
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowRight');
+      await page.getByLabel('종료 시간').press('ArrowLeft');
+      await page.getByLabel('종료 시간').press('ArrowLeft');
+      await page.getByLabel('종료 시간').press('ArrowUp');
+      await page.getByLabel('종료 시간').press('ArrowRight');
+      await page.getByLabel('종료 시간').press('ArrowLeft');
+      await page.getByLabel('종료 시간').fill('12:00');
+      await page.getByLabel('설명').click();
+      await page.getByLabel('설명').fill('기념일 세기!');
+      await page.getByLabel('위치').click();
+      await page.getByLabel('위치').fill('우리집');
+      await page.getByLabel('카테고리').selectOption('개인');
+      await page.locator('span').first().click();
+    
+      {/* 반복 유형을 매년로 선택 */}
+      await page.getByLabel('반복 유형').selectOption('yearly');
+      await page.getByTestId('event-submit-button').click();
+    
+      {/* 23년 3월 29일부터 계속 매년 반복되는 일정이 존재함 */}
+      {/* 현재는 24-11이므로, 23년 3월로 이동 */}
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+      await page.getByLabel('Previous').click();
+    
+      {/* 23년 3월 28일에 일정이 존재함 */}
+      await page.getByTestId('month-view').getByText('28').click();
+      await page.getByRole('cell', { name: '매년 반복되는 우리의 기념일 일정' }).click();
+      await page.getByTestId('event-list').locator('div').filter({ hasText: '매년 반복되는 우리의 기념일 일정2023-03-' }).nth(1).click();
+    
+      {/* 24년 3월 28일에 일정이 존재함 */}
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+    
+      await page.getByTestId('event-list').locator('div').filter({ hasText: '매년 반복되는 우리의 기념일 일정2024-03-' }).first().click();
+    
+      {/* 25년 3월 28일에 일정이 존재함 */}
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByLabel('Next').click();
+      await page.getByRole('cell', { name: '매년 반복되는 우리의 기념일 일정' }).click();
+      await page.getByTestId('event-list').locator('div').filter({ hasText: '매년 반복되는 우리의 기념일 일정2025-03-' }).first().click();
+    });
+
   });
   test.afterAll(() => {
     if (serverProcess) {
