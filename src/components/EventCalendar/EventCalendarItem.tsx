@@ -8,7 +8,7 @@ type Props = {
   isNotified: boolean;
 };
 
-export const EventItem = ({ event, isNotified }: Props) => {
+export const EventCalendarItem = ({ event, isNotified }: Props) => {
   const isRepeat = event.repeat.type !== 'none';
 
   return (

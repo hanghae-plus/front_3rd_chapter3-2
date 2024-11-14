@@ -1,6 +1,6 @@
 import { FormControl, FormLabel, Input, Text, VStack } from '@chakra-ui/react';
 
-import { EventItem } from './EventItem';
+import { EventSearchItem } from './EventSearchItem';
 import { useSearch } from '../../hooks/useSearch';
 import { EventId } from '../../types';
 
@@ -32,7 +32,7 @@ export const EventSearchForm = ({
         <Text>검색 결과가 없습니다.</Text>
       ) : (
         filteredEvents.map((event) => (
-          <EventItem
+          <EventSearchItem
             key={event.id}
             event={event}
             notifiedEvents={notifiedEvents}

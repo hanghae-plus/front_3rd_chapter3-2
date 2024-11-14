@@ -1,6 +1,6 @@
 import { Heading, Table, Tbody, Td, Text, Th, Thead, Tr, VStack } from '@chakra-ui/react';
 
-import { EventItem } from './EventItem';
+import { EventCalendarItem } from './EventCalendarItem';
 import { weekDays } from '../../constants/eventCalendar';
 import { Holidays } from '../../hooks/useCalendarView';
 import { Event, EventId } from '../../types';
@@ -55,7 +55,7 @@ export const MonthView = ({ currentDate, filteredEvents, notifiedEvents, holiday
                           </Text>
                         )}
                         {getEventsForDay(filteredEvents, day).map((event) => (
-                          <EventItem
+                          <EventCalendarItem
                             key={event.id}
                             isNotified={notifiedEvents.includes(event.id)}
                             event={event}

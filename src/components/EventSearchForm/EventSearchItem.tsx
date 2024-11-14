@@ -19,7 +19,7 @@ type Props = {
   deleteEvent: (id: EventId) => Promise<void>;
 };
 
-export const EventItem = ({ event, notifiedEvents, deleteEvent }: Props) => {
+export const EventSearchItem = ({ event, notifiedEvents, deleteEvent }: Props) => {
   const { setEditingEvent } = useEventFormStore();
   const isNotified = notifiedEvents.includes(event.id);
 

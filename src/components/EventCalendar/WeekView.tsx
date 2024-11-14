@@ -1,6 +1,6 @@
 import { Heading, Table, Tbody, Td, Text, Th, Thead, Tr, VStack } from '@chakra-ui/react';
 
-import { EventItem } from './EventItem';
+import { EventCalendarItem } from './EventCalendarItem';
 import { weekDays } from '../../constants/eventCalendar';
 import { Event, EventId } from '../../types';
 import { formatWeek, getWeekDates } from '../../utils/dateUtils';
@@ -36,7 +36,7 @@ export const WeekView = ({ currentDate, filteredEvents, notifiedEvents }: Props)
                 {filteredEvents
                   .filter((event) => new Date(event.date).toDateString() === date.toDateString())
                   .map((event) => (
-                    <EventItem
+                    <EventCalendarItem
                       key={event.id}
                       isNotified={notifiedEvents.includes(event.id)}
                       event={event}
