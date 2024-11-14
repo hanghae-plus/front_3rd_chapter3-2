@@ -2,3 +2,9 @@
 .vscode
 node_modules
 .coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+*storybook.log
