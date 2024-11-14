@@ -4,6 +4,7 @@ import { http, HttpResponse } from 'msw';
 import {
   setupMockHandlerCreation,
   setupMockHandlerDeletion,
+  setupMockHandlerListCreation,
   setupMockHandlerUpdating,
 } from '../../__mocks__/handlersUtils.ts';
 import { useEventOperations } from '../../hooks/useEventOperations.ts';
@@ -42,7 +43,7 @@ it('저장되어있는 초기 이벤트 데이터를 적절하게 불러온다',
 });
 
 it('정의된 이벤트 정보를 기준으로 적절하게 저장이 된다', async () => {
-  setupMockHandlerCreation(); // ? Med: 이걸 왜 써야하는지 물어보자
+  setupMockHandlerCreation();
 
   const { result } = renderHook(() => useEventOperations(false));
 
@@ -179,6 +180,95 @@ it("네트워크 오류 시 '일정 삭제 실패'라는 텍스트가 노출되�
     duration: 3000,
     isClosable: true,
     title: '일정 삭제 실패',
+    status: 'error',
+  });
+
+  expect(result.current.events).toHaveLength(1);
+});
+
+it('정의된 이벤트 정보 repeat 기준으로 반복일정이 계산되어 적절하게 저장이 된다', async () => {
+  setupMockHandlerListCreation();
+
+  const { result } = renderHook(() => useEventOperations(false));
+
+  await act(() => Promise.resolve(null));
+
+  const newEvent: Event = {
+    id: '1',
+    title: '새 회의',
+    date: '2024-10-20',
+    startTime: '11:00',
+    endTime: '12:00',
+    description: '새로운 팀 미팅',
+    location: '회의실 A',
+    category: '업무',
+    repeat: { type: 'daily', interval: 1, endDate: '2024-10-21' },
+    notificationTime: 5,
+  };
+
+  await act(async () => {
+    await result.current.createRepeatEvent(newEvent);
+  });
+
+  expect(result.current.events).toEqual([
+    {
+      id: '1',
+      title: '새 회의',
+      date: '2024-10-20',
+      startTime: '11:00',
+      endTime: '12:00',
+      description: '새로운 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-21' },
+      notificationTime: 5,
+    },
+    {
+      id: '2',
+      title: '새 회의',
+      date: '2024-10-21',
+      startTime: '11:00',
+      endTime: '12:00',
+      description: '새로운 팀 미팅',
+      location: '회의실 A',
+      category: '업무',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-21' },
+      notificationTime: 5,
+    },
+  ]);
+});
+
+it("리스트 생성시 네트워크 오류 시 '일정 삭제 실패'라는 텍스트가 노출되며 이벤트 삭제가 실패해야 한다", async () => {
+  server.use(
+    http.delete('/api/events-list', () => {
+      return new HttpResponse(null, { status: 500 });
+    })
+  );
+  const event: Event = {
+    id: '1',
+    title: '새 회의',
+    date: '2024-10-20',
+    startTime: '11:00',
+    endTime: '12:00',
+    description: '새로운 팀 미팅',
+    location: '회의실 A',
+    category: '업무',
+    repeat: { type: 'daily', interval: 1, endDate: '2024-10-21' },
+    notificationTime: 5,
+  };
+
+  const { result } = renderHook(() => useEventOperations(false));
+
+  await act(() => Promise.resolve(null));
+
+  await act(async () => {
+    await result.current.createRepeatEvent(event);
+  });
+
+  expect(toastFn).toHaveBeenCalledWith({
+    duration: 3000,
+    isClosable: true,
+    title: '일정 저장 실패',
     status: 'error',
   });
 

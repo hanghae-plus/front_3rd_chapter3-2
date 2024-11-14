@@ -68,7 +68,7 @@ module.exports = {
       },
     },
     {
-      files: ['cypress/e2e/**/*.cy.js'],
+      files: ['cypress/e2e/*.cy.ts', 'cypress/**/*.ts'],
       plugins: ['cypress'],
       extends: ['plugin:cypress/recommended'],
       env: {

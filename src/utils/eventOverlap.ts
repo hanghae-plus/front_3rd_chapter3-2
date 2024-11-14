@@ -20,6 +20,6 @@ export function isOverlapping(event1: Event | EventForm, event2: Event | EventFo
 
 export function findOverlappingEvents(newEvent: Event | EventForm, events: Event[]) {
   return events.filter(
-    (event) => event.id !== (newEvent as Event).id && isOverlapping(event, newEvent)
+    (event) => event.id !== (newEvent as Event)?.id && isOverlapping(event, newEvent)
   );
 }
