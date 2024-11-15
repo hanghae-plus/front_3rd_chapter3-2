@@ -40,6 +40,7 @@ import {
 } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
 
+import EventItem from './components/EventItem.tsx';
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
@@ -84,8 +85,6 @@ function App() {
     setLocation,
     category,
     setCategory,
-    repeatEndDate,
-    setRepeatEndDate,
     notificationTime,
     setNotificationTime,
     startTimeError,
@@ -105,6 +104,8 @@ function App() {
     setRepeatType,
     repeatInterval,
     intervalError,
+    repeatEndDate,
+    setRepeatEndDate,
     setRepeatInterval,
   } = useRepeatEvent();
 
@@ -218,9 +219,7 @@ function App() {
                         >
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
-                            <Text fontSize="sm" noOfLines={1}>
-                              {event.title}
-                            </Text>
+                            <EventItem event={event} />
                           </HStack>
                         </Box>
                       );
@@ -287,9 +286,7 @@ function App() {
                               >
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
-                                  <Text fontSize="sm" noOfLines={1}>
-                                    {event.title}
-                                  </Text>
+                                  <EventItem event={event} />
                                 </HStack>
                               </Box>
                             );
