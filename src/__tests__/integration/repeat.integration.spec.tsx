@@ -132,4 +132,14 @@ describe('반복일정과 캘린더, 리스트', () => {
     expect($eventList.getAllByText(/다비드 라야/i)).toHaveLength(1);
     expect($eventList.queryByText(/🔂/i)).not.toBeInTheDocument();
   });
+
+  it('반복 유형을 주간으로 변경하면 요일 지정을 할 수 있다.', async () => {
+    vi.setSystemTime(new Date('2024-11-15'));
+
+    const { user } = setup(<App />);
+
+    await user.selectOptions(screen.getByLabelText('반복 유형'), 'weekly');
+
+    expect(await screen.findByText(/요일 지정/i)).toBeInTheDocument();
+  });
 });
