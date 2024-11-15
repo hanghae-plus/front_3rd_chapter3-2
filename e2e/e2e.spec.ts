@@ -7,11 +7,33 @@ import waitOn from 'wait-on';
 const waitOnPromise = promisify(waitOn);
 
 let serverProcess;
+let clientProcess;
 
 test.describe.serial('e2e 테스트', () => {
   test.beforeAll(async () => {
-    serverProcess = exec('pnpm dev');
+    // 먼저 서버를 실행하도록 함
+    serverProcess = exec('npx nodemon server.js', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Server error: ${error.message}`);
+      }
+      if (stderr) {
+        console.error(`Server stderr: ${stderr}`);
+      }
+      console.log(`Server stdout: ${stdout}`);
+    });
 
+    // 그 다음 클라이언트를 실행하도록 함
+    clientProcess = exec('pnpm dev', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Client error: ${error.message}`);
+      }
+      if (stderr) {
+        console.error(`Client stderr: ${stderr}`);
+      }
+      console.log(`Client stdout: ${stdout}`);
+    });
+
+    // 클라이언트가 준비될 때까지 대기
     await waitOnPromise({
       resources: ['http://localhost:5173'],
       timeout: 10000,
@@ -391,8 +413,12 @@ test.describe.serial('e2e 테스트', () => {
   });
 
   test.afterAll(() => {
+    // 프로세스 종료
     if (serverProcess) {
       serverProcess.kill();
+    }
+    if (clientProcess) {
+      clientProcess.kill();
     }
   });
 });
