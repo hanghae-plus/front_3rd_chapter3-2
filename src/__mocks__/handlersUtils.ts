@@ -92,3 +92,31 @@ export const setupMockHandlerDeletion = () => {
     })
   );
 };
+
+export const setupMockHandlerRepeatEvents = (initEvents = [] as Event[]) => {
+  const mockEvents: Event[] = [...initEvents];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+    http.post('/api/events-list', async ({ request }) => {
+      const { event, dates } = (await request.json()) as { event: Event; dates: string[] };
+
+      const repeatId = `repeatId-1`;
+      const newEvents = dates.map((date, idx) => ({
+        ...event,
+        id: String(mockEvents.length + idx + 1),
+        date,
+        repeat: {
+          ...event.repeat,
+          id: repeatId,
+        },
+      }));
+
+      mockEvents.push(...newEvents);
+
+      return HttpResponse.json({ events: mockEvents }, { status: 201 });
+    })
+  );
+};
