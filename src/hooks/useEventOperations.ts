@@ -2,7 +2,7 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import { Event, EventForm } from '../types';
-import { createRecurringEvents } from '../utils/recurringEventUtils';
+import { createRecurringEvents } from '../utils/recurringEventUtils'
 
 export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -29,10 +29,11 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
+      let response;
       if (eventData.repeat.type !== 'none' && eventData.repeat.endDate) {
-        // 2-1. 반복 일정 생성
+        
         const recurringEvents = createRecurringEvents(eventData);
-        const response = await fetch('/api/events-list', {
+        response = await fetch('/api/events-list', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ events: recurringEvents }),
@@ -41,9 +42,24 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
         if (!response.ok) throw new Error('Failed to save recurring events');
         const savedEvents = await response.json();
         setEvents(prev => [...prev, ...savedEvents]);
+
+      } else if (editing) {
+        response = await fetch(`/api/events/${(eventData as Event).id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(eventData),
+        });
+
+        if (!response.ok) throw new Error('Failed to update event');
+        const updatedEvent = await response.json();
+        // 수정된 일정으로 상태 업데이트
+        setEvents(prev => prev.map(event => 
+          event.id === (eventData as Event).id ? updatedEvent : event
+        ));
+
       } else {
-        // 2-2. 단일 일정 생성
-        const response = await fetch('/api/events', {
+        
+        response = await fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(eventData),
@@ -54,7 +70,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
         setEvents(prev => [...prev, savedEvent]);
       }
 
-      await fetchEvents();
+      // await fetchEvents();
       onSave?.();
       toast({
         title: editing ? '일정이 수정되었습니다.' : '일정이 추가되었습니다.',
@@ -62,6 +78,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
         duration: 3000,
         isClosable: true,
       });
+      
     } catch (error) {
       console.error('Error saving event:', error);
       toast({
@@ -88,6 +105,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
         duration: 3000,
         isClosable: true,
       });
+      
     } catch (error) {
       console.error('Error deleting event:', error);
       toast({
@@ -110,7 +128,6 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
   useEffect(() => {
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { events, fetchEvents, saveEvent, deleteEvent };
