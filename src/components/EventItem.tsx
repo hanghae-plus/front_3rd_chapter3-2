@@ -13,6 +13,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
+
 import { RepeatEvent } from '../types';
 
 interface EventItemProps {

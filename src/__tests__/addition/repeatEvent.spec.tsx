@@ -2,6 +2,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { act, render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+
 import EventItem from '../../components/EventItem';
 import { useEventForm } from '../../hooks/useEventForm';
 import useRepeatEvent from '../../hooks/useRepeatEvent';
