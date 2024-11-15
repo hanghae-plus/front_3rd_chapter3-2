@@ -11,17 +11,13 @@ export const NOTIFICATION_OPTIONS = [
 ];
 
 export const INITIAL_EVENT_FORM: EventForm = {
-  title: '제목',
-  date: '2024-01-01',
-  startTime: '12:59',
-  endTime: '16:00',
-  description: '설명',
-  location: '위치',
-  category: '업무',
-  repeat: {
-    type: 'daily',
-    interval: 1,
-    endDate: '',
-  },
+  title: '',
+  date: '',
+  startTime: '',
+  endTime: '',
+  description: '',
+  location: '',
+  category: '',
+  repeat: { type: 'none', interval: 1, endDate: '' },
   notificationTime: 10,
 };
