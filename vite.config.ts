@@ -13,6 +13,16 @@ export default mergeConfig(
         },
       },
     },
+    resolve: {
+      alias: {
+        '@app': '/src/app',
+        '@entities': '/src/entities',
+        '@features': '/src/features',
+        '@widgets': '/src/widgets',
+        '@pages': '/src/pages',
+        '@shared': '/src/shared',
+      },
+    },
   }),
   defineTestConfig({
     test: {
@@ -23,6 +33,7 @@ export default mergeConfig(
         reportsDirectory: './.coverage',
         reporter: ['lcov', 'json', 'json-summary'],
       },
+      exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**', '**/*.e2e.spec.ts'],
     },
   })
 );
