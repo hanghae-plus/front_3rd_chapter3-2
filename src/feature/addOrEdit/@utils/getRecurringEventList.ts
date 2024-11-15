@@ -21,6 +21,7 @@ export function getRecurringEventList({
 
   while (currentDate <= end) {
     const targetDay = currentDate.getDate();
+
     recurringDates.push(currentDate.toISOString().split('T')[0]);
 
     switch (type) {
@@ -33,11 +34,24 @@ export function getRecurringEventList({
         break;
       }
       case 'monthly': {
-        currentDate = getMonthlyNextEventDate(currentDate, interval, targetDay);
+        const year = getMonthlyNextEventDate(currentDate, interval, targetDay).getFullYear();
+        const month = getMonthlyNextEventDate(currentDate, interval, targetDay).getMonth();
+        const day = getMonthlyNextEventDate(currentDate, interval, targetDay).getDate();
+
+        currentDate.setDate(day);
+        currentDate.setMonth(month);
+        currentDate.setFullYear(year);
+
         break;
       }
       case 'yearly': {
-        currentDate = getYearlyNextEventDate(currentDate, interval);
+        const year = getYearlyNextEventDate(currentDate, interval).getFullYear();
+        const month = getYearlyNextEventDate(currentDate, interval).getMonth();
+        const day = getYearlyNextEventDate(currentDate, interval).getDate();
+
+        currentDate.setDate(day);
+        currentDate.setMonth(month);
+        currentDate.setFullYear(year);
         break;
       }
       default:
