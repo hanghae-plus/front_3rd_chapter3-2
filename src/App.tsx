@@ -185,46 +185,6 @@ function App() {
     }
   };
 
-  // const deleteAllEvents = async () => {
-  //   try {
-  //     // 모든 이벤트의 ID를 가져오기 위해 먼저 이벤트를 가져옵니다.
-  //     const response = await fetch('http://localhost:3000/api/events');
-  //     if (!response.ok) {
-  //       throw new Error('이벤트를 가져오는 데 실패했습니다.');
-  //     }
-  //     const { events } = await response.json();
-  //     const eventIds = events.map((event: { id: string }) => event.id);
-
-  //     // 모든 이벤트 ID를 사용하여 삭제 요청을 보냅니다.
-  //     const deleteResponse = await fetch('http://localhost:3000/api/events-list', {
-  //       method: 'DELETE',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({ eventIds }),
-  //     });
-
-  //     if (deleteResponse.ok) {
-  //       toast({
-  //         title: '모든 일정이 삭제되었습니다.',
-  //         status: 'success',
-  //         duration: 3000,
-  //         isClosable: true,
-  //       });
-  //       // 모든 일정을 삭제한 후, 상태를 초기화하거나 새로고침
-  //       setEditingEvent(null);
-  //       resetForm();
-  //     } else {
-  //       throw new Error('삭제 실패');
-  //     }
-  //   } catch (error) {
-  //     toast({
-  //       title: '일정 삭제 중 오류가 발생했습니다.',
-  //       status: 'error',
-  //       duration: 3000,
-  //       isClosable: true,
-  //     });
-  //   }
-  // };
-
   const handleRepeatIconClick = (event: Event) => {
     setSelectedEvent(event);
     setIsModalOpen(true);
