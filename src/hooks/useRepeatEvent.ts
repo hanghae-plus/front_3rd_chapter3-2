@@ -6,18 +6,25 @@ type RepeatEndType = 'never' | 'until' | 'count';
 
 interface UseRepeatEventReturn {
   isRepeating: boolean;
+  // eslint-disable-next-line no-unused-vars
   setIsRepeating: (value: boolean) => void;
   repeatType: RepeatType;
+  // eslint-disable-next-line no-unused-vars
   setRepeatType: (type: RepeatType) => void;
   repeatInterval: number;
+  // eslint-disable-next-line no-unused-vars
   setRepeatInterval: (interval: number) => void;
   repeatEndType: RepeatEndType;
+  // eslint-disable-next-line no-unused-vars
   setRepeatEndType: (type: RepeatEndType) => void;
   repeatEndDate: string;
+  // eslint-disable-next-line no-unused-vars
   setRepeatEndDate: (date: string) => void;
   repeatEndCount: number;
+  // eslint-disable-next-line no-unused-vars
   setRepeatEndCount: (count: number) => void;
   eventDate: Date | null;
+  // eslint-disable-next-line no-unused-vars
   setEventDate: (date: Date) => void;
   warning: string;
   intervalError: string;

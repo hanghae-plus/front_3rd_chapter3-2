@@ -19,7 +19,9 @@ import { RepeatEvent } from '../types';
 interface EventItemProps {
   event: RepeatEvent;
   isModifying?: boolean;
+  // eslint-disable-next-line no-unused-vars
   onDelete?: (id: string) => void;
+  // eslint-disable-next-line no-unused-vars
   onSingleDelete?: (id: string, date: string) => void;
 }
 
