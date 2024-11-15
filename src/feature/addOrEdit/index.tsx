@@ -53,7 +53,7 @@ export function AddOrEdit() {
   const isRepeating = repeat.type !== 'none';
 
   const addOrUpdateEvent = async () => {
-    if (!title || !date || !startTime || !endTime || (isRepeating && !endDate)) {
+    if (!title || !date || !startTime || !endTime) {
       toast({
         title: '필수 정보를 모두 입력해주세요.',
         status: 'error',
@@ -191,7 +191,7 @@ export function AddOrEdit() {
         <VStack width="100%">
           <FormControl>
             <FormLabel>반복 유형</FormLabel>
-            <Select value={type} onChange={onChangeRepeatForm}>
+            <Select name="type" value={type} onChange={onChangeRepeatForm}>
               <option value="daily">매일</option>
               <option value="weekly">매주</option>
               <option value="monthly">매월</option>
