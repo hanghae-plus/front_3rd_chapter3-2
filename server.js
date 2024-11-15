@@ -90,8 +90,8 @@ app.post('/api/events-list', async (req, res) => {
   const { event, dates } = req.body;
 
   const newEvents = dates.map((date) => ({
-    id: randomUUID(),
     ...event,
+    id: randomUUID(),
     date,
     repeat: {
       ...event.repeat,
