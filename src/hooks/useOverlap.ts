@@ -51,6 +51,28 @@ export const useOverlap = (
       return;
     }
 
+    if (isRepeating && repeatEndDate > date) {
+      toast({
+        title: '반복 종료일이 일정 날짜 보다 늦을 수 없습니다.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (repeatEndDate > '2025-06-30') {
+      toast({
+        title: '반복 종료일은 2025년 06월 30일까지 설정 가능합니다.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const type = isRepeating && repeatType === 'none' ? 'daily' : isRepeating ? repeatType : 'none';
+
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
       title,
@@ -61,7 +83,7 @@ export const useOverlap = (
       location,
       category,
       repeat: {
-        type: isRepeating ? repeatType : 'none',
+        type: type,
         interval: repeatInterval,
         endDate: repeatEndDate || undefined,
       },
