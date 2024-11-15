@@ -53,7 +53,7 @@ export const useEventForm = (initialEvent?: Event) => {
     setNotificationTime(10);
   };
 
-  const editEvent = (event: Event) => {
+  const editEvent = (event: Event, modifyRepeating: boolean = false) => {
     setEditingEvent(event);
     setTitle(event.title);
     setDate(event.date);
@@ -62,10 +62,20 @@ export const useEventForm = (initialEvent?: Event) => {
     setDescription(event.description);
     setLocation(event.location);
     setCategory(event.category);
-    setIsRepeating(event.repeat.type !== 'none');
-    setRepeatType(event.repeat.type);
-    setRepeatInterval(event.repeat.interval);
-    setRepeatEndDate(event.repeat.endDate || '');
+
+    // 반복 일정 수정 시 단일 일정으로 변경
+    if (modifyRepeating) {
+      setIsRepeating(false);
+      setRepeatType('none');
+      setRepeatInterval(1);
+      setRepeatEndDate('');
+    } else {
+      setIsRepeating(event.repeat.type !== 'none');
+      setRepeatType(event.repeat.type);
+      setRepeatInterval(event.repeat.interval);
+      setRepeatEndDate(event.repeat.endDate || '');
+    }
+
     setNotificationTime(event.notificationTime);
   };
 

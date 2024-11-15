@@ -19,5 +19,16 @@ export interface EventForm {
 }
 
 export interface Event extends EventForm {
+  id: number;
+}
+
+export interface RepeatEvent {
   id: string;
+  title: string;
+  date: string;
+  notification: number;
+  isRepeating: boolean;
+  repeatType: RepeatType;
+  repeatInterval: number;
+  repeatEndDate: string;
 }

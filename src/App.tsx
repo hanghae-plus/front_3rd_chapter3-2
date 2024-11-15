@@ -40,10 +40,12 @@ import {
 } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
 
+import EventItem from './components/EventItem.tsx';
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
 import { useNotifications } from './hooks/useNotifications.ts';
+import useRepeatEvent from './hooks/useRepeatEvent.ts';
 import { useSearch } from './hooks/useSearch.ts';
 import { Event, EventForm, RepeatType } from './types';
 import {
@@ -83,14 +85,6 @@ function App() {
     setLocation,
     category,
     setCategory,
-    isRepeating,
-    setIsRepeating,
-    repeatType,
-    setRepeatType,
-    repeatInterval,
-    setRepeatInterval,
-    repeatEndDate,
-    setRepeatEndDate,
     notificationTime,
     setNotificationTime,
     startTimeError,
@@ -102,6 +96,18 @@ function App() {
     resetForm,
     editEvent,
   } = useEventForm();
+
+  const {
+    isRepeating,
+    setIsRepeating,
+    repeatType,
+    setRepeatType,
+    repeatInterval,
+    intervalError,
+    repeatEndDate,
+    setRepeatEndDate,
+    setRepeatInterval,
+  } = useRepeatEvent();
 
   const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
     setEditingEvent(null)
@@ -131,6 +137,18 @@ function App() {
     if (startTimeError || endTimeError) {
       toast({
         title: '시간 설정을 확인해주세요.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    // 반복 간격 에러 체크 추가
+    if (isRepeating && intervalError) {
+      toast({
+        title: '반복 간격 설정을 확인해주세요.',
+        description: intervalError,
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -201,9 +219,7 @@ function App() {
                         >
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
-                            <Text fontSize="sm" noOfLines={1}>
-                              {event.title}
-                            </Text>
+                            <EventItem event={event} />
                           </HStack>
                         </Box>
                       );
@@ -270,9 +286,7 @@ function App() {
                               >
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
-                                  <Text fontSize="sm" noOfLines={1}>
-                                    {event.title}
-                                  </Text>
+                                  <EventItem event={event} />
                                 </HStack>
                               </Box>
                             );
