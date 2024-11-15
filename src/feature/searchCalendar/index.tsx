@@ -34,7 +34,6 @@ export function SearchCalendar() {
           const { repeat } = event;
 
           const isRepeat = !!repeat.id;
-
           return (
             <Box key={event.id} borderWidth={1} borderRadius="lg" p={3} width="100%">
               <HStack justifyContent="space-between">
@@ -45,7 +44,7 @@ export function SearchCalendar() {
                       fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
                       color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
                     >
-                      {isRepeat && <span data-testid="repeat-event">🔁</span>} {event.title}
+                      {isRepeat && <span data-testid="repeat-event">🔄</span>} {event.title}
                     </Text>
                   </HStack>
                   <Text>{event.date}</Text>
@@ -83,7 +82,10 @@ export function SearchCalendar() {
                   <IconButton
                     aria-label="Delete event"
                     icon={<DeleteIcon />}
-                    onClick={() => deleteEvent(event.id)}
+                    onClick={() => {
+                      console.log('deleteEvent', event.id);
+                      deleteEvent(event.id);
+                    }}
                   />
                 </HStack>
               </HStack>
