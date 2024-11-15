@@ -35,10 +35,12 @@ interface EventFormStateProps {
 
 interface EventHandleFormProps {
   events: Event[];
-  saveEvent: (eventData: Event | EventForm, exceptDate?: string) => Promise<void>;
   editingEvent: Event | null;
   eventFormState: EventFormStateProps;
   repeatExceptDate: string;
+  weeklyDay: string;
+  handleChangeWeeklyDay: (day: string) => void;
+  saveEvent: (eventData: Event | EventForm, exceptDate?: string) => Promise<void>;
   handleChangeExceptDate: (date: string) => void;
 }
 
@@ -54,11 +56,13 @@ const notificationOptions = [
 
 export const EventHandleForm = ({
   events,
-  saveEvent,
   editingEvent,
   eventFormState,
   repeatExceptDate,
+  weeklyDay,
+  saveEvent,
   handleChangeExceptDate,
+  handleChangeWeeklyDay,
 }: EventHandleFormProps) => {
   const toast = useToast();
   const {
@@ -228,18 +232,35 @@ export const EventHandleForm = ({
 
       {isRepeating && (
         <VStack width="100%">
-          <FormControl>
-            <FormLabel>반복 유형</FormLabel>
-            <Select
-              value={eventForm.repeat.type}
-              onChange={(e) => handleChangeFormRepeat('type', e.target.value as RepeatType)}
-            >
-              <option value="daily">매일</option>
-              <option value="weekly">매주</option>
-              <option value="monthly">매월</option>
-              <option value="yearly">매년</option>
-            </Select>
-          </FormControl>
+          <HStack width="100%">
+            <FormControl>
+              <FormLabel>반복 유형</FormLabel>
+              <Select
+                value={eventForm.repeat.type}
+                onChange={(e) => handleChangeFormRepeat('type', e.target.value as RepeatType)}
+              >
+                <option value="daily">매일</option>
+                <option value="weekly">매주</option>
+                <option value="monthly">매월</option>
+                <option value="yearly">매년</option>
+              </Select>
+            </FormControl>
+            {eventForm.repeat.type === 'weekly' && (
+              <FormControl>
+                <FormLabel>요일 지정</FormLabel>
+                <Select value={weeklyDay} onChange={(e) => handleChangeWeeklyDay(e.target.value)}>
+                  <option value="sun">일</option>
+                  <option value="mon">월</option>
+                  <option value="tue">화</option>
+                  <option value="wed">수</option>
+                  <option value="thu">목</option>
+                  <option value="fri">금</option>
+                  <option value="sat">토</option>
+                </Select>
+              </FormControl>
+            )}
+          </HStack>
+
           <HStack width="100%">
             <FormControl>
               <FormLabel>반복 간격</FormLabel>

@@ -28,8 +28,16 @@ function App() {
     setEventForm: eventFormState.setEventForm,
     setIsRepeating: eventFormState.setIsRepeating,
   });
-  const { repeatEvent, repeatExceptDate, handleChangeExceptDate, updateRepeatEvent } =
-    useRepeatEvent();
+
+  const {
+    repeatEvent,
+    repeatExceptDate,
+    weeklyDay,
+    handleChangeExceptDate,
+    updateRepeatEvent,
+    handleChangeWeeklyDay,
+  } = useRepeatEvent();
+
   const { events, saveEvent, deleteEvent } = useEventOperations(
     Boolean(editingEvent),
     updateRepeatEvent,
@@ -50,10 +58,12 @@ function App() {
       <Flex gap={6} h="full">
         <EventHandleForm
           events={events}
-          saveEvent={saveEvent}
           editingEvent={editingEvent}
           eventFormState={eventFormState}
           repeatExceptDate={repeatExceptDate}
+          weeklyDay={weeklyDay}
+          handleChangeWeeklyDay={handleChangeWeeklyDay}
+          saveEvent={saveEvent}
           handleChangeExceptDate={handleChangeExceptDate}
         />
 
@@ -83,7 +93,7 @@ function App() {
 
         <VStack data-testid="event-list" w="500px" h="full" overflowY="auto">
           <FormControl>
-            <FormLabel>일정 검색</FormLabel>
+            <Heading mb={5}>일정 검색</Heading>
             <Input
               placeholder="검색어를 입력하세요"
               value={searchTerm}

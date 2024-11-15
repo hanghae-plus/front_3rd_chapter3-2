@@ -5,6 +5,7 @@ import { Event } from '../types';
 export const useRepeatEvent = () => {
   const [repeatEvent, setRepeatEvent] = useState<Event[]>([]);
   const [repeatExceptDate, setRepeatExceptDate] = useState<string>('');
+  const [weeklyDay, setWeeklyDay] = useState<string>('sun');
 
   // 반복일정 상태저장
   const updateRepeatEvent = (events: Event[]) => {
@@ -27,11 +28,17 @@ export const useRepeatEvent = () => {
     return repeatEvents;
   };
 
+  const handleChangeWeeklyDay = (day: string) => {
+    setWeeklyDay(day);
+  };
+
   return {
     repeatEvent,
     repeatExceptDate,
+    weeklyDay,
     handleChangeExceptDate,
     updateRepeatEvent,
     deleteRepeatInstance,
+    handleChangeWeeklyDay,
   };
 };
