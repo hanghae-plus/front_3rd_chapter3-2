@@ -14,6 +14,22 @@ export const handlers = [
     return HttpResponse.json(newEvent, { status: 201 });
   }),
 
+  http.post('/api/events-list', async ({ request }) => {
+    const newEvents = (await request.json()) as Event[];
+
+    newEvents.map((event, index) => {
+      return {
+        ...event,
+        id: String(events.length + index + 1),
+        repeat: {
+          ...event.repeat,
+        },
+      };
+    });
+
+    return HttpResponse.json(newEvents, { status: 201 });
+  }),
+
   http.put('/api/events/:id', async ({ params, request }) => {
     const { id } = params;
     const updatedEvent = (await request.json()) as Event;
