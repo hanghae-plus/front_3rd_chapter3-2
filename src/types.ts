@@ -4,6 +4,7 @@ export interface RepeatInfo {
   type: RepeatType;
   interval: number;
   endDate?: string;
+  id?: string; //추가
 }
 
 export interface EventForm {
@@ -20,4 +21,5 @@ export interface EventForm {
 
 export interface Event extends EventForm {
   id: string;
+  isRecurring?: boolean; //추가
 }

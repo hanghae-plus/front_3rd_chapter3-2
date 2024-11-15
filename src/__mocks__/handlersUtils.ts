@@ -7,17 +7,49 @@ import { Event } from '../types';
 export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
   const mockEvents: Event[] = [...initEvents];
 
+  // server.use(
+  //   http.get('/api/events', () => {
+  //     return HttpResponse.json({ events: mockEvents });
+  //   }),
+  //   http.post('/api/events', async ({ request }) => {
+  //     const newEvent = (await request.json()) as Event;
+  //     newEvent.id = String(mockEvents.length + 1); // 간단한 ID 생성
+  //     mockEvents.push(newEvent);
+  //     return HttpResponse.json(newEvent, { status: 201 });
+  //   })
+  // );
+
   server.use(
     http.get('/api/events', () => {
       return HttpResponse.json({ events: mockEvents });
     }),
+    // 일반 일정 생성
     http.post('/api/events', async ({ request }) => {
       const newEvent = (await request.json()) as Event;
-      newEvent.id = String(mockEvents.length + 1); // 간단한 ID 생성
+      newEvent.id = String(mockEvents.length + 1);
       mockEvents.push(newEvent);
       return HttpResponse.json(newEvent, { status: 201 });
+    }),
+    // 반복 일정 생성
+    http.post('/api/events-list', async ({ request }) => {
+      const { events } = await request.json() as { events: Event[] };
+      const repeatId = String(Date.now()); // 반복 일정 그룹 ID
+
+      const newEvents = events.map((event, index) => ({
+        ...event,
+        id: String(mockEvents.length + index + 1),
+        repeat: {
+          ...event.repeat,
+          id: repeatId,  // 반복 일정 그룹 ID 추가
+        },
+        isRecurring: true,
+      }));
+
+      mockEvents.push(...newEvents);
+      return HttpResponse.json(newEvents, { status: 201 });
     })
   );
+  
 };
 
 export const setupMockHandlerUpdating = () => {
