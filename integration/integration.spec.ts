@@ -8,11 +8,34 @@ import waitOn from 'wait-on';
 const waitOnPromise = promisify(waitOn);
 
 let serverProcess;
+let clientProcess;
+
 
 test.describe.serial('통합 테스트', () => {
   test.beforeAll(async () => {
-    serverProcess = exec('pnpm dev');
+    // 먼저 서버를 실행하도록 함
+    serverProcess = exec('npx nodemon server.js', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Server error: ${error.message}`);
+      }
+      if (stderr) {
+        console.error(`Server stderr: ${stderr}`);
+      }
+      console.log(`Server stdout: ${stdout}`);
+    });
 
+    // 그 다음 클라이언트를 실행하도록 함
+    clientProcess = exec('pnpm dev', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Client error: ${error.message}`);
+      }
+      if (stderr) {
+        console.error(`Client stderr: ${stderr}`);
+      }
+      console.log(`Client stdout: ${stdout}`);
+    });
+
+    // 클라이언트가 준비될 때까지 대기
     await waitOnPromise({
       resources: ['http://localhost:5173'],
       timeout: 10000,
@@ -55,11 +78,6 @@ test.describe.serial('통합 테스트', () => {
       {
         /* 반복 일정이 내가 원하는 주기대로 제대로 등록되었는지 확인하기 */
       }
-      await page
-        .getByTestId('event-list')
-        .locator('div')
-        .filter({ hasText: /^정원이랑 경복궁 야간개장$/ })
-        .click();
       await page
         .getByTestId('event-list')
         .locator('div')
@@ -864,8 +882,12 @@ test.describe.serial('통합 테스트', () => {
   });
 
   test.afterAll(() => {
+    // 프로세스 종료
     if (serverProcess) {
       serverProcess.kill();
+    }
+    if (clientProcess) {
+      clientProcess.kill();
     }
   });
 });
