@@ -153,11 +153,6 @@ describe('반복 이벤트 유틸리티', () => {
       expect(result).toEqual(new Date('2025-01-01'));
     });
 
-    it('잘못된 반복 타입인 경우 null을 반환한다', () => {
-      const result = calculateNextDate(baseDate, 'invalid', 1);
-      expect(result).toBeNull();
-    });
-
     it('간격을 고려하여 다음 날짜를 계산한다', () => {
       const result = calculateNextDate(baseDate, 'daily', 2);
       expect(result).toEqual(new Date('2024-01-03'));

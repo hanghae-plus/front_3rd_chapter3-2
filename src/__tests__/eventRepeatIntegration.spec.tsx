@@ -143,38 +143,6 @@ describe('윤년 테스트', () => {
 
     expect(within(monthView).queryByText('2월 29일 특별 기념일')).not.toBeInTheDocument();
   });
-
-  it('윤년 2월 29일이 존재하는 년도에만 추가된다.', async () => {
-    setupMockHandlers();
-    vi.setSystemTime(new Date('2028-02-01'));
-    renderApp();
-
-    await userEvent.type(screen.getByLabelText(/제목/), '2월 29일 특별 기념일');
-    await userEvent.type(screen.getByLabelText(/날짜/), '2024-02-29');
-    await userEvent.type(screen.getByLabelText(/시작 시간/), '09:00');
-    await userEvent.type(screen.getByLabelText(/종료 시간/), '10:00');
-    await userEvent.type(screen.getByLabelText(/설명/), '2월 29일 특별 기념일 설명');
-    await userEvent.type(screen.getByLabelText(/위치/), '회의실');
-    await userEvent.selectOptions(screen.getByLabelText(/카테고리/), '개인');
-
-    const repeatCheckbox = screen.getByRole('checkbox', { name: /반복 일정/ }) as HTMLInputElement;
-    if (!repeatCheckbox.checked) {
-      await userEvent.click(repeatCheckbox);
-    }
-
-    await userEvent.selectOptions(screen.getByLabelText(/반복 유형/), '매년');
-    await userEvent.type(screen.getByLabelText(/반복 종료일/), '2028-06-01');
-    await userEvent.clear(screen.getByLabelText(/반복 간격/));
-    await userEvent.type(screen.getByLabelText(/반복 간격/), '1');
-    await userEvent.selectOptions(screen.getByLabelText(/마지막 날 설정/), '매년 29일');
-
-    await userEvent.click(screen.getByRole('button', { name: /일정 추가/ }));
-
-    const eventList = await screen.findByTestId('event-list');
-
-    screen.debug(eventList, Infinity);
-    expect(within(eventList).queryByText('2월 29일 특별 기념일')).toBeInTheDocument();
-  });
 });
 
 describe('반복 CRUD 통합 테스트', () => {

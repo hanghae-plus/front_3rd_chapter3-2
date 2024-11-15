@@ -8,7 +8,7 @@ import { EventFormField, ClashEventDialog, EventView } from '@widgets/event/ui';
 import { NotificationDialog } from '@widgets/notification/ui';
 
 export const CalendarPage = () => {
-  const { events, saveEvent, deleteEvent } = useEventOperations();
+  const { events, saveEvent, deleteEvent, deleteAllEvents } = useEventOperations();
   const { notifications, notifiedEvents, setNotifications } = useNotifications(events);
   const { view, setView, currentDate, holidays, navigate } = useCalendarView();
   const { searchTerm, filteredEvents, setSearchTerm } = useSearch(events, currentDate, view);
@@ -29,10 +29,12 @@ export const CalendarPage = () => {
         />
 
         <EventView
+          hasEvent={events.length > 0}
           filteredEvents={filteredEvents}
           notifiedEvents={notifiedEvents}
-          deleteEvent={deleteEvent}
           searchTerm={searchTerm}
+          deleteEvent={deleteEvent}
+          deleteAllEvents={deleteAllEvents}
           setSearchTerm={setSearchTerm}
         />
       </Flex>

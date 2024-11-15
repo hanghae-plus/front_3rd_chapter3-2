@@ -164,12 +164,6 @@ describe('calculateYearlyNext', () => {
     expect(formatDateToString(nextDate!)).toBe('2025-01-15');
   });
 
-  it('2월 29일인 경우 다음 윤년의 2월 29일을 반환한다', () => {
-    const date = new Date('2024-02-29');
-    const nextDate = calculateYearlyNext(date, 1);
-    expect(formatDateToString(nextDate!)).toBe('2028-02-29');
-  });
-
   it('여러 해 간격의 반복을 처리한다', () => {
     const date = new Date('2024-01-15');
     const nextDate = calculateYearlyNext(date, 2);

@@ -44,22 +44,6 @@ export const useEventOperations = () => {
   };
 
   const saveEvent = async (eventData: Event | EventForm, isEditing: boolean) => {
-    if (eventData.repeat.type !== 'none') {
-      const repeatedEvents = generateRepeatedEvents(eventData);
-      await createRepeatEvents(repeatedEvents);
-      await fetchEvents();
-      setEditingEvent(null);
-
-      toast({
-        title: '일정이 추가되었습니다.',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-
-      return;
-    }
-
     try {
       let response;
       if (isEditing) {
@@ -76,6 +60,22 @@ export const useEventOperations = () => {
           isClosable: true,
         });
       } else {
+        if (eventData.repeat.type !== 'none') {
+          const repeatedEvents = generateRepeatedEvents(eventData);
+          await createRepeatEvents(repeatedEvents);
+          await fetchEvents();
+          setEditingEvent(null);
+
+          toast({
+            title: '일정이 추가되었습니다.',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+
+          return;
+        }
+
         response = await fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -101,6 +101,38 @@ export const useEventOperations = () => {
       console.error('Error saving event:', error);
       toast({
         title: '일정 저장 실패',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const deleteAllEvents = async () => {
+    try {
+      const response = await fetch('/api/events-list', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ eventIds: events.map((event) => event.id) }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete all events');
+      }
+
+      toast({
+        title: '모든 일정을 삭제했습니다.',
+        status: 'info',
+        duration: 3000,
+        isClosable: true,
+      });
+      await fetchEvents();
+    } catch (error) {
+      console.error('Error deleting all events:', error);
+      toast({
+        title: '일정 삭제 실패',
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -153,6 +185,7 @@ export const useEventOperations = () => {
     fetchEvents,
     saveEvent,
     deleteEvent,
+    deleteAllEvents,
     isOverlapDialogOpen,
     setIsOverlapDialogOpen,
     overlappingEvents,

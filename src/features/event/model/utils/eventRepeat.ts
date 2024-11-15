@@ -34,10 +34,8 @@ export function generateRepeatedEvents(baseEvent: Event | EventForm): Omit<Event
   let currentDate = startDate;
 
   while (currentDate < endRepeatDate) {
-    // 이 부분이 변경되어야 함
     let nextDate = calculateNextDate(currentDate, type, interval, depth);
 
-    // null이면 다음 년도로 이동만 하고 계속 진행
     if (!nextDate) {
       currentDate.setFullYear(currentDate.getFullYear() + interval);
       continue;
