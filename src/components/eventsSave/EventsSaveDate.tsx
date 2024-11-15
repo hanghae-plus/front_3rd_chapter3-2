@@ -14,7 +14,13 @@ const EventsSaveDate = ({ date, setDate }: EventsSaveDateProps) => {
     <>
       <FormControl>
         <FormLabel>날짜</FormLabel>
-        <Input data-testid="date" type="date" value={date} onChange={handleDateChange} />
+        <Input
+          data-testid="date"
+          type="date"
+          value={date}
+          onChange={handleDateChange}
+          min={new Date().toISOString().split('T')[0]}
+        />
       </FormControl>
     </>
   );
