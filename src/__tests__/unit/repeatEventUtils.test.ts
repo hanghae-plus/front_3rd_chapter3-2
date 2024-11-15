@@ -30,18 +30,16 @@ describe('generateRepeatEventDates', () => {
   });
 
   it('일간 반복 일정을 생성한다', () => {
-    const baseDate = '2024-11-01';
+    const baseDate = '2024-10-31';
     const repeat: RepeatInfo = {
       type: 'daily',
       interval: 1,
-      endDate: '2024-11-05',
+      endDate: '2024-11-02',
     };
     expect(generateRepeatEventDates(baseDate, repeat)).toEqual([
+      '2024-10-31',
       '2024-11-01',
       '2024-11-02',
-      '2024-11-03',
-      '2024-11-04',
-      '2024-11-05',
     ]);
   });
 
@@ -58,6 +56,38 @@ describe('generateRepeatEventDates', () => {
       '2024-12-01',
       '2025-01-01',
       '2025-02-01',
+    ]);
+  });
+
+  it('매월 31일 반복 일정 생성 시, 각 월의 마지막 날로 조정한다', () => {
+    const baseDate = '2024-10-31';
+    const repeat: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2025-03-30',
+    };
+
+    expect(generateRepeatEventDates(baseDate, repeat)).toEqual([
+      '2024-10-31',
+      '2024-11-30',
+      '2024-12-31',
+      '2025-01-31',
+      '2025-02-29',
+    ]);
+  });
+
+  it('30일 반복 일정 생성 시, 2월의 경우 2월의 마지막 날로 조정한다', () => {
+    const baseDate = '2024-01-30';
+    const repeat: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2024-03-30',
+    };
+
+    expect(generateRepeatEventDates(baseDate, repeat)).toEqual([
+      '2024-01-30',
+      '2024-02-29',
+      '2024-03-30',
     ]);
   });
 
