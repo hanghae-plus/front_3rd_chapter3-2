@@ -1,9 +1,14 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { act, render, renderHook, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 import EventItem from '../../components/EventItem';
 import { useEventForm } from '../../hooks/useEventForm';
 import useRepeatEvent from '../../hooks/useRepeatEvent';
+
+const renderWithChakra = (ui: React.ReactElement) => {
+  return render(<ChakraProvider>{ui}</ChakraProvider>);
+};
 
 describe('useRepeatEvent', () => {
   describe('초기 상태', () => {
@@ -153,10 +158,6 @@ describe('useRepeatEvent', () => {
       repeatEndDate: '',
     };
 
-    const renderWithChakra = (ui: React.ReactElement) => {
-      return render(<ChakraProvider>{ui}</ChakraProvider>);
-    };
-
     it('일반 일정인 경우 반복 아이콘이 표시되지 않아야 한다', () => {
       renderWithChakra(<EventItem event={mockEvent} />);
 
@@ -281,10 +282,6 @@ describe('useRepeatEvent', () => {
       notificationTime: 10,
     };
 
-    const renderWithChakra = (ui: React.ReactElement) => {
-      return render(<ChakraProvider>{ui}</ChakraProvider>);
-    };
-
     it('반복 일정을 수정하면 단일 일정으로 변경된다', () => {
       const { result } = renderHook(() => useEventForm());
 
@@ -306,6 +303,66 @@ describe('useRepeatEvent', () => {
 
       const repeatIcon = screen.queryByTestId('repeat-icon');
       expect(repeatIcon).not.toBeInTheDocument();
+    });
+  });
+
+  describe('반복 일정 단일 삭제', () => {
+    const mockRepeatingEvent = {
+      id: '1',
+      title: '반복 회의',
+      date: '2024-03-20',
+      isRepeating: true,
+      repeatType: 'weekly' as const,
+      repeatInterval: 1,
+    };
+
+    it('반복 일정의 단일 삭제 시 확인 모달이 표시된다', async () => {
+      const onDelete = vi.fn();
+      renderWithChakra(<EventItem event={mockRepeatingEvent} onDelete={onDelete} />);
+
+      const deleteButton = screen.getByRole('button', { name: /삭제/ });
+      await userEvent.click(deleteButton);
+
+      expect(screen.getByText('이 일정만 삭제')).toBeInTheDocument();
+      expect(screen.getByText('모든 반복 일정 삭제')).toBeInTheDocument();
+    });
+
+    it('이 일정만 삭제를 선택하면 해당 일정만 삭제된다', async () => {
+      const onDelete = vi.fn();
+      const onSingleDelete = vi.fn();
+
+      renderWithChakra(
+        <EventItem event={mockRepeatingEvent} onDelete={onDelete} onSingleDelete={onSingleDelete} />
+      );
+
+      const deleteButton = screen.getByRole('button', { name: /삭제/ });
+      await userEvent.click(deleteButton);
+
+      const singleDeleteButton = screen.getByText('이 일정만 삭제');
+      await userEvent.click(singleDeleteButton);
+
+      expect(onSingleDelete).toHaveBeenCalledWith(mockRepeatingEvent.id, mockRepeatingEvent.date);
+      expect(onDelete).not.toHaveBeenCalled();
+    });
+
+    it('일반 일정 삭제 시 모달 없이 바로 삭제된다', async () => {
+      const onDelete = vi.fn();
+      const onSingleDelete = vi.fn();
+
+      renderWithChakra(
+        <EventItem
+          event={{ ...mockRepeatingEvent, isRepeating: false }}
+          onDelete={onDelete}
+          onSingleDelete={onSingleDelete}
+        />
+      );
+
+      const deleteButton = screen.getByRole('button', { name: /삭제/ });
+      await userEvent.click(deleteButton);
+
+      expect(onDelete).toHaveBeenCalledWith(mockRepeatingEvent.id);
+      expect(onSingleDelete).not.toHaveBeenCalled();
+      expect(screen.queryByText('이 일정만 삭제')).not.toBeInTheDocument();
     });
   });
 });
