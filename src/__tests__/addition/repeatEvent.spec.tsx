@@ -1,4 +1,7 @@
-import { act, renderHook } from '@testing-library/react';
+import { ChakraProvider } from '@chakra-ui/react';
+import { act, render, renderHook, screen } from '@testing-library/react';
+import React from 'react';
+import EventItem from '../../components/EventItem';
 import useRepeatEvent from '../../hooks/useRepeatEvent';
 
 describe('useRepeatEvent', () => {
@@ -134,6 +137,56 @@ describe('useRepeatEvent', () => {
         result.current.setRepeatType('weekly');
       });
       expect(result.current.repeatInterval).toBe(1);
+    });
+  });
+
+  describe('반복 일정 표시', () => {
+    const mockEvent = {
+      id: '1',
+      title: '테스트 일정',
+      date: '2024-03-20',
+      notification: 0,
+      isRepeating: false,
+      repeatType: 'daily' as const,
+      repeatInterval: 1,
+      repeatEndDate: '',
+    };
+
+    const renderWithChakra = (ui: React.ReactElement) => {
+      return render(<ChakraProvider>{ui}</ChakraProvider>);
+    };
+
+    it('일반 일정인 경우 반복 아이콘이 표시되지 않아야 한다', () => {
+      renderWithChakra(<EventItem event={mockEvent} />);
+
+      const repeatIcon = screen.queryByTestId('repeat-icon');
+      expect(repeatIcon).not.toBeInTheDocument();
+    });
+
+    it('반복 일정인 경우 반복 아이콘이 표시되어야 한다', () => {
+      const repeatingEvent = {
+        ...mockEvent,
+        isRepeating: true,
+      };
+
+      renderWithChakra(<EventItem event={repeatingEvent} />);
+
+      const repeatIcon = screen.getByTestId('repeat-icon');
+      expect(repeatIcon).toBeInTheDocument();
+    });
+
+    it('반복 유형에 따라 적절한 툴팁이 표시되어야 한다', () => {
+      const repeatingEvent = {
+        ...mockEvent,
+        isRepeating: true,
+        repeatType: 'weekly' as const,
+        repeatInterval: 2,
+      };
+
+      renderWithChakra(<EventItem event={repeatingEvent} />);
+
+      const repeatBadge = screen.getByTitle('2주마다 반복');
+      expect(repeatBadge).toBeInTheDocument();
     });
   });
 });
