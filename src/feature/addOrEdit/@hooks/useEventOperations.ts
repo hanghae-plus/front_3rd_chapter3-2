@@ -3,6 +3,7 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import { Event, EventForm } from '../../../types';
+import { getRecurringEventList } from '../@utils';
 
 export type UseEventOperations = {
   events: Event[];
@@ -44,11 +45,34 @@ export const useEventOperations = (editing: boolean, onSave?: () => void): UseEv
           body: JSON.stringify(eventData),
         });
       } else {
-        response = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
+        const { repeat, date } = eventData;
+        if (repeat.type === 'none' || repeat.interval === 0) {
+          response = await fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(eventData),
+          });
+        } else {
+          const { type, endDate, interval } = repeat;
+
+          const repeatEndDate = endDate || '2025-06-30';
+
+          const recurringDates = getRecurringEventList({
+            startDate: date,
+            type,
+            endDate: repeatEndDate,
+            interval,
+          });
+
+          response = await fetch('/api/events-list', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              event: { ...eventData, repeat: { ...repeat, endDate: repeatEndDate } },
+              dates: recurringDates,
+            }),
+          });
+        }
       }
 
       if (!response.ok) {
