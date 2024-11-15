@@ -21,7 +21,7 @@ import { findOverlappingEvents } from '../../utils/eventOverlap';
 import { getTimeErrorMessage } from '../../utils/timeValidation';
 
 export function AddOrEdit() {
-  const { events, saveEvent, editingEvent, openOverlapDialog, setOverlappingEvents } =
+  const { events, saveEvent, editingEvent, openOverlapDialog, setOverlappingEvents, editing } =
     useCombinedContext();
 
   const {
@@ -169,52 +169,56 @@ export function AddOrEdit() {
         </Select>
       </FormControl>
 
-      <FormControl>
-        <FormLabel>반복 설정</FormLabel>
-        <Checkbox isChecked={isRepeating} onChange={onClickRepeatCheckbox}>
-          반복 일정
-        </Checkbox>
-      </FormControl>
-
-      <FormControl>
-        <FormLabel>알림 설정</FormLabel>
-        <Select value={notificationTime} name="notificationTime" onChange={onChangeEventForm}>
-          {NOTIFICATION_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </Select>
-      </FormControl>
-
-      {isRepeating && (
-        <VStack width="100%">
+      {!editing && (
+        <>
           <FormControl>
-            <FormLabel>반복 유형</FormLabel>
-            <Select name="type" value={type} onChange={onChangeRepeatForm}>
-              <option value="daily">매일</option>
-              <option value="weekly">매주</option>
-              <option value="monthly">매월</option>
-              <option value="yearly">매년</option>
+            <FormLabel>반복 설정</FormLabel>
+            <Checkbox isChecked={isRepeating} onChange={onClickRepeatCheckbox}>
+              반복 일정
+            </Checkbox>
+          </FormControl>
+
+          <FormControl>
+            <FormLabel>알림 설정</FormLabel>
+            <Select value={notificationTime} name="notificationTime" onChange={onChangeEventForm}>
+              {NOTIFICATION_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </Select>
           </FormControl>
-          <HStack width="100%">
-            <FormControl>
-              <FormLabel>반복 간격</FormLabel>
-              <Input
-                type="number"
-                name="interval"
-                value={interval}
-                onChange={onChangeRepeatForm}
-                min={1}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>반복 종료일</FormLabel>
-              <Input type="date" name="endDate" value={endDate} onChange={onChangeRepeatForm} />
-            </FormControl>
-          </HStack>
-        </VStack>
+
+          {isRepeating && (
+            <VStack width="100%">
+              <FormControl>
+                <FormLabel>반복 유형</FormLabel>
+                <Select name="type" value={type} onChange={onChangeRepeatForm}>
+                  <option value="daily">매일</option>
+                  <option value="weekly">매주</option>
+                  <option value="monthly">매월</option>
+                  <option value="yearly">매년</option>
+                </Select>
+              </FormControl>
+              <HStack width="100%">
+                <FormControl>
+                  <FormLabel>반복 간격</FormLabel>
+                  <Input
+                    type="number"
+                    name="interval"
+                    value={interval}
+                    onChange={onChangeRepeatForm}
+                    min={1}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>반복 종료일</FormLabel>
+                  <Input type="date" name="endDate" value={endDate} onChange={onChangeRepeatForm} />
+                </FormControl>
+              </HStack>
+            </VStack>
+          )}
+        </>
       )}
 
       <Button data-testid="event-submit-button" onClick={addOrUpdateEvent} colorScheme="blue">

@@ -7,6 +7,7 @@ import { getRecurringEventList } from '../@utils';
 
 export type UseEventOperations = {
   events: Event[];
+  editing: boolean;
   fetchEvents: () => Promise<void>;
   saveEvent: (_eventData: Event | EventForm) => Promise<void>;
   deleteEvent: (_id: string) => Promise<void>;
@@ -38,6 +39,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void): UseEv
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
       let response;
+      const { repeat, date } = eventData;
       if (editing) {
         response = await fetch(`/api/events/${(eventData as Event).id}`, {
           method: 'PUT',
@@ -45,7 +47,6 @@ export const useEventOperations = (editing: boolean, onSave?: () => void): UseEv
           body: JSON.stringify(eventData),
         });
       } else {
-        const { repeat, date } = eventData;
         if (repeat.type === 'none' || repeat.interval === 0) {
           response = await fetch('/api/events', {
             method: 'POST',
@@ -138,5 +139,5 @@ export const useEventOperations = (editing: boolean, onSave?: () => void): UseEv
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { events, fetchEvents, saveEvent, deleteEvent };
+  return { events, editing, fetchEvents, saveEvent, deleteEvent };
 };
