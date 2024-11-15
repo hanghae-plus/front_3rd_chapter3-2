@@ -1,5 +1,11 @@
-import { Event } from '../types';
-import { getWeekDates, isDateInRange } from './dateUtils';
+import { Event, EventForm, RepeatType } from '../types';
+import {
+  getWeekDates,
+  isDateInRange,
+  formatDate,
+  isLeapYear,
+  getNextDateLastDay,
+} from './dateUtils';
 
 function filterEventsByDateRange(events: Event[], start: Date, end: Date): Event[] {
   return events.filter((event) => {
@@ -48,3 +54,72 @@ export function getFilteredEvents(
 
   return searchedEvents;
 }
+
+const getYearlyNextDate = (date: Date, interval: number): Date => {
+  const month = date.getMonth();
+  const day = date.getDate();
+  const targetYear = date.getFullYear() + interval;
+
+  if (month === 1 && day === 29 && !isLeapYear(targetYear)) {
+    return new Date(targetYear, 1, 28);
+  }
+  return new Date(targetYear, month, day);
+};
+
+// 주기별 날짜 계산을 위한 함수
+const getNextDate = (currentDate: Date, interval: number, repeatType: RepeatType): Date => {
+  const newDate = new Date(currentDate);
+
+  switch (repeatType) {
+    case 'daily':
+      newDate.setDate(currentDate.getDate() + interval);
+      break;
+
+    case 'weekly':
+      newDate.setDate(currentDate.getDate() + interval * 7);
+      break;
+
+    case 'monthly':
+      if (currentDate.getDate() === 31) {
+        return getNextDateLastDay(currentDate, interval, 'month');
+      }
+      newDate.setMonth(currentDate.getMonth() + interval);
+      break;
+
+    case 'yearly':
+      return getYearlyNextDate(currentDate, interval);
+
+    default:
+      break;
+  }
+
+  return newDate;
+};
+
+// 반복 이벤트 생성 함수
+export const generateRepeatedEvents = (eventData: EventForm): EventForm[] => {
+  const { repeat } = eventData;
+  const { type: repeatType, interval, endDate } = repeat;
+
+  if (repeatType === 'none') return [eventData];
+
+  const events: EventForm[] = [];
+  let currentDate = new Date(eventData.date);
+  const targetEndDate = endDate ? new Date(endDate) : null;
+  const maxOccurrences = 100;
+  let occurrences = 0;
+
+  while (!targetEndDate || currentDate <= targetEndDate) {
+    if (occurrences >= maxOccurrences) break;
+
+    events.push({
+      ...eventData,
+      date: formatDate(currentDate),
+    });
+
+    currentDate = getNextDate(currentDate, interval, repeatType);
+    occurrences++;
+  }
+
+  return events;
+};
