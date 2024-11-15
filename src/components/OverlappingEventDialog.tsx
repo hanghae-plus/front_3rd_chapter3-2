@@ -17,7 +17,6 @@ interface OverlappingEventDialogProps {
   isOpen: boolean;
   close: () => void;
   overlappingEvents: Event[];
-  // eslint-disable-next-line no-unused-vars
   saveEvent: (
     eventData: Event | EventForm,
     exceptDate?: string,
