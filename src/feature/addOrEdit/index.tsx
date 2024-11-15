@@ -103,7 +103,10 @@ export function AddOrEdit() {
 
   const onChangeRepeatForm = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEventForm((prev) => ({ ...prev, repeat: { ...repeat, [name]: value } }));
+    setEventForm((prev) => ({
+      ...prev,
+      repeat: { ...repeat, [name]: name === 'interval' ? Number(value) : value },
+    }));
   };
 
   return (
