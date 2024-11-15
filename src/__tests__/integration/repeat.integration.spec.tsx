@@ -37,7 +37,6 @@ const saveSchedule = async (user: UserEvent, form: Omit<Event, 'id' | 'notificat
   await user.clear(screen.getByLabelText('반복 간격'));
   await user.type(screen.getByLabelText('반복 간격'), repeat.interval.toString());
   await user.type(screen.getByLabelText('반복 종료일'), repeat.endDate as string);
-  await user.click(screen.getByTestId('event-submit-button'));
 };
 
 // 요구사항 3
@@ -58,6 +57,7 @@ describe('반복일정과 캘린더, 리스트', () => {
       category: '업무',
       repeat: { type: 'weekly', interval: 1, endDate: '2024-12-07' },
     });
+    await user.click(screen.getByTestId('event-submit-button'));
 
     const $calendar = within(screen.getByTestId('month-view'));
     const $eventList = within(screen.getByTestId('event-list'));
@@ -87,6 +87,7 @@ describe('반복일정과 캘린더, 리스트', () => {
       category: '업무',
       repeat: { type: 'weekly', interval: 1, endDate: '2024-12-07' },
     });
+    await user.click(screen.getByTestId('event-submit-button'));
 
     const $calendar = within(screen.getByTestId('month-view'));
     expect($calendar.getAllByText(/마틴 외데고르/i)).toHaveLength(3);
@@ -133,6 +134,7 @@ describe('반복일정과 캘린더, 리스트', () => {
     expect($eventList.queryByText(/🔂/i)).not.toBeInTheDocument();
   });
 
+  // 요구사항 8
   it('반복 유형을 주간으로 변경하면 요일 지정을 할 수 있다.', async () => {
     vi.setSystemTime(new Date('2024-11-15'));
 
@@ -141,5 +143,30 @@ describe('반복일정과 캘린더, 리스트', () => {
     await user.selectOptions(screen.getByLabelText('반복 유형'), 'weekly');
 
     expect(await screen.findByText(/요일 지정/i)).toBeInTheDocument();
+  });
+
+  it('반복 유형 주간으로 선택 후 요일을 지정하면 그 요일에만 반복된다.', async () => {
+    vi.setSystemTime(new Date('2024-11-15'));
+
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    await saveSchedule(user, {
+      title: '마틴 외데고르',
+      date: '2024-11-15',
+      startTime: '07:39',
+      endTime: '19:39',
+      description: '아스날',
+      location: '런던',
+      category: '업무',
+      repeat: { type: 'weekly', interval: 1, endDate: '2024-12-07' },
+    });
+    await user.selectOptions(screen.getByLabelText('요일 지정'), '0');
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    const $eventList = within(screen.getByTestId('event-list'));
+    expect(await $eventList.findByText(/2024-11-17/i)).toBeInTheDocument();
+    expect(await $eventList.findByText(/2024-11-24/i)).toBeInTheDocument();
   });
 });
