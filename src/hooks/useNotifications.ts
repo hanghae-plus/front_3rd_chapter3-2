@@ -27,7 +27,7 @@ export const useNotifications = (events: Event[]) => {
     setNotifications((prev) => prev.filter((_, i) => i !== index));
   };
 
-  useInterval(checkUpcomingEvents, 60000); // 1초마다 체크
+  useInterval(checkUpcomingEvents, 1000); // 1초마다 체크
 
   return { notifications, notifiedEvents, setNotifications, removeNotification };
 };
