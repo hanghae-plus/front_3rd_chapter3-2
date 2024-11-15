@@ -9,14 +9,14 @@
       "description": "주간 팀 미팅",
       "location": "회의실 A",
       "category": "업무",
-      "repeat": { "type": "none", "interval": 0 },
+      "repeat": { "type": "none", "interval": 2, "endDate": "2024-11-13" },
       "notificationTime": 1
     },
     {
       "id": "09702fb3-a478-40b3-905e-9ab3c8849dcd",
       "title": "점심 약속",
-      "date": "2024-11-21",
-      "startTime": "12:30",
+      "date": "2024-11-20",
+      "startTime": "11:00",
       "endTime": "13:30",
       "description": "동료와 점심 식사",
       "location": "회사 근처 식당",

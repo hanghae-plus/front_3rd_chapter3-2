@@ -6,6 +6,15 @@ export interface RepeatInfo {
   endDate?: string;
 }
 
+export type weekOptions =
+  | 'Monday'
+  | 'Tuesday'
+  | 'Wednesday'
+  | 'Thursday'
+  | 'Friday'
+  | 'Saturday'
+  | 'Sunday';
+
 export interface EventForm {
   title: string;
   date: string;
@@ -15,7 +24,8 @@ export interface EventForm {
   location: string;
   category: string;
   repeat: RepeatInfo;
-  notificationTime: number; // 분 단위로 저장
+  notificationTime?: number; // 분 단위로 저장
+  monthOptions?: string;
 }
 
 export interface Event extends EventForm {
