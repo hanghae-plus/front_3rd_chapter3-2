@@ -10,7 +10,6 @@ const waitOnPromise = promisify(waitOn);
 let serverProcess;
 let clientProcess;
 
-
 test.describe.serial('통합 테스트', () => {
   test.beforeAll(async () => {
     // 먼저 서버를 실행하도록 함
