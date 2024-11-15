@@ -2,6 +2,7 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import { Event, EventForm } from '../types';
+import { createRecurringEvents } from '../utils/recurringEventUtils';
 
 export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -13,8 +14,8 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       if (!response.ok) {
         throw new Error('Failed to fetch events');
       }
-      const { events } = await response.json();
-      setEvents(events);
+      const data = await response.json();
+      setEvents(data.events);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({
@@ -28,23 +29,29 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
-      let response;
-      if (editing) {
-        response = await fetch(`/api/events/${(eventData as Event).id}`, {
-          method: 'PUT',
+      if (eventData.repeat.type !== 'none' && eventData.repeat.endDate) {
+        // 2-1. 반복 일정 생성
+        const recurringEvents = createRecurringEvents(eventData);
+        const response = await fetch('/api/events-list', {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
+          body: JSON.stringify({ events: recurringEvents }),
         });
+        
+        if (!response.ok) throw new Error('Failed to save recurring events');
+        const savedEvents = await response.json();
+        setEvents(prev => [...prev, ...savedEvents]);
       } else {
-        response = await fetch('/api/events', {
+        // 2-2. 단일 일정 생성
+        const response = await fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(eventData),
         });
-      }
 
-      if (!response.ok) {
-        throw new Error('Failed to save event');
+        if (!response.ok) throw new Error('Failed to save event');
+        const savedEvent = await response.json();
+        setEvents(prev => [...prev, savedEvent]);
       }
 
       await fetchEvents();
