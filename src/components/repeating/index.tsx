@@ -1,24 +1,42 @@
 import { FormControl, FormLabel, HStack, Input, Select, VStack } from '@chakra-ui/react';
 import React from 'react';
 
-import { RepeatType } from '../../types';
+import { RepeatType, weekOptions } from '../../types';
+import EventSaveRepeatingOptions from '../eventsSave/EventSaveRepeatingOptions';
 
 interface RepeatingProps {
+  date: string;
   repeatType: RepeatType;
   setRepeatType: React.Dispatch<React.SetStateAction<RepeatType>>;
   repeatInterval: number;
   setRepeatInterval: React.Dispatch<React.SetStateAction<number>>;
   repeatEndDate: string;
   setRepeatEndDate: React.Dispatch<React.SetStateAction<string>>;
+  repeatWeekOption: weekOptions;
+  // eslint-disable-next-line
+  setRepeatWeekOption: (value: React.SetStateAction<weekOptions>) => void;
+  repeatMonthOption: string;
+  // eslint-disable-next-line
+  setRepeatMonthOption: (value: React.SetStateAction<string>) => void;
+  excludedDate: string;
+  // eslint-disable-next-line
+  setExcludedDate: (value: React.SetStateAction<string>) => void;
 }
 
 const Repeating = ({
+  date,
   repeatType,
   setRepeatType,
   repeatInterval,
   setRepeatInterval,
   repeatEndDate,
   setRepeatEndDate,
+  repeatWeekOption,
+  setRepeatWeekOption,
+  repeatMonthOption,
+  setRepeatMonthOption,
+  excludedDate,
+  setExcludedDate,
 }: RepeatingProps) => {
   function handleRepeatTypeChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setRepeatType(e.target.value as RepeatType);
@@ -44,6 +62,17 @@ const Repeating = ({
             <option value="yearly">매년</option>
           </Select>
         </FormControl>
+        <EventSaveRepeatingOptions
+          date={date}
+          repeatType={repeatType}
+          repeatWeekOption={repeatWeekOption}
+          setRepeatWeekOption={setRepeatWeekOption}
+          repeatMonthOption={repeatMonthOption}
+          setRepeatMonthOption={setRepeatMonthOption}
+          excludedDate={excludedDate}
+          setExcludedDate={setExcludedDate}
+        />
+
         <HStack width="100%">
           <FormControl>
             <FormLabel>반복 간격</FormLabel>
@@ -62,6 +91,8 @@ const Repeating = ({
               type="date"
               value={repeatEndDate}
               onChange={handleRepeatEndDateChange}
+              min={new Date().toISOString().split('T')[0]}
+              max="2025-06-30"
             />
           </FormControl>
         </HStack>

@@ -1,7 +1,7 @@
 import { Heading, VStack } from '@chakra-ui/react';
 import React from 'react';
 
-import { Event, RepeatType } from '../../types';
+import { Event, RepeatType, weekOptions } from '../../types';
 import Repeating from '../repeating';
 import EventsSaveButton from './EventsSaveButton';
 import EventsSaveCategories from './EventsSaveCategories';
@@ -53,6 +53,15 @@ interface EventsSaveProps {
   // eslint-disable-next-line
   setRepeatEndDate: (value: React.SetStateAction<string>) => void;
   addOrUpdateEvent: () => Promise<void>;
+  repeatWeekOption: weekOptions;
+  // eslint-disable-next-line
+  setRepeatWeekOption: (value: React.SetStateAction<weekOptions>) => void;
+  repeatMonthOption: string;
+  // eslint-disable-next-line
+  setRepeatMonthOption: (value: React.SetStateAction<string>) => void;
+  excludedDate: string;
+  // eslint-disable-next-line
+  setExcludedDate: (value: React.SetStateAction<string>) => void;
 }
 
 const EventSave = ({
@@ -83,8 +92,13 @@ const EventSave = ({
   setRepeatInterval,
   repeatEndDate,
   setRepeatEndDate,
-
   addOrUpdateEvent,
+  repeatWeekOption,
+  setRepeatWeekOption,
+  repeatMonthOption,
+  setRepeatMonthOption,
+  excludedDate,
+  setExcludedDate,
 }: EventsSaveProps) => {
   return (
     <>
@@ -117,12 +131,19 @@ const EventSave = ({
         />
         {isRepeating && (
           <Repeating
+            date={date}
             repeatType={repeatType}
             setRepeatType={setRepeatType}
             repeatInterval={repeatInterval}
             setRepeatInterval={setRepeatInterval}
             repeatEndDate={repeatEndDate}
             setRepeatEndDate={setRepeatEndDate}
+            repeatWeekOption={repeatWeekOption}
+            setRepeatWeekOption={setRepeatWeekOption}
+            repeatMonthOption={repeatMonthOption}
+            setRepeatMonthOption={setRepeatMonthOption}
+            excludedDate={excludedDate}
+            setExcludedDate={setExcludedDate}
           />
         )}
 

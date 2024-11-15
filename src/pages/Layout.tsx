@@ -45,6 +45,12 @@ function Layout() {
     handleEndTimeChange,
     resetForm,
     editEvent,
+    repeatWeekOption,
+    setRepeatWeekOption,
+    repeatMonthOption,
+    setRepeatMonthOption,
+    excludedDate,
+    setExcludedDate,
   } = useEventForm();
 
   const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
@@ -111,6 +117,12 @@ function Layout() {
           repeatEndDate={repeatEndDate}
           setRepeatEndDate={setRepeatEndDate}
           addOrUpdateEvent={addOrUpdateEvent}
+          repeatWeekOption={repeatWeekOption}
+          setRepeatWeekOption={setRepeatWeekOption}
+          repeatMonthOption={repeatMonthOption}
+          setRepeatMonthOption={setRepeatMonthOption}
+          excludedDate={excludedDate}
+          setExcludedDate={setExcludedDate}
         />
         <CalendarView
           events={events}
