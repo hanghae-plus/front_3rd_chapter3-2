@@ -16,7 +16,6 @@ export type UseEventOperations = {
 export const useEventOperations = (editing: boolean, onSave?: () => void): UseEventOperations => {
   const [events, setEvents] = useState<Event[]>([]);
   const toast = useToast();
-
   const fetchEvents = async () => {
     try {
       const response = await fetch('/api/events');
@@ -40,6 +39,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void): UseEv
     try {
       let response;
       const { repeat, date } = eventData;
+      const { interval } = repeat;
       if (editing) {
         response = await fetch(`/api/events/${(eventData as Event).id}`, {
           method: 'PUT',
@@ -47,7 +47,11 @@ export const useEventOperations = (editing: boolean, onSave?: () => void): UseEv
           body: JSON.stringify(eventData),
         });
       } else {
-        if (repeat.type === 'none' || repeat.interval === 0) {
+        if (interval === 0) {
+          repeat.type = 'none';
+        }
+
+        if (repeat.type === 'none' || Number(interval) === 0) {
           response = await fetch('/api/events', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
