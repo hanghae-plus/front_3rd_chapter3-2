@@ -1,4 +1,4 @@
-import { Event } from '../types.ts';
+import { Event, RepeatType } from '../types.ts';
 
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
@@ -108,3 +108,32 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+
+export const isLeapYear = (year: number): boolean => {
+  if (year % 400 === 0) return true;
+
+  if (year % 100 === 0) return false;
+
+  return year % 4 === 0;
+};
+
+export function getLastDayOfMonth(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+}
+
+export const getNextDateLastDay = (
+  currentDate: Date,
+  interval: number,
+  unit: 'month' | 'year'
+): Date => {
+  const nextDate = new Date(currentDate);
+  nextDate.setDate(1);
+
+  if (unit === 'month') {
+    nextDate.setMonth(currentDate.getMonth() + interval);
+  } else if (unit === 'year') {
+    nextDate.setFullYear(currentDate.getFullYear() + interval);
+  }
+
+  return getLastDayOfMonth(nextDate);
+};
