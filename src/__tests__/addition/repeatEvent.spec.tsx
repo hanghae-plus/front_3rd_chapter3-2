@@ -189,4 +189,74 @@ describe('useRepeatEvent', () => {
       expect(repeatBadge).toBeInTheDocument();
     });
   });
+
+  describe('반복 종료 설정', () => {
+    it('기본적으로 종료일이 없어야 한다', () => {
+      const { result } = renderHook(() => useRepeatEvent());
+
+      expect(result.current.repeatEndType).toBe('never');
+      expect(result.current.repeatEndDate).toBe('');
+      expect(result.current.repeatEndCount).toBe(0);
+    });
+
+    it('종료 유형을 변경할 수 있다', () => {
+      const { result } = renderHook(() => useRepeatEvent());
+
+      act(() => {
+        result.current.setRepeatEndType('until');
+      });
+      expect(result.current.repeatEndType).toBe('until');
+
+      act(() => {
+        result.current.setRepeatEndType('count');
+      });
+      expect(result.current.repeatEndType).toBe('count');
+    });
+
+    it('종료일을 설정할 수 있다', () => {
+      const { result } = renderHook(() => useRepeatEvent());
+
+      act(() => {
+        result.current.setRepeatEndType('until');
+        result.current.setRepeatEndDate('2025-06-30');
+      });
+
+      expect(result.current.repeatEndDate).toBe('2025-06-30');
+    });
+
+    it('반복 횟수를 설정할 수 있다', () => {
+      const { result } = renderHook(() => useRepeatEvent());
+
+      act(() => {
+        result.current.setRepeatEndType('count');
+        result.current.setRepeatEndCount(10);
+      });
+
+      expect(result.current.repeatEndCount).toBe(10);
+    });
+
+    it('반복 횟수는 1 이상이어야 한다', () => {
+      const { result } = renderHook(() => useRepeatEvent());
+
+      act(() => {
+        result.current.setRepeatEndType('count');
+        result.current.setRepeatEndCount(0);
+      });
+
+      expect(result.current.repeatEndCount).toBe(1);
+      expect(result.current.endCountError).toBe('반복 횟수는 1회 이상이어야 합니다');
+    });
+
+    it('종료일은 시작일 이후여야 한다', () => {
+      const { result } = renderHook(() => useRepeatEvent());
+
+      act(() => {
+        result.current.setEventDate(new Date('2024-03-20'));
+        result.current.setRepeatEndType('until');
+        result.current.setRepeatEndDate('2024-03-19');
+      });
+
+      expect(result.current.endDateError).toBe('종료일은 시작일 이후여야 합니다');
+    });
+  });
 });
