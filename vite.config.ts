@@ -23,7 +23,13 @@ export default mergeConfig(
         reportsDirectory: './.coverage',
         reporter: ['lcov', 'json', 'json-summary'],
       },
-      exclude: ['**/*.e2e.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+      include: ['src/**/*.{test,spec}.{js,jsx,ts,tsx}'],
+      exclude: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/playwright/**',
+        '**/*.e2e.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      ],
     },
   })
 );
