@@ -146,7 +146,6 @@ describe('반복 일정 통합 테스트', () => {
 
       await expectEventOnDate('29', '윤년 반복 이벤트');
 
-      // 2025년 2월로 이동
       for (let i = 0; i < 12; i++) {
         await user.click(screen.getByLabelText(/Next/));
       }
@@ -219,7 +218,6 @@ describe('반복 일정 통합 테스트', () => {
         </ChakraProvider>
       );
 
-      // 2025년 6월로 이동
       for (let i = 0; i < 7; i++) {
         await user.click(screen.getByLabelText(/Next/));
       }
@@ -227,7 +225,6 @@ describe('반복 일정 통합 테스트', () => {
       const monthView = await screen.findByTestId('month-view');
       expect(within(monthView).getByText('종료일 미지정 이벤트')).toBeInTheDocument();
 
-      // 2025년 7월 확인
       await user.click(screen.getByLabelText(/Next/));
       expect(within(monthView).queryByText('종료일 미지정 이벤트')).not.toBeInTheDocument();
     });
@@ -240,13 +237,11 @@ describe('반복 일정 통합 테스트', () => {
         </ChakraProvider>
       );
 
-      // 이벤트 입력
       await user.type(screen.getByLabelText('제목'), '테스트 이벤트');
       await user.type(screen.getByLabelText('날짜'), '2024-11-01');
       await user.type(screen.getByLabelText('시작 시간'), '10:00');
       await user.type(screen.getByLabelText('종료 시간'), '11:00');
 
-      // 반복 설정
       await user.click(screen.getByLabelText('반복 일정'));
       await user.selectOptions(screen.getByLabelText('반복 유형'), 'monthly');
       await user.type(screen.getByLabelText('반복 종료일'), '2024-10-01');
