@@ -42,7 +42,19 @@ app.put('/api/events/:id', async (req, res) => {
   const eventIndex = events.events.findIndex((event) => event.id === id);
   if (eventIndex > -1) {
     const newEvents = [...events.events];
-    newEvents[eventIndex] = { ...events.events[eventIndex], ...req.body };
+
+    const { repeat: currentRepeat } = events.events[eventIndex];
+    const { id } = currentRepeat;
+
+    const repeat = id
+      ? { interval: 0, id: undefined, type: 'none', endDate: undefined }
+      : currentRepeat;
+
+    newEvents[eventIndex] = {
+      ...events.events[eventIndex],
+      ...req.body,
+      repeat,
+    };
 
     fs.writeFileSync(
       `${__dirname}/src/__mocks__/response/realEvents.json`,
