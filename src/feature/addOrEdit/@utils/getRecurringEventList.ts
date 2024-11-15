@@ -20,9 +20,9 @@ export function getRecurringEventList({
   let currentDate = new Date(start);
 
   while (currentDate <= end) {
-    const targetDay = currentDate.getDate();
+    const targetDay = start.getDate();
 
-    recurringDates.push(currentDate.toISOString().split('T')[0]);
+    recurringDates.push(currentDate.toLocaleDateString('en-CA'));
 
     switch (type) {
       case 'daily': {
@@ -34,24 +34,11 @@ export function getRecurringEventList({
         break;
       }
       case 'monthly': {
-        const year = getMonthlyNextEventDate(currentDate, interval, targetDay).getFullYear();
-        const month = getMonthlyNextEventDate(currentDate, interval, targetDay).getMonth();
-        const day = getMonthlyNextEventDate(currentDate, interval, targetDay).getDate();
-
-        currentDate.setDate(day);
-        currentDate.setMonth(month);
-        currentDate.setFullYear(year);
-
+        currentDate = getMonthlyNextEventDate(currentDate, interval, targetDay);
         break;
       }
       case 'yearly': {
-        const year = getYearlyNextEventDate(currentDate, interval).getFullYear();
-        const month = getYearlyNextEventDate(currentDate, interval).getMonth();
-        const day = getYearlyNextEventDate(currentDate, interval).getDate();
-
-        currentDate.setDate(day);
-        currentDate.setMonth(month);
-        currentDate.setFullYear(year);
+        currentDate = getYearlyNextEventDate(currentDate, interval);
         break;
       }
       default:
@@ -72,11 +59,14 @@ const getMonthlyNextEventDate = (date: Date, interval: number, targetDay: number
   }
 
   const lastDayOfTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
-  const adjustedDay = Math.min(originalDay, lastDayOfTargetMonth);
+  let adjustedDay = Math.min(originalDay, lastDayOfTargetMonth);
+
+  if (adjustedDay > lastDayOfTargetMonth) {
+    adjustedDay = lastDayOfTargetMonth;
+  }
 
   return new Date(targetYear, targetMonth, adjustedDay);
 };
-
 const getYearlyNextEventDate = (date: Date, interval: number): Date => {
   const month = date.getMonth();
   const day = date.getDate();
