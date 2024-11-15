@@ -11,14 +11,21 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test e2e",
+    "test:integration": "playwright test integration",
     "build": "tsc -b && vite build",
-    "lint": "eslint . --ext ts,tsx,js --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts,tsx,js --report-unused-disable-directives --max-warnings 0",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "chromatic": "npx chromatic --project-token=chpt_d26afde50246153"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@storybook/testing-react": "^2.0.1",
+    "cors": "^2.8.5",
     "express": "^4.19.2",
     "framer-motion": "^11.3.2",
     "msw": "^2.3.1",
@@ -26,9 +33,20 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^3.2.2",
+    "@playwright/test": "^1.48.2",
+    "@storybook/addon-essentials": "^8.4.3",
+    "@storybook/addon-interactions": "^8.4.3",
+    "@storybook/addon-onboarding": "^8.4.3",
+    "@storybook/addons": "^7.6.17",
+    "@storybook/blocks": "^8.4.3",
+    "@storybook/react": "^8.4.3",
+    "@storybook/react-vite": "^8.4.3",
+    "@storybook/test": "^8.4.3",
     "@testing-library/jest-dom": "^6.4.5",
     "@testing-library/react": "^15.0.7",
     "@testing-library/user-event": "^14.5.2",
+    "@types/node": "^22.9.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.13.1",
@@ -36,6 +54,7 @@
     "@vitejs/plugin-react-swc": "^3.5.0",
     "@vitest/coverage-v8": "^2.0.3",
     "@vitest/ui": "^1.6.0",
+    "chromatic": "^11.18.1",
     "concurrently": "^8.2.2",
     "eslint": "^8.45.0",
     "eslint-config-prettier": "^8.8.0",
@@ -46,10 +65,12 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-storybook": "^0.6.12",
     "eslint-plugin-vitest": "^0.2.6",
-    "vite-plugin-eslint": "^1.8.1",
     "jsdom": "^25.0.1",
+    "storybook": "^8.4.3",
     "typescript": "^5.2.2",
     "vite": "^5.3.1",
-    "vitest": "^2.0.2"
+    "vite-plugin-eslint": "^1.8.1",
+    "vitest": "^2.0.2",
+    "wait-on": "^8.0.1"
   }
 }

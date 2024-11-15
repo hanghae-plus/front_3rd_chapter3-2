@@ -1,4 +1,4 @@
-import { Event } from '../types.ts';
+import { Event, RepeatType } from '../types.ts';
 
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
@@ -84,17 +84,11 @@ export function formatMonth(date: Date): string {
   return `${year}년 ${month}월`;
 }
 
-const stripTime = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-
 /**
  * 주어진 날짜가 특정 범위 내에 있는지 확인합니다.
  */
 export function isDateInRange(date: Date, rangeStart: Date, rangeEnd: Date): boolean {
-  const normalizedDate = stripTime(date);
-  const normalizedStart = stripTime(rangeStart);
-  const normalizedEnd = stripTime(rangeEnd);
-
-  return normalizedDate >= normalizedStart && normalizedDate <= normalizedEnd;
+  return date >= rangeStart && date <= rangeEnd;
 }
 
 export function fillZero(value: number, size = 2) {
@@ -108,3 +102,43 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+
+/**
+ * @function isValidRepeatDateForType
+ * @desc 주어진 날짜가 특정 반복 유형에 대해 유효한지 확인
+ * @param formattedDate - "YYYY-MM-DD" 형식의 날짜 문자열
+ * @param repeatType - 반복 유형 (monthly, yearly 등)
+ * @returns 날짜가 유효하면 true, 그렇지 않으면 false
+ */
+
+export const isValidRepeatDateForType = (
+  formattedDate: string,
+  repeatType: RepeatType
+): boolean => {
+  const [year, month, day] = formattedDate.split('-').map(Number);
+
+  if (!year || !month || !day) {
+    return false;
+  }
+
+  if (repeatType === 'monthly') {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    return day <= daysInMonth;
+  }
+
+  if (repeatType === 'yearly') {
+    return !(month === 2 && day === 29 && !isLeapYear(year));
+  }
+
+  return true;
+};
+
+/**
+ * @function isLeapYear
+ * @desc 윤년을 확인하는 함수
+ * @param year - 검사할 연도
+ * @returns 윤년이면 true, 그렇지 않으면 false
+ */
+export const isLeapYear = (year: number): boolean => {
+  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+};
