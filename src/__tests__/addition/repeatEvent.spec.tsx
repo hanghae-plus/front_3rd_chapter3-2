@@ -2,6 +2,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { act, render, renderHook, screen } from '@testing-library/react';
 import React from 'react';
 import EventItem from '../../components/EventItem';
+import { useEventForm } from '../../hooks/useEventForm';
 import useRepeatEvent from '../../hooks/useRepeatEvent';
 
 describe('useRepeatEvent', () => {
@@ -257,6 +258,54 @@ describe('useRepeatEvent', () => {
       });
 
       expect(result.current.endDateError).toBe('종료일은 시작일 이후여야 합니다');
+    });
+  });
+
+  // ... existing code ...
+
+  describe('반복 일정 단일 수정', () => {
+    const mockRepeatingEvent = {
+      id: '1',
+      title: '반복 회의',
+      date: '2024-03-20',
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '',
+      location: '',
+      category: '',
+      repeat: {
+        type: 'weekly' as const,
+        interval: 1,
+        endDate: '',
+      },
+      notificationTime: 10,
+    };
+
+    const renderWithChakra = (ui: React.ReactElement) => {
+      return render(<ChakraProvider>{ui}</ChakraProvider>);
+    };
+
+    it('반복 일정을 수정하면 단일 일정으로 변경된다', () => {
+      const { result } = renderHook(() => useEventForm());
+
+      // 반복 일정 수정 모드로 전환
+      act(() => {
+        result.current.editEvent(mockRepeatingEvent, true);
+      });
+
+      expect(result.current.isRepeating).toBe(false);
+      expect(result.current.repeatType).toBe('none');
+      expect(result.current.repeatInterval).toBe(1);
+      expect(result.current.repeatEndDate).toBe('');
+      expect(result.current.title).toBe('반복 회의');
+      expect(result.current.date).toBe('2024-03-20');
+    });
+
+    it('반복 일정 아이콘이 사라진다', () => {
+      renderWithChakra(<EventItem event={mockRepeatingEvent} isModifying />);
+
+      const repeatIcon = screen.queryByTestId('repeat-icon');
+      expect(repeatIcon).not.toBeInTheDocument();
     });
   });
 });
