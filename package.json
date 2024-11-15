@@ -12,7 +12,8 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "build": "tsc -b && vite build",
-    "lint": "eslint . --ext ts,tsx,js --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts,tsx,js --report-unused-disable-directives --max-warnings 0",
+    "cy:open": "cypress open"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
