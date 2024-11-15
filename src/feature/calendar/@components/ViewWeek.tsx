@@ -1,6 +1,6 @@
-import { BellIcon } from '@chakra-ui/icons';
-import { Box, HStack, Td, Text } from '@chakra-ui/react';
+import { Td, Text } from '@chakra-ui/react';
 
+import { CalendarBox } from './CalendarBox';
 import { useCombinedContext } from '../../../provider';
 import { getWeekDates } from '../../../utils/dateUtils';
 
@@ -16,24 +16,11 @@ export function ViewWeek() {
           {filteredEvents
             .filter((event) => new Date(event.date).toDateString() === date.toDateString())
             .map((event) => {
-              const isNotified = notifiedEvents.includes(event.id);
+              const { title, id, repeat } = event;
+              const isNotified = notifiedEvents.includes(id);
+              const isRepeat = !!repeat.id;
               return (
-                <Box
-                  key={event.id}
-                  p={1}
-                  my={1}
-                  bg={isNotified ? 'red.100' : 'gray.100'}
-                  borderRadius="md"
-                  fontWeight={isNotified ? 'bold' : 'normal'}
-                  color={isNotified ? 'red.500' : 'inherit'}
-                >
-                  <HStack spacing={1}>
-                    {isNotified && <BellIcon />}
-                    <Text fontSize="sm" noOfLines={1}>
-                      {event.title}
-                    </Text>
-                  </HStack>
-                </Box>
+                <CalendarBox key={id} isNotified={isNotified} title={title} isRepeat={isRepeat} /> //
               );
             })}
         </Td>

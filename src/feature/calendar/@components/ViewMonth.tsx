@@ -1,6 +1,6 @@
-import { BellIcon } from '@chakra-ui/icons';
-import { Tr, Td, Box, HStack, Text } from '@chakra-ui/react';
+import { Tr, Td, Text } from '@chakra-ui/react';
 
+import { CalendarBox } from './CalendarBox';
 import { useCombinedContext } from '../../../provider';
 import { formatDate, getEventsForDay, getWeeksAtMonth } from '../../../utils/dateUtils';
 
@@ -32,24 +32,17 @@ export function ViewMonth() {
                       </Text>
                     )}
                     {getEventsForDay(filteredEvents, day).map((event) => {
-                      const isNotified = notifiedEvents.includes(event.id);
+                      const { title, id, repeat } = event;
+                      const isRepeat = !!repeat.id;
+
+                      const isNotified = notifiedEvents.includes(id);
                       return (
-                        <Box
-                          key={event.id}
-                          p={1}
-                          my={1}
-                          bg={isNotified ? 'red.100' : 'gray.100'}
-                          borderRadius="md"
-                          fontWeight={isNotified ? 'bold' : 'normal'}
-                          color={isNotified ? 'red.500' : 'inherit'}
-                        >
-                          <HStack spacing={1}>
-                            {isNotified && <BellIcon />}
-                            <Text fontSize="sm" noOfLines={1}>
-                              {event.title}
-                            </Text>
-                          </HStack>
-                        </Box>
+                        <CalendarBox
+                          key={id}
+                          isNotified={isNotified}
+                          title={title}
+                          isRepeat={isRepeat}
+                        /> //
                       );
                     })}
                   </>
