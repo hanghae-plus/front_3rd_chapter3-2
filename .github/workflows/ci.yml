@@ -46,3 +46,9 @@ jobs:
         run: |
           pnpm install
           pnpm run test
+
+      - name: install cypress
+        run: pnpm exec cypress install
+      - name: test cypress
+        run: |
+          pnpm run cypress:run

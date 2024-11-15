@@ -2,22 +2,30 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { render, screen, within, act } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
+import { OverlayProvider } from 'overlay-kit';
 import { ReactElement } from 'react';
 
 import {
   setupMockHandlerCreation,
   setupMockHandlerDeletion,
   setupMockHandlerUpdating,
-} from '../__mocks__/handlersUtils';
-import App from '../App';
-import { server } from '../setupTests';
-import { Event } from '../types';
+} from '../../__mocks__/handlersUtils';
+import App from '../../App';
+import { server } from '../../setupTests';
+import { Event } from '../../types';
 
 // ! Hard 여기 제공 안함
 const setup = (element: ReactElement) => {
   const user = userEvent.setup();
 
-  return { ...render(<ChakraProvider>{element}</ChakraProvider>), user }; // ? Med: 왜 ChakraProvider로 감싸는지 물어보자
+  return {
+    ...render(
+      <ChakraProvider>
+        <OverlayProvider>{element}</OverlayProvider>
+      </ChakraProvider>
+    ),
+    user,
+  }; // ? Med: 왜 ChakraProvider로 감싸는지 물어보자
 };
 
 // ! Hard 여기 제공 안함
@@ -59,10 +67,10 @@ describe('일정 CRUD 및 기본 기능', () => {
     const eventList = within(screen.getByTestId('event-list'));
     expect(eventList.getByText('새 회의')).toBeInTheDocument();
     expect(eventList.getByText('2024-10-15')).toBeInTheDocument();
-    expect(eventList.getByText('14:00 - 15:00')).toBeInTheDocument();
-    expect(eventList.getByText('프로젝트 진행 상황 논의')).toBeInTheDocument();
-    expect(eventList.getByText('회의실 A')).toBeInTheDocument();
-    expect(eventList.getByText('카테고리: 업무')).toBeInTheDocument();
+    expect(eventList.getAllByText('14:00 - 15:00')[0]).toBeInTheDocument();
+    expect(eventList.getAllByText('프로젝트 진행 상황 논의')[0]).toBeInTheDocument();
+    expect(eventList.getAllByText('회의실 A')[0]).toBeInTheDocument();
+    expect(eventList.getAllByText('카테고리: 업무')[0]).toBeInTheDocument();
   });
 
   it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
@@ -182,7 +190,7 @@ describe('검색 기능', () => {
         return HttpResponse.json({
           events: [
             {
-              id: 1,
+              id: '2ab06561-10f8-4e7f-8128-4b2dd343c6b9',
               title: '팀 회의',
               date: '2024-10-15',
               startTime: '09:00',
@@ -194,7 +202,7 @@ describe('검색 기능', () => {
               notificationTime: 10,
             },
             {
-              id: 2,
+              id: 'd39ff583-36bf-40e8-b78f-a8760e708d3a',
               title: '프로젝트 계획',
               date: '2024-10-16',
               startTime: '14:00',
@@ -256,7 +264,7 @@ describe('일정 충돌', () => {
   it('겹치는 시간에 새 일정을 추가할 때 경고가 표시된다', async () => {
     setupMockHandlerCreation([
       {
-        id: '1',
+        id: '2ab06561-10f8-4e7f-8128-4b2dd343c6b9',
         title: '기존 회의',
         date: '2024-10-15',
         startTime: '09:00',

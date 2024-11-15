@@ -13,7 +13,7 @@ module.exports = {
     browser: true,
     node: true,
   },
-  ignorePatterns: ['node_modules/*', 'dist'],
+  ignorePatterns: ['node_modules/*', 'dist', 'cypress/**'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     tsconfigRootDir: __dirname,
@@ -54,6 +54,12 @@ module.exports = {
       extends: ['plugin:vitest/recommended'],
       rules: {
         'vitest/expect-expect': 'off',
+        'prettier/prettier': [
+          'warn',
+          {
+            endOfLine: 'auto',
+          },
+        ],
       },
       globals: {
         globalThis: true,

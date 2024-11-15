@@ -1,7 +1,8 @@
 import { http, HttpResponse } from 'msw';
 
-import { events } from '../__mocks__/response/events.json' assert { type: 'json' };
 import { Event } from '../types';
+
+let events: Event[] = [];
 
 export const handlers = [
   http.get('/api/events', () => {
@@ -11,6 +12,7 @@ export const handlers = [
   http.post('/api/events', async ({ request }) => {
     const newEvent = (await request.json()) as Event;
     newEvent.id = String(events.length + 1);
+    events.push(newEvent);
     return HttpResponse.json(newEvent, { status: 201 });
   }),
 
@@ -28,7 +30,7 @@ export const handlers = [
         },
       };
     });
-
+    events = [...events, ...newEvents];
     return HttpResponse.json(newEvents, { status: 201 });
   }),
 
@@ -38,7 +40,8 @@ export const handlers = [
     const index = events.findIndex((event) => event.id === id);
 
     if (index !== -1) {
-      return HttpResponse.json({ ...events[index], ...updatedEvent });
+      events[index] = { ...events[index], ...updatedEvent };
+      return HttpResponse.json(events[index]);
     }
 
     return new HttpResponse(null, { status: 404 });
@@ -49,6 +52,7 @@ export const handlers = [
     const index = events.findIndex((event) => event.id === id);
 
     if (index !== -1) {
+      events.splice(index, 1);
       return new HttpResponse(null, { status: 204 });
     }
 
