@@ -1,4 +1,4 @@
-import { Box, Flex, FormControl, FormLabel, Heading, Input, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, FormControl, Heading, Input, Text, VStack } from '@chakra-ui/react';
 
 import { EventCard } from './components/EventCard.tsx';
 import { EventHandleForm } from './components/EventHandleForm.tsx';

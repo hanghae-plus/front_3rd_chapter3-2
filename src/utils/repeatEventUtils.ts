@@ -11,7 +11,8 @@ const formatRepeatType = {
 
 export const getRepeatingEvent = (
   event: Event | EventForm,
-  exceptDate?: string
+  exceptDate?: string,
+  weeklyDay?: number
 ): Event[] | EventForm[] => {
   if (event.repeat.type === 'none') {
     return [];
@@ -20,8 +21,9 @@ export const getRepeatingEvent = (
   let repeatInterval = event.repeat.interval;
   const repeatType = formatRepeatType[event.repeat.type] as 'day' | 'week' | 'month' | 'year';
 
+  const startDate = weeklyDay === undefined ? event.date : getNearestDate(event.date, weeklyDay);
   const endDate = event.repeat.endDate || '2025-06-30';
-  let currentDate = addDate(event.date, repeatInterval, repeatType);
+  let currentDate = addDate(startDate, repeatInterval, repeatType);
 
   const repeatEvents = [];
 
@@ -35,7 +37,7 @@ export const getRepeatingEvent = (
     }
 
     repeatInterval += event.repeat.interval;
-    currentDate = addDate(event.date, repeatInterval, repeatType);
+    currentDate = addDate(startDate, repeatInterval, repeatType);
   }
 
   return repeatEvents;
@@ -51,4 +53,17 @@ const addDate = (
 
 const isBeforeEndDate = (targetDate: string, endDate: string) => {
   return dayjs(targetDate).isBefore(dayjs(endDate)) || targetDate === endDate;
+};
+
+const getNearestDate = (date: string, weeklyDay: number) => {
+  const targetDate = dayjs(date);
+  const currentDay = targetDate.day();
+
+  if (currentDay === weeklyDay) {
+    return date;
+  }
+
+  const diff = currentDay > weeklyDay ? weeklyDay - currentDay : weeklyDay - currentDay - 7;
+
+  return targetDate.add(diff, 'day').format('YYYY-MM-DD');
 };

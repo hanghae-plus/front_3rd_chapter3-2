@@ -39,7 +39,11 @@ export const useEventOperations = (
     }
   };
 
-  const saveEvent = async (eventData: Event | EventForm, exceptDate?: string) => {
+  const saveEvent = async (
+    eventData: Event | EventForm,
+    exceptDate?: string,
+    weeklyDay?: number
+  ) => {
     const requestBody = { ...eventData };
     try {
       let response;
@@ -76,7 +80,7 @@ export const useEventOperations = (
 
     // repeat type 이 존재할 때 repeatEvent도 저장
     if (requestBody.repeat.type !== 'none') {
-      const repeatEvents = getRepeatingEvent(requestBody, exceptDate);
+      const repeatEvents = getRepeatingEvent(requestBody, exceptDate, weeklyDay);
 
       saveRepeatEvent(repeatEvents);
     }

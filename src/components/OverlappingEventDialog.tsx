@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
   AlertDialog,
   AlertDialogBody,
@@ -17,10 +18,15 @@ interface OverlappingEventDialogProps {
   close: () => void;
   overlappingEvents: Event[];
   // eslint-disable-next-line no-unused-vars
-  saveEvent: (eventData: Event | EventForm) => Promise<void>;
+  saveEvent: (
+    eventData: Event | EventForm,
+    exceptDate?: string,
+    weeklyDay?: number
+  ) => Promise<void>;
   eventForm: EventForm;
   editingEvent: Event | null;
   isRepeating: boolean;
+  weeklyDay: number;
 }
 
 export const OverlappingEventDialog = ({
@@ -31,20 +37,26 @@ export const OverlappingEventDialog = ({
   eventForm,
   editingEvent,
   isRepeating,
+  weeklyDay,
 }: OverlappingEventDialogProps) => {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   const handleSaveEvent = () => {
     close();
-    saveEvent({
-      id: editingEvent ? editingEvent.id : undefined,
-      ...eventForm,
-      repeat: {
-        type: isRepeating ? eventForm.repeat.type : 'none',
-        interval: eventForm.repeat.interval,
-        endDate: eventForm.repeat.endDate || undefined,
+    const isTypeWeekly = eventForm.repeat.type === 'weekly';
+    saveEvent(
+      {
+        id: editingEvent ? editingEvent.id : undefined,
+        ...eventForm,
+        repeat: {
+          type: isRepeating ? eventForm.repeat.type : 'none',
+          interval: eventForm.repeat.interval,
+          endDate: eventForm.repeat.endDate || undefined,
+        },
       },
-    });
+      undefined,
+      isTypeWeekly ? weeklyDay : undefined
+    );
   };
 
   return (

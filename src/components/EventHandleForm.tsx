@@ -38,9 +38,13 @@ interface EventHandleFormProps {
   editingEvent: Event | null;
   eventFormState: EventFormStateProps;
   repeatExceptDate: string;
-  weeklyDay: string;
-  handleChangeWeeklyDay: (day: string) => void;
-  saveEvent: (eventData: Event | EventForm, exceptDate?: string) => Promise<void>;
+  weeklyDay: number;
+  handleChangeWeeklyDay: (day: number) => void;
+  saveEvent: (
+    eventData: Event | EventForm,
+    exceptDate?: string,
+    weeklyDay?: number
+  ) => Promise<void>;
   handleChangeExceptDate: (date: string) => void;
 }
 
@@ -117,11 +121,13 @@ export const EventHandleForm = ({
             eventForm={eventForm}
             editingEvent={editingEvent}
             isRepeating={isRepeating}
+            weeklyDay={weeklyDay}
           />
         );
       });
     } else {
-      await saveEvent(eventData, repeatExceptDate);
+      const isTypeWeekly = eventForm.repeat.type === 'weekly';
+      await saveEvent(eventData, repeatExceptDate, isTypeWeekly ? weeklyDay : undefined);
       resetForm();
     }
   };
@@ -248,14 +254,17 @@ export const EventHandleForm = ({
             {eventForm.repeat.type === 'weekly' && (
               <FormControl>
                 <FormLabel>요일 지정</FormLabel>
-                <Select value={weeklyDay} onChange={(e) => handleChangeWeeklyDay(e.target.value)}>
-                  <option value="sun">일</option>
-                  <option value="mon">월</option>
-                  <option value="tue">화</option>
-                  <option value="wed">수</option>
-                  <option value="thu">목</option>
-                  <option value="fri">금</option>
-                  <option value="sat">토</option>
+                <Select
+                  value={weeklyDay || 1}
+                  onChange={(e) => handleChangeWeeklyDay(Number(e.target.value))}
+                >
+                  <option value="0">일</option>
+                  <option value="1">월</option>
+                  <option value="2">화</option>
+                  <option value="3">수</option>
+                  <option value="4">목</option>
+                  <option value="5">금</option>
+                  <option value="6">토</option>
                 </Select>
               </FormControl>
             )}
