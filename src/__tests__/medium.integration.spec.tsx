@@ -97,13 +97,12 @@ describe('일정 CRUD 및 기본 기능', () => {
 
     const { user } = setup(<App />);
     const eventList = within(screen.getByTestId('event-list'));
-    expect(await eventList.findByText('삭제할 이벤트')).toBeInTheDocument();
 
-    // 삭제 버튼 클릭
+    expect(await eventList.findAllByText('반복 이벤트 입니다.')).toHaveLength(5);
     const allDeleteButton = await screen.findAllByLabelText('Delete event');
     await user.click(allDeleteButton[0]);
 
-    expect(eventList.queryByText('삭제할 이벤트')).not.toBeInTheDocument();
+    expect(await eventList.findAllByText('반복 이벤트 입니다.')).toHaveLength(4);
   });
 });
 

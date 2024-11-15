@@ -106,7 +106,76 @@ it('존재하는 이벤트 삭제 시 에러없이 아이템이 삭제된다.', 
 
   await act(() => Promise.resolve(null));
 
-  expect(result.current.events).toEqual([]);
+  expect(result.current.events).toEqual([
+    {
+      category: '기타',
+      date: '2024-10-15',
+      description: '반복 이벤트 입니다!!!!!',
+      endTime: '10:00',
+      id: '2',
+      location: '어딘가',
+      notificationTime: 10,
+      repeat: {
+        endDate: '2024-10-20',
+        id: 'repeatId-1',
+        interval: 1,
+        type: 'daily',
+      },
+      startTime: '09:00',
+      title: '반복 이벤트 입니다.',
+    },
+    {
+      category: '기타',
+      date: '2024-10-15',
+      description: '반복 이벤트 입니다!!!!!',
+      endTime: '10:00',
+      id: '3',
+      location: '어딘가',
+      notificationTime: 10,
+      repeat: {
+        endDate: '2024-10-20',
+        id: 'repeatId-1',
+        interval: 1,
+        type: 'daily',
+      },
+      startTime: '09:00',
+      title: '반복 이벤트 입니다.',
+    },
+    {
+      category: '기타',
+      date: '2024-10-15',
+      description: '반복 이벤트 입니다!!!!!',
+      endTime: '10:00',
+      id: '4',
+      location: '어딘가',
+      notificationTime: 10,
+      repeat: {
+        endDate: '2024-10-20',
+        id: 'repeatId-1',
+        interval: 1,
+        type: 'daily',
+      },
+      startTime: '09:00',
+      title: '반복 이벤트 입니다.',
+    },
+    {
+      category: '기타',
+      date: '2024-10-15',
+      description: '반복 이벤트 입니다!!!!!',
+      endTime: '10:00',
+      id: '5',
+      location: '어딘가',
+      notificationTime: 10,
+      repeat: {
+        endDate: '2024-10-20',
+        id: 'repeatId-1',
+        interval: 1,
+        type: 'daily',
+      },
+      startTime: '09:00',
+      title: '반복 이벤트 입니다.',
+    },
+  ]);
 });
 
 it("이벤트 로딩 실패 시 '이벤트 로딩 실패'라는 텍스트와 함께 에러 토스트가 표시되어야 한다", async () => {
