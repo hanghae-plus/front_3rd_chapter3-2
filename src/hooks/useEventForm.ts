@@ -14,9 +14,14 @@ export const useEventForm = (initialEvent?: Event) => {
   const [location, setLocation] = useState(initialEvent?.location || '');
   const [category, setCategory] = useState(initialEvent?.category || '');
   const [isRepeating, setIsRepeating] = useState(initialEvent?.repeat.type !== 'none');
+  const [repeatId, setRepeatId] = useState<string | undefined>(initialEvent?.repeat?.id);
   const [repeatType, setRepeatType] = useState<RepeatType>(initialEvent?.repeat.type || 'none');
   const [repeatInterval, setRepeatInterval] = useState(initialEvent?.repeat.interval || 1);
   const [repeatEndDate, setRepeatEndDate] = useState(initialEvent?.repeat.endDate || '');
+  const [repeatMonthType, setRepeatMonthType] = useState(initialEvent?.repeat.monthType || 'none');
+  const [repeatWeekType, setRepeatWeekType] = useState(initialEvent?.repeat.weekType || 'none');
+  const [repeatDay, setRepeatDay] = useState<number | undefined>(undefined);
+  const [repeatWeekOrder, setRepeatWeekOrder] = useState<number | undefined>(undefined);
   const [notificationTime, setNotificationTime] = useState(initialEvent?.notificationTime || 10);
 
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -30,12 +35,14 @@ export const useEventForm = (initialEvent?: Event) => {
     const newStartTime = e.target.value;
     setStartTime(newStartTime);
     setTimeError(getTimeErrorMessage(newStartTime, endTime));
+    if (editingEvent && isRepeating) setIsRepeating(false);
   };
 
   const handleEndTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newEndTime = e.target.value;
     setEndTime(newEndTime);
     setTimeError(getTimeErrorMessage(startTime, newEndTime));
+    if (editingEvent && isRepeating) setIsRepeating(false);
   };
 
   const resetForm = () => {
@@ -47,9 +54,14 @@ export const useEventForm = (initialEvent?: Event) => {
     setLocation('');
     setCategory('');
     setIsRepeating(false);
+    setRepeatId(undefined);
     setRepeatType('none');
     setRepeatInterval(1);
     setRepeatEndDate('');
+    setRepeatMonthType('none');
+    setRepeatWeekType('none');
+    setRepeatDay(undefined);
+    setRepeatWeekOrder(undefined);
     setNotificationTime(10);
   };
 
@@ -63,9 +75,14 @@ export const useEventForm = (initialEvent?: Event) => {
     setLocation(event.location);
     setCategory(event.category);
     setIsRepeating(event.repeat.type !== 'none');
+    setRepeatId(event.repeat.id);
     setRepeatType(event.repeat.type);
     setRepeatInterval(event.repeat.interval);
     setRepeatEndDate(event.repeat.endDate || '');
+    setRepeatMonthType(event.repeat.monthType || 'none');
+    setRepeatWeekType(event.repeat.weekType || 'none');
+    setRepeatDay(event.repeat.day);
+    setRepeatWeekOrder(event.repeat.weekOrder);
     setNotificationTime(event.notificationTime);
   };
 
@@ -86,12 +103,22 @@ export const useEventForm = (initialEvent?: Event) => {
     setCategory,
     isRepeating,
     setIsRepeating,
+    repeatId,
+    setRepeatId,
     repeatType,
     setRepeatType,
     repeatInterval,
     setRepeatInterval,
     repeatEndDate,
     setRepeatEndDate,
+    repeatMonthType,
+    setRepeatMonthType,
+    repeatWeekType,
+    setRepeatWeekType,
+    repeatDay,
+    setRepeatDay,
+    repeatWeekOrder,
+    setRepeatWeekOrder,
     notificationTime,
     setNotificationTime,
     startTimeError,

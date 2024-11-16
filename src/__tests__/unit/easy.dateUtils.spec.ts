@@ -1,4 +1,4 @@
-import { Event } from '../../types';
+import { Event, RepeatInfo } from '../../types';
 import {
   fillZero,
   formatDate,
@@ -6,9 +6,19 @@ import {
   formatWeek,
   getDaysInMonth,
   getEventsForDay,
+  getMonth,
+  getNthWeekday,
+  getRemainingDatesByDay,
+  getRemainingDatesByMonth,
+  getRemainingDatesByWeek,
+  getRemainingDatesByYear,
+  getRemainingDatesOfRepeatedEvent,
   getWeekDates,
+  getWeekday,
   getWeeksAtMonth,
   isDateInRange,
+  isLeapYear,
+  isValidDate,
 } from '../../utils/dateUtils';
 
 describe('getDaysInMonth', () => {
@@ -296,5 +306,1039 @@ describe('formatDate', () => {
   it('일이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {
     const testDate = new Date('2023-12-05');
     expect(formatDate(testDate)).toBe('2023-12-05');
+  });
+});
+
+describe('isLeapYear', () => {
+  it('🟢 4로 나뉘어 떨어지는 해는 윤년이다.', () => {
+    const testDate = new Date(2024, 0);
+    expect(isLeapYear(testDate)).toBe(true);
+  });
+  it('🔴 100으로 나뉘어 떨어지는 해는 윤년이 아니다.', () => {
+    const testDate = new Date(2100, 0);
+    expect(isLeapYear(testDate)).toBe(false);
+  });
+  it('🟢 400으로 나뉘어 떨어지는 해는 윤년이다.', () => {
+    const testDate = new Date(2000, 0);
+    expect(isLeapYear(testDate)).toBe(true);
+  });
+});
+
+describe('getRemainingDatesByDay', () => {
+  it('🟢 간격에 대한 입력이 1일 경우 다음날부터 종료일자까지 하루 간격으로 모든 날짜가 반환된다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
+    expect(result).toHaveLength(49);
+    expect(result[0]).toEqual(new Date('2024-11-13'));
+    expect(result[1]).toEqual(new Date('2024-11-14'));
+    expect(result[2]).toEqual(new Date('2024-11-15'));
+    expect(result[47]).toEqual(new Date('2024-12-30'));
+    expect(result[48]).toEqual(new Date('2024-12-31'));
+  });
+  it('🔴 종료일자가 현재일자보다 이전인 경우 빈 배열을 반환한다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-05-13');
+    expect(getRemainingDatesByDay(currentDate, endDate)).toHaveLength(0);
+  });
+  it('🔴 간격이 0보다 작거나 같을 경우 빈 배열을 반환한다', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-31');
+    const interval = 0;
+    expect(getRemainingDatesByDay(currentDate, endDate, interval)).toHaveLength(0);
+  });
+  it('🔴 간격에 대한 입력이 없을 경우 기본값 1로 설정된다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2025-01-01');
+    const result = getRemainingDatesByDay(currentDate, endDate);
+    expect(result).toHaveLength(50);
+    expect(result[0]).toEqual(new Date('2024-11-13'));
+    expect(result[1]).toEqual(new Date('2024-11-14'));
+  });
+  it('🟢 간격에 대한 입력이 2일 경우 종료일자까지 이틀 간격으로 모든 날짜가 반환된다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-31');
+    const interval = 2;
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
+    expect(result).toHaveLength(24);
+    expect(result[0]).toEqual(new Date('2024-11-14'));
+    expect(result[1]).toEqual(new Date('2024-11-16'));
+    expect(result[22]).toEqual(new Date('2024-12-28'));
+    expect(result[23]).toEqual(new Date('2024-12-30'));
+  });
+  it('🟢 간격에 대한 입력이 5일 경우 종료일자까지 닷새 간격으로 모든 날짜가 반환된다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-31');
+    const interval = 5;
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
+    expect(result).toHaveLength(9);
+    expect(result[0]).toEqual(new Date('2024-11-17'));
+    expect(result[1]).toEqual(new Date('2024-11-22'));
+    expect(result[7]).toEqual(new Date('2024-12-22'));
+    expect(result[8]).toEqual(new Date('2024-12-27'));
+  });
+  it('🟢 간격에 대한 입력이 7일 경우 종료일자까지 7일 간격으로 모든 날짜가 반환된다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-31');
+    const interval = 7;
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
+    expect(result).toHaveLength(7);
+    expect(result[0]).toEqual(new Date('2024-11-19'));
+    expect(result[1]).toEqual(new Date('2024-11-26'));
+    expect(result[5]).toEqual(new Date('2024-12-24'));
+    expect(result[6]).toEqual(new Date('2024-12-31'));
+  });
+  it('🟢 간격에 대한 입력이 15일 경우 종료일자까지 15일 간격으로 모든 날짜가 반환된다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-31');
+    const interval = 15;
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
+    expect(result).toHaveLength(3);
+    expect(result[0]).toEqual(new Date('2024-11-27'));
+    expect(result[1]).toEqual(new Date('2024-12-12'));
+    expect(result[2]).toEqual(new Date('2024-12-27'));
+  });
+  it('🟢 간격에 대한 입력이 30일 경우 종료일자까지 15일 간격으로 모든 날짜가 반환된다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2025-02-13');
+    const interval = 30;
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
+    expect(result).toHaveLength(3);
+    expect(result[0]).toEqual(new Date('2024-12-12'));
+    expect(result[1]).toEqual(new Date('2025-01-11'));
+    expect(result[2]).toEqual(new Date('2025-02-10'));
+  });
+  it('🔴 올바르지 않은 현재일자의 월의 날짜의 경우 빈 배열을 반환한다.', () => {
+    const currentDate = new Date('2024-13-12');
+    const endDate = new Date('2025-02-13');
+    const interval = 30;
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 올바르지 않은 현재일자의 일의 날짜의 경우 빈 배열을 반환한다.', () => {
+    const currentDate = new Date('2024-12-56');
+    const endDate = new Date('2025-02-13');
+    const interval = 30;
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 올바르지 않은 종료일자의 월의 날짜의 경우 빈 배열을 반환한다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2025-22-13');
+    const interval = 30;
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 올바르지 않은 종료일자의 일의 날짜의 경우 빈 배열을 반환한다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2025-02-99');
+    const interval = 30;
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 시작일자가 존재하지 않을 경우 현재일자를 기준으로 계산하여 날짜 배열을 반환한다.', () => {
+    const currentDate = undefined;
+    const endDate = new Date('2025-02-13');
+    const interval = 30;
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
+    expect(result).toHaveLength(4);
+    expect(result[0]).toEqual(new Date('2024-10-31'));
+    expect(result[1]).toEqual(new Date('2024-11-30'));
+    expect(result[2]).toEqual(new Date('2024-12-30'));
+    expect(result[3]).toEqual(new Date('2025-01-29'));
+  });
+  it('🔴 종료일자가 존재하지 않을 경우 최대 종료일자 기준으로 계산하여 날짜 배열을 반환한다.', () => {
+    const currentDate = undefined;
+    const endDate = undefined;
+    const interval = 30;
+    const result = getRemainingDatesByDay(currentDate, endDate, interval);
+    expect(result).toHaveLength(9);
+    expect(result[0]).toEqual(new Date('2024-10-31'));
+    expect(result[1]).toEqual(new Date('2024-11-30'));
+    expect(result[2]).toEqual(new Date('2024-12-30'));
+    expect(result[7]).toEqual(new Date('2025-05-29'));
+    expect(result[8]).toEqual(new Date('2025-06-28'));
+  });
+});
+
+describe('getWeekday', () => {
+  it('🟢 월요일은 "mon"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-11');
+    expect(getWeekday(testDate)).toBe('mon');
+  });
+  it('🟢 화요일은 "tue"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-12');
+    expect(getWeekday(testDate)).toBe('tue');
+  });
+  it('🟢 수요일은 "wed"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-13');
+    expect(getWeekday(testDate)).toBe('wed');
+  });
+  it('🟢 목요일은 "thu"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-14');
+    expect(getWeekday(testDate)).toBe('thu');
+  });
+  it('🟢 금요일은 "fri"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-15');
+    expect(getWeekday(testDate)).toBe('fri');
+  });
+  it('🟢 토요일은 "sat"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-16');
+    expect(getWeekday(testDate)).toBe('sat');
+  });
+  it('🟢 일요일은 "sun"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-17');
+    expect(getWeekday(testDate)).toBe('sun');
+  });
+  it('🔴 올바르지 않은 월의 날짜는 "none"을 반환합니다.', () => {
+    const testDate = new Date('2024-13-17');
+    expect(getWeekday(testDate)).toBe('none');
+  });
+  it('🔴 올바르지 않은 일의 날짜는 "none"을 반환합니다.', () => {
+    const testDate = new Date('2024-12-35');
+    expect(getWeekday(testDate)).toBe('none');
+  });
+});
+
+describe('getRemainingDatesByWeek', () => {
+  it('🟢 현재일자 2024-11-12이고 2024-11-21까지 매주 간격일 경우 2024-11-19 의 날짜를 가진 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-11-21');
+    const interval = 1;
+    const weekType = 'none';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([new Date('2024-11-19')]);
+  });
+  it('🟢 현재일자 2024-11-12이고 2024-11-21까지 매주 수요일 간격일 경우 2024-11-13, 2024-11-20 의 날짜를 가진 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-11-21');
+    const interval = 1;
+    const weekType = 'wed';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(2);
+    expect(result).toEqual([new Date('2024-11-13'), new Date('2024-11-20')]);
+  });
+  it('🟢 현재일자 2024-11-12이고 2024-12-31까지 매주 간격일 경우 7개의 의 날짜를 가진 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const weekType = 'none';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(7);
+    expect(result[0]).toEqual(new Date('2024-11-19'));
+    expect(result[1]).toEqual(new Date('2024-11-26'));
+    expect(result[5]).toEqual(new Date('2024-12-24'));
+    expect(result[6]).toEqual(new Date('2024-12-31'));
+  });
+  it('🟢 현재일자 2024-11-12이고 2024-12-31까지 2주 간격일 경우 3개의 의 날짜를 가진 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-31');
+    const interval = 2;
+    const weekType = 'none';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(3);
+    expect(result[0]).toEqual(new Date('2024-11-26'));
+    expect(result[2]).toEqual(new Date('2024-12-24'));
+  });
+  it('🟢 현재일자 2024-11-12이고 2024-12-31까지 매주 수요일일 경우 7개의 의 날짜를 가진 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const weekType = 'wed';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(7);
+    expect(result[0]).toEqual(new Date('2024-11-13'));
+    expect(result[1]).toEqual(new Date('2024-11-20'));
+    expect(result[5]).toEqual(new Date('2024-12-18'));
+    expect(result[6]).toEqual(new Date('2024-12-25'));
+  });
+  it('🟢 현재일자 2024-11-12이고 2024-12-31까지 2주 간격의 수요일 일 경우 4개의 의 날짜를 가진 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-31');
+    const interval = 2;
+    const weekType = 'wed';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(4);
+    expect(result[0]).toEqual(new Date('2024-11-13'));
+    expect(result[1]).toEqual(new Date('2024-11-27'));
+    expect(result[2]).toEqual(new Date('2024-12-11'));
+    expect(result[3]).toEqual(new Date('2024-12-25'));
+  });
+  it('🔴 요일를 설정하지 않은 경우 현재일자의 요일을 기준으로 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const weekType = 'none';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(7);
+  });
+  it('🔴 간격이 0인 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-21');
+    const interval = 0;
+    const weekType = 'none';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 간격이 -1인 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-12-21');
+    const interval = -1;
+    const weekType = 'none';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 간격을 입력하지 않은 경우 기본값은 1로 들어갑니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-11-21');
+    const interval = undefined;
+    const weekType = 'none';
+    const result = getRemainingDatesByWeek(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([new Date('2024-11-19')]);
+  });
+  it('🔴 종료일자가 시작일자보다 이전인 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-11-12');
+    const endDate = new Date('2024-01-21');
+    expect(getRemainingDatesByWeek(currentDate, endDate)).toHaveLength(0);
+  });
+  it('🔴 현재일자의 월의 날짜가 올바르지 않은 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-31-12');
+    const endDate = new Date('2024-12-21');
+    expect(getRemainingDatesByWeek(currentDate, endDate)).toHaveLength(0);
+  });
+  it('🔴 현재일자의 일의 날짜가 올바르지 않은 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-01-39');
+    const endDate = new Date('2024-12-21');
+    expect(getRemainingDatesByWeek(currentDate, endDate)).toHaveLength(0);
+  });
+  it('🔴 종료일자의 월의 날짜가 올바르지 않은 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-01-01');
+    const endDate = new Date('2024-92-21');
+    expect(getRemainingDatesByWeek(currentDate, endDate)).toHaveLength(0);
+  });
+  it('🔴 종료일자의 일의 날짜가 올바르지 않은 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-01-01');
+    const endDate = new Date('2024-12-81');
+    expect(getRemainingDatesByWeek(currentDate, endDate)).toHaveLength(0);
+  });
+});
+
+describe('isValidDate', () => {
+  describe('🟢 유효한 날짜인 경우 true를 반환합니다.', () => {
+    it('2024-11-14', () => {
+      const testDate = new Date('2024-11-14');
+      expect(isValidDate(testDate)).toBe(true);
+    });
+    it('2025-01-01', () => {
+      const testDate = new Date('2025-01-01');
+      expect(isValidDate(testDate)).toBe(true);
+    });
+  });
+  describe('🔴 유효하지 않은 날짜의 경우 false를 반환합니다.', () => {
+    it('2025-99-01', () => {
+      const testDate = new Date('2025-99-01');
+      expect(isValidDate(testDate)).toBe(false);
+    });
+    it('2025-10-33', () => {
+      const testDate = new Date('2025-10-33');
+      expect(isValidDate(testDate)).toBe(false);
+    });
+  });
+});
+
+describe('getNthWeekday', () => {
+  it('🟢 2024년 1월의 2번째 수요일인 2024-01-10을 반환합니다.', () => {
+    const testDate = new Date('2024-01-31');
+    const testNth = 2;
+    const weekType = 'wed';
+    const result = getNthWeekday(testDate, testNth, weekType);
+    expect(result?.getDay()).toBe(3);
+    expect(result).toEqual(new Date('2024-01-10'));
+  });
+  it('🟢 2024년 3월의 4번째 월요일인 2024-03-25을 반환합니다.', () => {
+    const testDate = new Date('2024-03-31');
+    const testNth = 4;
+    const weekType = 'mon';
+    const result = getNthWeekday(testDate, testNth, weekType);
+    expect(result?.getDay()).toBe(1);
+    expect(result).toEqual(new Date('2024-03-25'));
+  });
+  it('🔴 3월의 5번째 월요일이 없을 시 null을 반환합니다.', () => {
+    const testDate = new Date('2024-03-31');
+    const testNth = 5;
+    const weekType = 'mon';
+    const result = getNthWeekday(testDate, testNth, weekType);
+    expect(result).toBeNull();
+  });
+  it('🔴 nth가 0일 경우 null을 반환합니다.', () => {
+    const testDate = new Date('2024-03-31');
+    const testNth = 0;
+    const weekType = 'mon';
+    const result = getNthWeekday(testDate, testNth, weekType);
+    expect(result).toBeNull();
+  });
+  it('🔴 nth가 음수일 경우 null을 반환합니다.', () => {
+    const testDate = new Date('2024-03-31');
+    const testNth = 0;
+    const weekType = 'mon';
+    const result = getNthWeekday(testDate, testNth, weekType);
+    expect(result).toBeNull();
+  });
+});
+
+describe('getRemainingDatesByMonth', () => {
+  it('🟢 2024-08-13 부터 2024-12-31까지 1개월로 설정한 경우 9, 10, 11, 12월의 13일을 가진 날짜 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-08-13');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const weekType = 'none';
+    const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(4);
+    expect(result).toEqual([
+      new Date('2024-09-13'),
+      new Date('2024-10-13'),
+      new Date('2024-11-13'),
+      new Date('2024-12-13'),
+    ]);
+  });
+  it('🟢 2024-08-13 부터 2024-12-31까지 2개월로 설정한 경우 10, 12월의 13일을 가진 날짜 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-08-13');
+    const endDate = new Date('2024-12-31');
+    const interval = 2;
+    const weekType = 'none';
+    const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(2);
+    expect(result).toEqual([new Date('2024-10-13'), new Date('2024-12-13')]);
+  });
+  it('🔴 2024-08-13 부터 2024-09-31까지 3개월로 설정한 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-08-13');
+    const endDate = new Date('2024-09-31');
+    const interval = 3;
+    const weekType = 'none';
+    const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType);
+    expect(result).toHaveLength(0);
+  });
+  it('🟢 2024-08-13 부터 2024-12-31까지 매월 31로 설정한 경우 8, 9, 10, 11, 12월의 말일을 가진 날짜 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-08-13');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const weekType = 'none';
+    const day = 31;
+    const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
+    expect(result).toHaveLength(5);
+    expect(result).toEqual([
+      new Date('2024-08-31'),
+      new Date('2024-09-30'),
+      new Date('2024-10-31'),
+      new Date('2024-11-30'),
+      new Date('2024-12-31'),
+    ]);
+  });
+  it('🟢 2024-01-13 부터 2024-05-31까지 매월 30로 설정한 경우 1, 3, 4, 5월의 30일의 날짜와 30일이 없는 월인 2월의 말일인 29일을 반환한다.', () => {
+    const currentDate = new Date('2024-01-13');
+    const endDate = new Date('2024-05-31');
+    const interval = 1;
+    const weekType = 'none';
+    const day = 30;
+    const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
+    expect(result).toHaveLength(5);
+    expect(result).toEqual([
+      new Date('2024-01-30'),
+      new Date('2024-02-29'),
+      new Date('2024-03-30'),
+      new Date('2024-04-30'),
+      new Date('2024-05-30'),
+    ]);
+  });
+  it('🟢 2023-01-13 부터 2023-05-31까지 매월 30로 설정한 경우 1, 3, 4, 5월의 30일의 날짜와 30일이 없는 월인 2월의 말일인 28일일을 반환한다.', () => {
+    const currentDate = new Date('2023-01-13');
+    const endDate = new Date('2023-05-31');
+    const interval = 1;
+    const weekType = 'none';
+    const day = 30;
+    const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
+    expect(result).toHaveLength(5);
+    expect(result).toEqual([
+      new Date('2023-01-30'),
+      new Date('2023-02-28'),
+      new Date('2023-03-30'),
+      new Date('2023-04-30'),
+      new Date('2023-05-30'),
+    ]);
+  });
+  it('🟢 2023-01-29 부터 2023-05-31까지 매월 27로 설정한 경우 2, 3, 4, 5월의 27일의 날짜를 가진 배열을 반환한다.', () => {
+    const currentDate = new Date('2023-01-29');
+    const endDate = new Date('2023-05-31');
+    const interval = 1;
+    const weekType = 'none';
+    const day = 27;
+    const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
+    expect(result).toHaveLength(4);
+    expect(result).toEqual([
+      new Date('2023-02-27'),
+      new Date('2023-03-27'),
+      new Date('2023-04-27'),
+      new Date('2023-05-27'),
+    ]);
+  });
+  it('🟢 2023-01-29 부터 2023-05-31까지 2달마다 27로 설정한 경우 3, 5월의 27일의 날짜를 가진 배열을 반환한다.', () => {
+    const currentDate = new Date('2023-01-29');
+    const endDate = new Date('2023-05-31');
+    const interval = 2;
+    const weekType = 'none';
+    const day = 27;
+    const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
+    expect(result).toHaveLength(2);
+    expect(result).toEqual([new Date('2023-03-27'), new Date('2023-05-27')]);
+  });
+  it('🔴 2024-06-15 에 2024-07-01까지 매월 4일로 설정한 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-06-15');
+    const endDate = new Date('2024-07-01');
+    const interval = 1;
+    const weekType = 'none';
+    const day = 4;
+    const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 day가 0인 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2023-01-29');
+    const endDate = new Date('2023-05-31');
+    const interval = 1;
+    const weekType = 'none';
+    const day = 0;
+    const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 day가 음수인 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2023-01-29');
+    const endDate = new Date('2023-05-31');
+    const interval = 1;
+    const weekType = 'none';
+    const day = -1;
+    const result = getRemainingDatesByMonth(currentDate, endDate, interval, weekType, day);
+    expect(result).toHaveLength(0);
+  });
+  it('🟢 2024-08-01 에 2024-12-31까지 매월 3주차 화요일로 설정한 경우 8, 9, 10, 11, 12월의 3주차 화요일을 가진 날짜 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-08-01');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const weekType = 'tue';
+    const day = undefined;
+    const weekOrder = 3;
+    const result = getRemainingDatesByMonth(
+      currentDate,
+      endDate,
+      interval,
+      weekType,
+      day,
+      weekOrder
+    );
+    expect(result).toHaveLength(5);
+    expect(result[0].getDay()).toBe(2);
+    expect(result[1].getDay()).toBe(2);
+    expect(result[2].getDay()).toBe(2);
+    expect(result[3].getDay()).toBe(2);
+    expect(result[4].getDay()).toBe(2);
+    expect(result).toEqual([
+      new Date('2024-08-20'),
+      new Date('2024-09-17'),
+      new Date('2024-10-15'),
+      new Date('2024-11-19'),
+      new Date('2024-12-17'),
+    ]);
+  });
+  it('🟢 2024-08-29 에 2024-12-31까지 매월 3주차 화요일로 설정한 경우 9, 10, 11, 12월의 3주차 화요일을 가진 날짜 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-08-29');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const weekType = 'tue';
+    const day = undefined;
+    const weekOrder = 3;
+    const result = getRemainingDatesByMonth(
+      currentDate,
+      endDate,
+      interval,
+      weekType,
+      day,
+      weekOrder
+    );
+    expect(result).toHaveLength(4);
+    expect(result[0].getDay()).toBe(2);
+    expect(result[1].getDay()).toBe(2);
+    expect(result[2].getDay()).toBe(2);
+    expect(result[3].getDay()).toBe(2);
+    expect(result).toEqual([
+      new Date('2024-09-17'),
+      new Date('2024-10-15'),
+      new Date('2024-11-19'),
+      new Date('2024-12-17'),
+    ]);
+  });
+  it('🟢 2024-08-01 에 2024-12-31까지 2달마다 3주차 화요일로 설정한 경우 8, 10, 12월의 3주차 화요일을 가진 날짜 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-08-01');
+    const endDate = new Date('2024-12-31');
+    const interval = 2;
+    const weekType = 'tue';
+    const day = undefined;
+    const weekOrder = 3;
+    const result = getRemainingDatesByMonth(
+      currentDate,
+      endDate,
+      interval,
+      weekType,
+      day,
+      weekOrder
+    );
+    expect(result).toHaveLength(3);
+    expect(result[0].getDay()).toBe(2);
+    expect(result[1].getDay()).toBe(2);
+    expect(result[2].getDay()).toBe(2);
+    expect(result).toEqual([
+      new Date('2024-08-20'),
+      new Date('2024-10-15'),
+      new Date('2024-12-17'),
+    ]);
+  });
+  it('🔴 2024-08-29 에 2024-09-08까지 매월 3주차 화요일로 설정한 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-08-29');
+    const endDate = new Date('2024-09-08');
+    const interval = 1;
+    const weekType = 'tue';
+    const day = undefined;
+    const weekOrder = 3;
+    const result = getRemainingDatesByMonth(
+      currentDate,
+      endDate,
+      interval,
+      weekType,
+      day,
+      weekOrder
+    );
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 weekOrder가 0인 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-08-01');
+    const endDate = new Date('2024-12-31');
+    const interval = 2;
+    const weekType = 'tue';
+    const day = undefined;
+    const weekOrder = 0;
+    const result = getRemainingDatesByMonth(
+      currentDate,
+      endDate,
+      interval,
+      weekType,
+      day,
+      weekOrder
+    );
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 weekOrder가 음수인 경우 빈 배열을 반환합니다.', () => {
+    const currentDate = new Date('2024-08-01');
+    const endDate = new Date('2024-12-31');
+    const interval = 2;
+    const weekType = 'tue';
+    const day = undefined;
+    const weekOrder = -1;
+    const result = getRemainingDatesByMonth(
+      currentDate,
+      endDate,
+      interval,
+      weekType,
+      day,
+      weekOrder
+    );
+    expect(result).toHaveLength(0);
+  });
+});
+
+describe('getMonth', () => {
+  it('🟢 1월은 "jan"을 반환합니다.', () => {
+    const testDate = new Date('2024-01-19');
+    expect(getMonth(testDate)).toBe('jan');
+  });
+  it('🟢 2월은 "feb"을 반환합니다.', () => {
+    const testDate = new Date('2024-02-19');
+    expect(getMonth(testDate)).toBe('feb');
+  });
+  it('🟢 3월은 "mar"을 반환합니다.', () => {
+    const testDate = new Date('2024-03-19');
+    expect(getMonth(testDate)).toBe('mar');
+  });
+  it('🟢 4월은 "apr"을 반환합니다.', () => {
+    const testDate = new Date('2024-04-19');
+    expect(getMonth(testDate)).toBe('apr');
+  });
+  it('🟢 5월은 "may"을 반환합니다.', () => {
+    const testDate = new Date('2024-05-19');
+    expect(getMonth(testDate)).toBe('may');
+  });
+  it('🟢 6월은 "jun"을 반환합니다.', () => {
+    const testDate = new Date('2024-06-19');
+    expect(getMonth(testDate)).toBe('jun');
+  });
+  it('🟢 7월은 "jul"을 반환합니다.', () => {
+    const testDate = new Date('2024-07-19');
+    expect(getMonth(testDate)).toBe('jul');
+  });
+  it('🟢 8월은 "aug"을 반환합니다.', () => {
+    const testDate = new Date('2024-08-19');
+    expect(getMonth(testDate)).toBe('aug');
+  });
+  it('🟢 9월은 "sep"을 반환합니다.', () => {
+    const testDate = new Date('2024-09-19');
+    expect(getMonth(testDate)).toBe('sep');
+  });
+  it('🟢 10월은 "oct"을 반환합니다.', () => {
+    const testDate = new Date('2024-10-19');
+    expect(getMonth(testDate)).toBe('oct');
+  });
+  it('🟢 11월은 "nov"을 반환합니다.', () => {
+    const testDate = new Date('2024-11-19');
+    expect(getMonth(testDate)).toBe('nov');
+  });
+  it('🟢 12월은 "dec"을 반환합니다.', () => {
+    const testDate = new Date('2024-12-19');
+    expect(getMonth(testDate)).toBe('dec');
+  });
+  it('🔴 올바르지 않은 월의 날짜는 "none"을 반환합니다.', () => {
+    const testDate = new Date('2024-13-19');
+    expect(getMonth(testDate)).toBe('none');
+  });
+  it('🔴 올바르지 않은 일의 날짜는 "none"을 반환합니다.', () => {
+    const testDate = new Date('2024-12-39');
+    expect(getMonth(testDate)).toBe('none');
+  });
+});
+
+describe('getRemainingDatesByYear', () => {
+  it('🟢 2024-11-13 에 2026-12-31까지 1년 주기를 설정할 경우 2025, 2026년의 11월 13일을 가진 배열을 반환한다', () => {
+    const currentDate = new Date('2024-11-13');
+    const endDate = new Date('2026-12-31');
+    const interval = 1;
+    const monthType = 'none';
+    const weekType = 'none';
+    const result = getRemainingDatesByYear(currentDate, endDate, interval, monthType, weekType);
+    expect(result).toHaveLength(2);
+    expect(result).toEqual([new Date('2025-11-13'), new Date('2026-11-13')]);
+  });
+  it('🟢 2024-11-13 에 2028-12-31까지 2년 주기를 설정할 경우 2026, 2028년의 11월 13일을 가진 배열을 반환한다', () => {
+    const currentDate = new Date('2024-11-13');
+    const endDate = new Date('2028-12-31');
+    const interval = 2;
+    const monthType = 'none';
+    const weekType = 'none';
+    const result = getRemainingDatesByYear(currentDate, endDate, interval, monthType, weekType);
+    expect(result).toHaveLength(2);
+    expect(result).toEqual([new Date('2026-11-13'), new Date('2028-11-13')]);
+  });
+  it('🔴 2024-11-13 에 2024-12-31까지 1년 주기를 설정할 경우 빈 배열을 반환한다', () => {
+    const currentDate = new Date('2024-11-13');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const monthType = 'none';
+    const weekType = 'none';
+    const result = getRemainingDatesByYear(currentDate, endDate, interval, monthType, weekType);
+    expect(result).toHaveLength(0);
+  });
+  it('🟢 2024-06-01 에 2026-12-31까지 매년 06-27을 설정할 경우 2024, 2025, 2026년의 06월 27일을 가진 배열을 반환한다', () => {
+    const currentDate = new Date('2024-06-01');
+    const endDate = new Date('2026-12-31');
+    const interval = 1;
+    const monthType = 'jun';
+    const weekType = 'none';
+    const day = 27;
+    const result = getRemainingDatesByYear(
+      currentDate,
+      endDate,
+      interval,
+      monthType,
+      weekType,
+      day
+    );
+    expect(result).toHaveLength(3);
+    expect(result).toEqual([
+      new Date('2024-06-27'),
+      new Date('2025-06-27'),
+      new Date('2026-06-27'),
+    ]);
+  });
+  it('🟢 2024-06-01 에 2030-12-31까지 3년마다 06-27을 설정할 경우 2024, 2027, 2030년의 06월 27일을 가진 배열을 반환한다', () => {
+    const currentDate = new Date('2024-06-01');
+    const endDate = new Date('2030-12-31');
+    const interval = 3;
+    const monthType = 'jun';
+    const weekType = 'none';
+    const day = 27;
+    const result = getRemainingDatesByYear(
+      currentDate,
+      endDate,
+      interval,
+      monthType,
+      weekType,
+      day
+    );
+    expect(result).toHaveLength(3);
+    expect(result).toEqual([
+      new Date('2024-06-27'),
+      new Date('2027-06-27'),
+      new Date('2030-06-27'),
+    ]);
+  });
+  it('🟢 2024-06-01 에 2024-12-31까지 매년 06-27을 설정할 경우 2024년의 06월 27일을 가진 배열을 반환한다', () => {
+    const currentDate = new Date('2024-06-01');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const monthType = 'jun';
+    const weekType = 'none';
+    const day = 27;
+    const result = getRemainingDatesByYear(
+      currentDate,
+      endDate,
+      interval,
+      monthType,
+      weekType,
+      day
+    );
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([new Date('2024-06-27')]);
+  });
+  it('🔴 2024-07-01 에 2024-12-31까지 매년 06-27을 설정할 경우 빈 배열을 반환한다', () => {
+    const currentDate = new Date('2024-07-01');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const monthType = 'jun';
+    const weekType = 'none';
+    const day = 27;
+    const result = getRemainingDatesByYear(
+      currentDate,
+      endDate,
+      interval,
+      monthType,
+      weekType,
+      day
+    );
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 day가 0일 경우 빈 배열을 반환한다', () => {
+    const currentDate = new Date('2024-06-01');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const monthType = 'none';
+    const weekType = 'none';
+    const day = 0;
+    const result = getRemainingDatesByYear(
+      currentDate,
+      endDate,
+      interval,
+      monthType,
+      weekType,
+      day
+    );
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 day가 음수일 경우 빈 배열을 반환한다', () => {
+    const currentDate = new Date('2024-06-01');
+    const endDate = new Date('2024-12-31');
+    const interval = 1;
+    const monthType = 'none';
+    const weekType = 'none';
+    const day = -5;
+    const result = getRemainingDatesByYear(
+      currentDate,
+      endDate,
+      interval,
+      monthType,
+      weekType,
+      day
+    );
+    expect(result).toHaveLength(0);
+  });
+  it('🟢 2023-06-01 에 2026-12-31까지 매년 11월를 둘째주 목요일을 설정할 경우 2023, 2024, 2025, 2026년의 11월 둘째주 목요일을 가진 배열을 반환한다', () => {
+    const currentDate = new Date('2023-06-01');
+    const endDate = new Date('2026-12-31');
+    const interval = 1;
+    const monthType = 'nov';
+    const weekType = 'thu';
+    const day = undefined;
+    const weekOrder = 2;
+    const result = getRemainingDatesByYear(
+      currentDate,
+      endDate,
+      interval,
+      monthType,
+      weekType,
+      day,
+      weekOrder
+    );
+    expect(result).toHaveLength(4);
+    expect(result).toEqual([
+      new Date('2023-11-09'),
+      new Date('2024-11-14'),
+      new Date('2025-11-13'),
+      new Date('2026-11-12'),
+    ]);
+  });
+  it('🟢 2023-06-01 에 2030-12-31까지 3년마다 11월를 둘째주 목요일을 설정할 경우 2023, 2026, 2029년의 11월 둘째주 목요일을 가진 배열을 반환한다', () => {
+    const currentDate = new Date('2023-06-01');
+    const endDate = new Date('2030-12-31');
+    const interval = 3;
+    const monthType = 'nov';
+    const weekType = 'thu';
+    const day = undefined;
+    const weekOrder = 2;
+    const result = getRemainingDatesByYear(
+      currentDate,
+      endDate,
+      interval,
+      monthType,
+      weekType,
+      day,
+      weekOrder
+    );
+    expect(result).toHaveLength(3);
+    expect(result).toEqual([
+      new Date('2023-11-09'),
+      new Date('2026-11-12'),
+      new Date('2029-11-08'),
+    ]);
+  });
+  it('🟢 2023-12-01 에 2030-12-31까지 3년마다 11월를 둘째주 목요일을 설정할 경우 2026, 2029년의 11월 둘째주 목요일을 가진 배열을 반환한다', () => {
+    const currentDate = new Date('2023-12-01');
+    const endDate = new Date('2030-12-31');
+    const interval = 3;
+    const monthType = 'nov';
+    const weekType = 'thu';
+    const day = undefined;
+    const weekOrder = 2;
+    const result = getRemainingDatesByYear(
+      currentDate,
+      endDate,
+      interval,
+      monthType,
+      weekType,
+      day,
+      weekOrder
+    );
+    expect(result).toHaveLength(2);
+    expect(result).toEqual([new Date('2026-11-12'), new Date('2029-11-08')]);
+  });
+  it('🔴 2024-12-01 에 2025-11-01까지 1년마다 11월를 둘째주 목요일을 설정할 경우 빈 배열을 반환한다', () => {
+    const currentDate = new Date('2024-12-01');
+    const endDate = new Date('2025-11-01');
+    const interval = 1;
+    const monthType = 'nov';
+    const weekType = 'thu';
+    const day = undefined;
+    const weekOrder = 2;
+    const result = getRemainingDatesByYear(
+      currentDate,
+      endDate,
+      interval,
+      monthType,
+      weekType,
+      day,
+      weekOrder
+    );
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 weekOrder가 0일 경우 빈 배열을 반환한다', () => {
+    const currentDate = new Date('2023-12-01');
+    const endDate = new Date('2030-12-31');
+    const interval = 3;
+    const monthType = 'none';
+    const weekType = 'none';
+    const day = undefined;
+    const weekOrder = 0;
+    const result = getRemainingDatesByYear(
+      currentDate,
+      endDate,
+      interval,
+      monthType,
+      weekType,
+      day,
+      weekOrder
+    );
+    expect(result).toHaveLength(0);
+  });
+  it('🔴 weekOrder가 음수일 경우 빈 배열을 반환한다', () => {
+    const currentDate = new Date('2023-12-01');
+    const endDate = new Date('2030-12-31');
+    const interval = 3;
+    const monthType = 'none';
+    const weekType = 'none';
+    const day = undefined;
+    const weekOrder = -11;
+    const result = getRemainingDatesByYear(
+      currentDate,
+      endDate,
+      interval,
+      monthType,
+      weekType,
+      day,
+      weekOrder
+    );
+    expect(result).toHaveLength(0);
+  });
+});
+
+describe('getRemainingDatesOfRepeatedEvent', () => {
+  const testDate = '2024-11-12';
+  const repeatInfo: RepeatInfo = {
+    type: 'none',
+    interval: 0,
+    endDate: '2025-06-30',
+  };
+  it('🟢 repeat type이 "daily" 이고 간격이 1일 경우 반복종료일까지 하루 간격의 날짜 배열을 반환한다', () => {
+    const testRepeatInfo: RepeatInfo = {
+      ...repeatInfo,
+      type: 'daily',
+      interval: 1,
+    };
+    const result = getRemainingDatesOfRepeatedEvent(testDate, testRepeatInfo);
+    expect(result.length).toBeGreaterThan(150);
+    expect(result.at(0)).toEqual(new Date('2024-11-13'));
+    expect(result.at(-1)).toEqual(new Date('2025-06-30'));
+  });
+  it('🟢 repeat type이 "weekly" 이고 간격이 1, 요일은 "화"일 경우 반복종료일까지 일주일 간격의 날짜 배열을 반환한다', () => {
+    const testRepeatInfo: RepeatInfo = {
+      ...repeatInfo,
+      type: 'weekly',
+      interval: 1,
+      weekType: 'tue',
+    };
+    const result = getRemainingDatesOfRepeatedEvent(testDate, testRepeatInfo);
+    expect(result).toHaveLength(32);
+    expect(result.at(0)).toEqual(new Date('2024-11-19'));
+    expect(result.at(-1)).toEqual(new Date('2025-06-24'));
+  });
+  it('🟢 repeat type이 "monthly" 이고 간격이 1이고 지정일은 12일 경우 반복종료일까지 월간 간격의 날짜 배열을 반환한다', () => {
+    const testRepeatInfo: RepeatInfo = {
+      ...repeatInfo,
+      type: 'monthly',
+      interval: 1,
+      weekType: 'tue',
+      day: 12,
+    };
+    const result = getRemainingDatesOfRepeatedEvent(testDate, testRepeatInfo);
+    expect(result).toHaveLength(7);
+    expect(result.at(0)).toEqual(new Date('2024-12-12'));
+    expect(result.at(-1)).toEqual(new Date('2025-06-12'));
+  });
+  it('🟢 repeat type이 "yealy" 이고 간격이 1이고 지정일은 2월 12일 경우 반복종료일까지 지정일자의 날짜 배열을 반환한다', () => {
+    const testRepeatInfo: RepeatInfo = {
+      ...repeatInfo,
+      type: 'yearly',
+      interval: 1,
+      monthType: 'feb',
+      weekType: 'tue',
+      day: 12,
+    };
+    const result = getRemainingDatesOfRepeatedEvent(testDate, testRepeatInfo);
+    expect(result).toHaveLength(1);
+    expect(result.at(0)).toEqual(new Date('2025-02-12'));
   });
 });

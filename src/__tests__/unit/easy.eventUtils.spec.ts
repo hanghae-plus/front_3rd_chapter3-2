@@ -1,5 +1,9 @@
-import { Event } from '../../types';
-import { getFilteredEvents } from '../../utils/eventUtils';
+import { Event, RepeatInfo } from '../../types';
+import {
+  generateRepeatedEvents,
+  getFilteredEvents,
+  hasChangeInRepeatInfo,
+} from '../../utils/eventUtils';
 
 describe('getFilteredEvents', () => {
   const events: Event[] = [
@@ -112,5 +116,821 @@ describe('getFilteredEvents', () => {
   it('빈 이벤트 리스트에 대해 빈 배열을 반환한다', () => {
     const result = getFilteredEvents([], '', new Date('2024-07-01'), 'month');
     expect(result).toHaveLength(0);
+  });
+});
+
+describe('generateRepeatedEvents', () => {
+  describe('초기 설정', () => {
+    it('🔴 이벤트의 repeat type이 "none" 일 시 빈 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'none', interval: 0 },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(0);
+    });
+    it('🔴 이벤트의 repeat interval 0 일 시 빈 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'daily', interval: 0 },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(0);
+    });
+    it('🔴 이벤트의 repeat interval 음수일 시 빈 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'daily', interval: -1 },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(0);
+    });
+  });
+  describe('daily', () => {
+    it('🟢 type 이 "daily" 이고 간격이 1일 경우 종료일까지 매일 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'daily', interval: 1, endDate: '2024-12-31' },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(183);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-07-02',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'daily', interval: 1, endDate: '2024-12-31' },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2024-12-31',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'daily', interval: 1, endDate: '2024-12-31' },
+        notificationTime: 0,
+      });
+    });
+    it('🟢 type 이 "daily" 이고 간격이 5일 경우 종료일까지 매일 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'daily', interval: 5, endDate: '2024-12-31' },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(36);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-07-06',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'daily', interval: 5, endDate: '2024-12-31' },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2024-12-28',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'daily', interval: 5, endDate: '2024-12-31' },
+        notificationTime: 0,
+      });
+    });
+  });
+  describe('weekly', () => {
+    it('🟢 간격이 1일 경우 종료일까지 매주 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'weekly', interval: 1, endDate: '2024-12-31' },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(26);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-07-08',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'weekly', interval: 1, endDate: '2024-12-31' },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2024-12-30',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'weekly', interval: 1, endDate: '2024-12-31' },
+        notificationTime: 0,
+      });
+    });
+    it('🟢 간격이 2일 경우 종료일까지 2주마다 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'weekly', interval: 2, endDate: '2024-12-31' },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(13);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-07-15',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'weekly', interval: 2, endDate: '2024-12-31' },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2024-12-30',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'weekly', interval: 2, endDate: '2024-12-31' },
+        notificationTime: 0,
+      });
+    });
+    it('🟢 간격이 2이고 수요일 지정일 경우 종료일까지 2주마다 수요일씩 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'weekly', interval: 2, endDate: '2024-12-31', weekType: 'wed' },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(13);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-07-03',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'weekly', interval: 2, endDate: '2024-12-31', weekType: 'wed' },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2024-12-18',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'weekly', interval: 2, endDate: '2024-12-31', weekType: 'wed' },
+        notificationTime: 0,
+      });
+    });
+  });
+  describe('monthly', () => {
+    it('🟢 간격이 1일 경우 종료일까지 매월 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'monthly', interval: 1, endDate: '2024-12-31' },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(5);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-08-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'monthly', interval: 1, endDate: '2024-12-31' },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2024-12-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'monthly', interval: 1, endDate: '2024-12-31' },
+        notificationTime: 0,
+      });
+    });
+    it('🟢 간격이 2일 경우 종료일까지 2개월마다 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'monthly', interval: 2, endDate: '2024-12-31' },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(2);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-09-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'monthly', interval: 2, endDate: '2024-12-31' },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2024-11-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'monthly', interval: 2, endDate: '2024-12-31' },
+        notificationTime: 0,
+      });
+    });
+    it('🟢 간격이 1이고 3주차 수요일일 경우 종료일까지 매월 3주차 수요일에 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2024-12-31',
+          weekType: 'wed',
+          weekOrder: 3,
+        },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(6);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-07-17',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2024-12-31',
+          weekType: 'wed',
+          weekOrder: 3,
+        },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2024-12-18',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          endDate: '2024-12-31',
+          weekType: 'wed',
+          weekOrder: 3,
+        },
+        notificationTime: 0,
+      });
+    });
+    it('🟢 간격이 2이고 3주차 수요일일 경우 종료일까지 2달마다 3주차 수요일에 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: {
+          type: 'monthly',
+          interval: 2,
+          endDate: '2024-12-31',
+          weekType: 'wed',
+          weekOrder: 3,
+        },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(3);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-07-17',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: {
+          type: 'monthly',
+          interval: 2,
+          endDate: '2024-12-31',
+          weekType: 'wed',
+          weekOrder: 3,
+        },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2024-11-20',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: {
+          type: 'monthly',
+          interval: 2,
+          endDate: '2024-12-31',
+          weekType: 'wed',
+          weekOrder: 3,
+        },
+        notificationTime: 0,
+      });
+    });
+  });
+  describe('yearly', () => {
+    it('🟢 간격이 1일 경우 종료일까지 매년 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 1, endDate: '2030-12-31' },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(6);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2025-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 1, endDate: '2030-12-31' },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2030-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 1, endDate: '2030-12-31' },
+        notificationTime: 0,
+      });
+    });
+    it('🟢 간격이 1이고 11월 30일 지정일 경우 종료일까지 매년 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 1, endDate: '2030-12-31', monthType: 'nov', day: 30 },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(7);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-11-30',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 1, endDate: '2030-12-31', monthType: 'nov', day: 30 },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2030-11-30',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 1, endDate: '2030-12-31', monthType: 'nov', day: 30 },
+        notificationTime: 0,
+      });
+    });
+    it('🟢 간격이 2이고 11월 30일 지정일 경우 종료일까지 2년마다 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 2, endDate: '2030-12-31', monthType: 'nov', day: 30 },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(4);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-11-30',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 2, endDate: '2030-12-31', monthType: 'nov', day: 30 },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2030-11-30',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 2, endDate: '2030-12-31', monthType: 'nov', day: 30 },
+        notificationTime: 0,
+      });
+    });
+    it('🟢 간격이 1이고 2월 29일 지정일 경우 종료일까지 매년 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 1, endDate: '2030-12-31', monthType: 'feb', day: 29 },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(6);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2025-02-28',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 1, endDate: '2030-12-31', monthType: 'feb', day: 29 },
+        notificationTime: 0,
+      });
+      expect(result.at(-3)).toEqual({
+        title: '이벤트 1',
+        date: '2028-02-29',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 1, endDate: '2030-12-31', monthType: 'feb', day: 29 },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2030-02-28',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 1, endDate: '2030-12-31', monthType: 'feb', day: 29 },
+        notificationTime: 0,
+      });
+    });
+    it('🟢 간격이 2일 경우 종료일까지 2년마다 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 2, endDate: '2030-12-31' },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(3);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2026-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 2, endDate: '2030-12-31' },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2030-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: { type: 'yearly', interval: 2, endDate: '2030-12-31' },
+        notificationTime: 0,
+      });
+    });
+    it('🟢 간격이 1이고 7월 1주차 목요일 지정일 경우 종료일까지 매년 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: {
+          type: 'yearly',
+          interval: 1,
+          endDate: '2030-12-31',
+          monthType: 'jul',
+          weekOrder: 1,
+          weekType: 'thu',
+        },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(7);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-07-04',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: {
+          type: 'yearly',
+          interval: 1,
+          endDate: '2030-12-31',
+          monthType: 'jul',
+          weekOrder: 1,
+          weekType: 'thu',
+        },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2030-07-04',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: {
+          type: 'yearly',
+          interval: 1,
+          endDate: '2030-12-31',
+          monthType: 'jul',
+          weekOrder: 1,
+          weekType: 'thu',
+        },
+        notificationTime: 0,
+      });
+    });
+    it('🟢 간격이 2이고 10월 3주차 토요일 지정일 경우 종료일까지 2년마다 동일한 이벤트를 가진 배열을 반환한다.', () => {
+      const testEvent: Event = {
+        id: '1',
+        title: '이벤트 1',
+        date: '2024-07-01',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: {
+          type: 'yearly',
+          interval: 2,
+          endDate: '2030-12-31',
+          monthType: 'oct',
+          weekOrder: 3,
+          weekType: 'sat',
+        },
+        notificationTime: 0,
+      };
+      const result = generateRepeatedEvents(testEvent);
+      expect(result).toHaveLength(4);
+      expect(result.at(0)).toEqual({
+        title: '이벤트 1',
+        date: '2024-10-19',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: {
+          type: 'yearly',
+          interval: 2,
+          endDate: '2030-12-31',
+          monthType: 'oct',
+          weekOrder: 3,
+          weekType: 'sat',
+        },
+        notificationTime: 0,
+      });
+      expect(result.at(-1)).toEqual({
+        title: '이벤트 1',
+        date: '2030-10-19',
+        startTime: '10:00',
+        endTime: '11:00',
+        description: '',
+        location: '',
+        category: '',
+        repeat: {
+          type: 'yearly',
+          interval: 2,
+          endDate: '2030-12-31',
+          monthType: 'oct',
+          weekOrder: 3,
+          weekType: 'sat',
+        },
+        notificationTime: 0,
+      });
+    });
+  });
+});
+
+describe('hasChangeInRepeatInfo', () => {
+  it('🟢 비교하려는 두 반복 일정 정보의 key가 같고 value도 같다면 false 반환한다.', () => {
+    const repeatInfo1: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2024-12-31',
+      weekType: 'wed',
+      weekOrder: 3,
+    };
+    const repeatInfo2: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2024-12-31',
+      weekType: 'wed',
+      weekOrder: 3,
+    };
+    const result = hasChangeInRepeatInfo(repeatInfo1, repeatInfo2);
+    expect(result).toBe(false);
+  });
+  it('🟢 비교하려는 두 반복 일정 정보의 key가 같고 value는 다르다면 false 반환한다.', () => {
+    const repeatInfo1: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2024-12-31',
+      weekType: 'wed',
+      weekOrder: 3,
+    };
+    const repeatInfo2: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2025-12-31',
+      weekType: 'wed',
+      weekOrder: 3,
+    };
+    const result = hasChangeInRepeatInfo(repeatInfo1, repeatInfo2);
+    expect(result).toBe(true);
+  });
+  it('🟢 비교하려는 두 반복 일정 정보의 key가 다르다면 true 반환한다.', () => {
+    const repeatInfo1: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2024-12-31',
+      weekType: 'wed',
+      weekOrder: 3,
+    };
+    const repeatInfo2: RepeatInfo = {
+      type: 'monthly',
+      interval: 1,
+      endDate: '2024-12-31',
+      weekType: 'wed',
+      weekOrder: 3,
+      day: 11,
+    };
+    const result = hasChangeInRepeatInfo(repeatInfo1, repeatInfo2);
+    expect(result).toBe(true);
   });
 });
