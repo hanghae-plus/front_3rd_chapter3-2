@@ -168,6 +168,11 @@ function App() {
         type: isRepeating ? repeatType : 'none',
         interval: repeatInterval,
         endDate: repeatEndDate || undefined,
+        monthType: repeatMonthType,
+        weekType: repeatWeekType,
+        day: repeatDay,
+        weekOrder: repeatWeekOrder,
+        id: repeatId,
       },
       notificationTime,
     };
@@ -187,8 +192,6 @@ function App() {
       const repeatedEvent = generateRepeatedEvents(eventData);
       if (!editingEvent) {
         // 4. 신규 - 반복일정 있음
-        console.log(eventData);
-        console.log(repeatedEvent);
         await addEventWithNewRepeatedInfo(eventData, repeatedEvent);
       } else if (editingEvent && editingEvent.repeat.type === 'none') {
         // 5. 수정 - 반복일정 없다가 생김
