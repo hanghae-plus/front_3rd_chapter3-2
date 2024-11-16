@@ -1,6 +1,7 @@
 {
   "name": "assignment-7",
   "private": true,
+  "type": "module",
   "version": "0.0.0",
   "scripts": {
     "server": "node server.js",
