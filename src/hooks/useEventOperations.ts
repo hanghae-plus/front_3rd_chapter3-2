@@ -1,10 +1,13 @@
 import { useToast } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { atom, useAtom } from 'jotai';
 
 import { Event, EventForm } from '../types';
+import { getRepeatEvents } from '../utils/eventRepeat';
+
+const eventsAtom = atom<Event[]>([]);
 
 export const useEventOperations = (editing: boolean, onSave?: () => void) => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useAtom(eventsAtom);
   const toast = useToast();
 
   const fetchEvents = async () => {
@@ -30,16 +33,44 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     try {
       let response;
       if (editing) {
+        const originEvent = events.find((event) => event.id === (eventData as Event).id);
+
+        const hasEventChangedToRepeat =
+          originEvent?.repeat.type === 'none' && (eventData as Event).repeat.type !== 'none';
+
+        if (hasEventChangedToRepeat) {
+          const repeatEvents = getRepeatEvents(eventData as Event);
+          const newEvents = repeatEvents.filter(
+            (event) => event.date !== (eventData as Event).date
+          );
+
+          response = await fetch('/api/events-list', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ events: newEvents }),
+          });
+        } else {
+          eventData = { ...eventData, repeat: { type: 'none', interval: 0 } };
+        }
+
         response = await fetch(`/api/events/${(eventData as Event).id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(eventData),
         });
-      } else {
+      } else if (eventData.repeat.type === 'none') {
         response = await fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(eventData),
+        });
+      } else {
+        const events = getRepeatEvents(eventData as Event);
+
+        response = await fetch('/api/events-list', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ events }),
         });
       }
 
@@ -91,20 +122,6 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       });
     }
   };
-
-  async function init() {
-    await fetchEvents();
-    toast({
-      title: '일정 로딩 완료!',
-      status: 'info',
-      duration: 1000,
-    });
-  }
-
-  useEffect(() => {
-    init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return { events, fetchEvents, saveEvent, deleteEvent };
 };

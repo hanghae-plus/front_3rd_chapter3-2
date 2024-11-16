@@ -84,11 +84,10 @@ export function formatMonth(date: Date): string {
   return `${year}년 ${month}월`;
 }
 
-const stripTime = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-
 /**
  * 주어진 날짜가 특정 범위 내에 있는지 확인합니다.
  */
+const stripTime = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 export function isDateInRange(date: Date, rangeStart: Date, rangeEnd: Date): boolean {
   const normalizedDate = stripTime(date);
   const normalizedStart = stripTime(rangeStart);
@@ -108,3 +107,12 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+
+export const isLeapYear = (year: number): boolean => {
+  // 400으로 나누어 떨어지면 윤년
+  if (year % 400 === 0) return true;
+  // 100으로 나누어 떨어지면 평년
+  if (year % 100 === 0) return false;
+  // 4로 나누어 떨어지면 윤년
+  return year % 4 === 0;
+};

@@ -2,3 +2,6 @@
 .vscode
 node_modules
 .coverage
+/blob-report/
+
+*storybook.log
