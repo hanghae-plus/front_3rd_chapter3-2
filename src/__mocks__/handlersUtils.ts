@@ -9,13 +9,26 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
 
   server.use(
     http.get('/api/events', () => {
+      console.log('mockEvents', mockEvents);
       return HttpResponse.json({ events: mockEvents });
     }),
     http.post('/api/events', async ({ request }) => {
       const newEvent = (await request.json()) as Event;
+      console.log('newEvent', newEvent);
       newEvent.id = String(mockEvents.length + 1); // 간단한 ID 생성
       mockEvents.push(newEvent);
       return HttpResponse.json(newEvent, { status: 201 });
+    }),
+    http.post('/api/events-list', async ({ request }) => {
+      const newEvents = (await request.json()) as Event[];
+      console.log('newEvents', newEvents);
+      const repeatId = mockEvents.length + 1;
+      newEvents.forEach((event) => {
+        event.id = String(mockEvents.length + 1);
+        event.repeat.id = String(repeatId);
+        mockEvents.push(event);
+      });
+      return HttpResponse.json(newEvents, { status: 201 });
     })
   );
 };

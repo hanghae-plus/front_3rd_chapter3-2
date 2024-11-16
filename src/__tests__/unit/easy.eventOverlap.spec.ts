@@ -1,6 +1,7 @@
-import { Event } from '../../types';
+import { Event, EventForm } from '../../types';
 import {
   convertEventToDateRange,
+  convertRepeatEventToEvents,
   findOverlappingEvents,
   isOverlapping,
   parseDateTime,
@@ -214,5 +215,85 @@ describe('findOverlappingEvents', () => {
     };
     const result = findOverlappingEvents(newEvent, baseEvents);
     expect(result).toHaveLength(0);
+  });
+});
+
+describe('convertRepeatEventToEvents', () => {
+  it('반복 이벤트를 반복 간격에 따라 여러 이벤트로 변환한다', () => {
+    const repeatEvent = {
+      date: '2024-07-01',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-07-03' },
+    } as EventForm;
+
+    const result = convertRepeatEventToEvents(repeatEvent);
+    expect(result).toHaveLength(3);
+  });
+
+  const repeatEvents = [
+    {
+      event: {
+        date: '2024-07-01',
+        repeat: { type: 'daily', interval: 1, endDate: '2024-07-03' },
+      },
+      expected: [
+        { date: '2024-07-01', repeat: { type: 'daily', interval: 1, endDate: '2024-07-03' } },
+        { date: '2024-07-02', repeat: { type: 'daily', interval: 1, endDate: '2024-07-03' } },
+        { date: '2024-07-03', repeat: { type: 'daily', interval: 1, endDate: '2024-07-03' } },
+      ],
+    },
+    {
+      event: {
+        date: '2024-07-01',
+        repeat: { type: 'weekly', interval: 1, endDate: '2024-07-21' },
+      },
+      expected: [
+        { date: '2024-07-01', repeat: { type: 'weekly', interval: 1, endDate: '2024-07-21' } },
+        { date: '2024-07-08', repeat: { type: 'weekly', interval: 1, endDate: '2024-07-21' } },
+        { date: '2024-07-15', repeat: { type: 'weekly', interval: 1, endDate: '2024-07-21' } },
+      ],
+    },
+    {
+      event: {
+        date: '2024-07-01',
+        repeat: { type: 'monthly', interval: 1, endDate: '2024-09-30' },
+      },
+      expected: [
+        { date: '2024-07-01', repeat: { type: 'monthly', interval: 1, endDate: '2024-09-30' } },
+        { date: '2024-08-01', repeat: { type: 'monthly', interval: 1, endDate: '2024-09-30' } },
+        { date: '2024-09-01', repeat: { type: 'monthly', interval: 1, endDate: '2024-09-30' } },
+      ],
+    },
+    {
+      event: {
+        date: '2024-07-01',
+        repeat: { type: 'yearly', interval: 1, endDate: '2026-12-31' },
+      },
+      expected: [
+        { date: '2024-07-01', repeat: { type: 'yearly', interval: 1, endDate: '2026-12-31' } },
+        { date: '2025-07-01', repeat: { type: 'yearly', interval: 1, endDate: '2026-12-31' } },
+        { date: '2026-07-01', repeat: { type: 'yearly', interval: 1, endDate: '2026-12-31' } },
+      ],
+    },
+  ] as { event: EventForm; expected: Event[] }[];
+
+  it.each(repeatEvents)('$event.repeat.type 반복 이벤트를 생성', ({ event, expected }) => {
+    const result = convertRepeatEventToEvents(event);
+    // 배열 확인
+    expect(result).toEqual(expected);
+  });
+
+  it('달의 마지막 날짜에 대해 올바르게 처리한다.(2024년 윤년)', () => {
+    const event = {
+      date: '2024-01-31',
+      repeat: { type: 'monthly', interval: 1, endDate: '2024-05-31' },
+    } as EventForm;
+
+    const result = convertRepeatEventToEvents(event);
+
+    expect(result[0].date).toBe('2024-01-31');
+    expect(result[1].date).toBe('2024-02-29');
+    expect(result[2].date).toBe('2024-03-31');
+    expect(result[3].date).toBe('2024-04-30');
+    expect(result[4].date).toBe('2024-05-31');
   });
 });

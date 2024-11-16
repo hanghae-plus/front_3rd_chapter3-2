@@ -84,7 +84,6 @@ function App() {
     category,
     setCategory,
     isRepeating,
-    setIsRepeating,
     repeatType,
     setRepeatType,
     repeatInterval,
@@ -101,6 +100,8 @@ function App() {
     handleEndTimeChange,
     resetForm,
     editEvent,
+    cancelEdit,
+    handleIsRepeatingChange,
   } = useEventForm();
 
   const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
@@ -357,23 +358,9 @@ function App() {
 
           <FormControl>
             <FormLabel>반복 설정</FormLabel>
-            <Checkbox isChecked={isRepeating} onChange={(e) => setIsRepeating(e.target.checked)}>
+            <Checkbox isChecked={isRepeating} onChange={handleIsRepeatingChange}>
               반복 일정
             </Checkbox>
-          </FormControl>
-
-          <FormControl>
-            <FormLabel>알림 설정</FormLabel>
-            <Select
-              value={notificationTime}
-              onChange={(e) => setNotificationTime(Number(e.target.value))}
-            >
-              {notificationOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
           </FormControl>
 
           {isRepeating && (
@@ -412,9 +399,28 @@ function App() {
             </VStack>
           )}
 
+          <FormControl>
+            <FormLabel>알림 설정</FormLabel>
+            <Select
+              value={notificationTime}
+              onChange={(e) => setNotificationTime(Number(e.target.value))}
+            >
+              {notificationOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+
           <Button data-testid="event-submit-button" onClick={addOrUpdateEvent} colorScheme="blue">
             {editingEvent ? '일정 수정' : '일정 추가'}
           </Button>
+          {editingEvent && (
+            <Button data-testid="event-cancel-button" onClick={cancelEdit} colorScheme="gray">
+              수정 취소
+            </Button>
+          )}
         </VStack>
 
         <VStack flex={1} spacing={5} align="stretch">

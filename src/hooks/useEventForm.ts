@@ -5,6 +5,8 @@ import { getTimeErrorMessage } from '../utils/timeValidation';
 
 type TimeErrorRecord = Record<'startTimeError' | 'endTimeError', string | null>;
 
+const repeatTypeOptions = ['none', 'daily', 'weekly', 'monthly', 'yearly'] as const;
+
 export const useEventForm = (initialEvent?: Event) => {
   const [title, setTitle] = useState(initialEvent?.title || '');
   const [date, setDate] = useState(initialEvent?.date || '');
@@ -13,8 +15,12 @@ export const useEventForm = (initialEvent?: Event) => {
   const [description, setDescription] = useState(initialEvent?.description || '');
   const [location, setLocation] = useState(initialEvent?.location || '');
   const [category, setCategory] = useState(initialEvent?.category || '');
-  const [isRepeating, setIsRepeating] = useState(initialEvent?.repeat.type !== 'none');
-  const [repeatType, setRepeatType] = useState<RepeatType>(initialEvent?.repeat.type || 'none');
+  const [isRepeating, setIsRepeating] = useState(
+    initialEvent?.repeat.type !== undefined && initialEvent?.repeat.type !== 'none'
+  );
+  const [repeatType, setRepeatType] = useState<RepeatType>(
+    initialEvent?.repeat.type || repeatTypeOptions[0]
+  );
   const [repeatInterval, setRepeatInterval] = useState(initialEvent?.repeat.interval || 1);
   const [repeatEndDate, setRepeatEndDate] = useState(initialEvent?.repeat.endDate || '');
   const [notificationTime, setNotificationTime] = useState(initialEvent?.notificationTime || 10);
@@ -37,6 +43,13 @@ export const useEventForm = (initialEvent?: Event) => {
     setEndTime(newEndTime);
     setTimeError(getTimeErrorMessage(startTime, newEndTime));
   };
+
+  function handleIsRepeatingChange(e: ChangeEvent<HTMLInputElement>) {
+    setIsRepeating(e.target.checked);
+    if (!e.target.checked) return setRepeatType('none');
+
+    setRepeatType(repeatTypeOptions[1]);
+  }
 
   const resetForm = () => {
     setTitle('');
@@ -68,6 +81,11 @@ export const useEventForm = (initialEvent?: Event) => {
     setRepeatEndDate(event.repeat.endDate || '');
     setNotificationTime(event.notificationTime);
   };
+
+  function cancelEdit() {
+    setEditingEvent(null);
+    resetForm();
+  }
 
   return {
     title,
@@ -102,5 +120,7 @@ export const useEventForm = (initialEvent?: Event) => {
     handleEndTimeChange,
     resetForm,
     editEvent,
+    cancelEdit,
+    handleIsRepeatingChange,
   };
 };
