@@ -86,8 +86,15 @@ export function formatMonth(date: Date): string {
 /**
  * 주어진 날짜가 특정 범위 내에 있는지 확인합니다.
  */
+
+const stripTime = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
 export function isDateInRange(date: Date, rangeStart: Date, rangeEnd: Date): boolean {
-  return date >= rangeStart && date <= rangeEnd;
+  const normalizedDate = stripTime(date);
+  const normalizedStart = stripTime(rangeStart);
+  const normalizedEnd = stripTime(rangeEnd);
+
+  return normalizedDate >= normalizedStart && normalizedDate <= normalizedEnd;
 }
 
 export function fillZero(value: number, size = 2) {
