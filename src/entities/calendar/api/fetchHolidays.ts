@@ -1,4 +1,4 @@
-const HOLIDAY_RECORD = {
+export const HOLIDAY_RECORD = {
   '2024-01-01': '신정',
   '2024-02-09': '설날',
   '2024-02-10': '설날',

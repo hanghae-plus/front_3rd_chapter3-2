@@ -1,5 +1,4 @@
-import { Event } from '../types.ts';
-
+import { Event } from '../../../entities/event/model/type.ts';
 /**
  * 주어진 년도와 월의 일수를 반환합니다.
  */
@@ -84,11 +83,12 @@ export function formatMonth(date: Date): string {
   return `${year}년 ${month}월`;
 }
 
-const stripTime = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-
 /**
  * 주어진 날짜가 특정 범위 내에 있는지 확인합니다.
  */
+
+const stripTime = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
 export function isDateInRange(date: Date, rangeStart: Date, rangeEnd: Date): boolean {
   const normalizedDate = stripTime(date);
   const normalizedStart = stripTime(rangeStart);
@@ -107,4 +107,79 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(currentDate.getMonth() + 1),
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
+}
+
+export const isLeapYear = (year: number): boolean => {
+  if (year % 400 === 0) return true;
+
+  if (year % 100 === 0) return false;
+
+  return year % 4 === 0;
+};
+
+export function generateRecurringEvents(
+  startDate: string,
+  interval: number,
+  repeatType: string,
+  endDate: string
+): string[] {
+  const dates = [];
+  let currentDate = new Date(startDate);
+  const targetEndDate = new Date(endDate);
+
+  const targetDay = currentDate.getDate();
+
+  const getMonthlyNextEventDate = (date: Date, interval: number): Date => {
+    const originalDay = targetDay;
+    let targetMonth = date.getMonth() + interval;
+    let targetYear = date.getFullYear();
+
+    if (targetMonth > 11) {
+      targetYear += Math.floor(targetMonth / 12);
+      targetMonth %= 12;
+    }
+
+    const lastDayOfTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+    const adjustedDay = Math.min(originalDay, lastDayOfTargetMonth);
+
+    return new Date(targetYear, targetMonth, adjustedDay);
+  };
+
+  const getYearlyNextEventDate = (date: Date, interval: number): Date => {
+    const month = date.getMonth();
+    const day = date.getDate();
+    let targetYear = date.getFullYear() + interval;
+
+    if (month === 1 && day === 29 && !isLeapYear(targetYear)) {
+      return new Date(targetYear, 1, 28);
+    }
+    return new Date(targetYear, month, day);
+  };
+
+  while (currentDate <= targetEndDate) {
+    dates.push(formatDate(currentDate));
+
+    switch (repeatType) {
+      case 'daily':
+        currentDate.setDate(currentDate.getDate() + interval);
+        break;
+
+      case 'weekly':
+        currentDate.setDate(currentDate.getDate() + interval * 7);
+        break;
+
+      case 'monthly':
+        currentDate = getMonthlyNextEventDate(currentDate, interval);
+        break;
+
+      case 'yearly':
+        currentDate = getYearlyNextEventDate(currentDate, interval);
+        break;
+
+      default:
+        return dates;
+    }
+  }
+
+  return dates;
 }

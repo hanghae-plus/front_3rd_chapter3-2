@@ -1,94 +1,137 @@
 import { http, HttpResponse } from 'msw';
 
+import { Event } from '../entities/event/model/type.ts';
 import { server } from '../setupTests';
-import { Event } from '../types';
 
-// ! Hard 여기 제공 안함
+// ? Medium: 아래 여러가지 use 함수는 어떤 역할을 할까요? 어떻게 사용될 수 있을까요?
 export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
-  const mockEvents: Event[] = [...initEvents];
+  const initialEvents: Event[] = [...initEvents];
 
   server.use(
     http.get('/api/events', () => {
-      return HttpResponse.json({ events: mockEvents });
+      return HttpResponse.json({ events: initialEvents });
     }),
     http.post('/api/events', async ({ request }) => {
       const newEvent = (await request.json()) as Event;
-      newEvent.id = String(mockEvents.length + 1); // 간단한 ID 생성
-      mockEvents.push(newEvent);
+      newEvent.id = (initialEvents.length + 1).toString();
+      initialEvents.push(newEvent);
       return HttpResponse.json(newEvent, { status: 201 });
     })
   );
 };
 
-export const setupMockHandlerUpdating = () => {
-  const mockEvents: Event[] = [
-    {
-      id: '1',
-      title: '기존 회의',
-      date: '2024-10-15',
-      startTime: '09:00',
-      endTime: '10:00',
-      description: '기존 팀 미팅',
-      location: '회의실 B',
-      category: '업무',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 10,
-    },
-    {
-      id: '2',
-      title: '기존 회의2',
-      date: '2024-10-15',
-      startTime: '11:00',
-      endTime: '12:00',
-      description: '기존 팀 미팅 2',
-      location: '회의실 C',
-      category: '업무 회의',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 5,
-    },
-  ];
+export const setupMockHandlerUpdating = (initEvents = [] as Event[]) => {
+  let initialEvents: Event[] = [...initEvents];
 
   server.use(
     http.get('/api/events', () => {
-      return HttpResponse.json({ events: mockEvents });
+      return HttpResponse.json({ events: initialEvents });
     }),
     http.put('/api/events/:id', async ({ params, request }) => {
       const { id } = params;
       const updatedEvent = (await request.json()) as Event;
-      const index = mockEvents.findIndex((event) => event.id === id);
+      const eventIndex = initialEvents.findIndex((event) => event.id === id);
 
-      mockEvents[index] = { ...mockEvents[index], ...updatedEvent };
-      return HttpResponse.json(mockEvents[index]);
+      if (eventIndex === -1) {
+        return HttpResponse.json({ error: 'Event not found' }, { status: 404 });
+      }
+
+      initialEvents[eventIndex] = { ...initialEvents[eventIndex], ...updatedEvent };
+
+      return HttpResponse.json(initialEvents[eventIndex]);
     })
   );
 };
 
-export const setupMockHandlerDeletion = () => {
-  const mockEvents: Event[] = [
-    {
-      id: '1',
-      title: '삭제할 이벤트',
-      date: '2024-10-15',
-      startTime: '09:00',
-      endTime: '10:00',
-      description: '삭제할 이벤트입니다',
-      location: '어딘가',
-      category: '기타',
-      repeat: { type: 'none', interval: 0 },
-      notificationTime: 10,
-    },
-  ];
+export const setupMockHandlerDeletion = (initEvents = [] as Event[]) => {
+  let initialEvents: Event[] = [...initEvents];
 
   server.use(
     http.get('/api/events', () => {
-      return HttpResponse.json({ events: mockEvents });
+      return HttpResponse.json({ events: initialEvents });
     }),
     http.delete('/api/events/:id', ({ params }) => {
       const { id } = params;
-      const index = mockEvents.findIndex((event) => event.id === id);
+      const eventIndex = initialEvents.findIndex((event) => event.id === id);
 
-      mockEvents.splice(index, 1);
+      initialEvents.splice(eventIndex, 1);
       return new HttpResponse(null, { status: 204 });
+    })
+  );
+};
+
+export const setupMockHandlerBatchCreation = (initEvents = [] as Event[]) => {
+  let initialEvents: Event[] = [...initEvents];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: initialEvents });
+    }),
+
+    http.post('/api/events-list', async ({ request }) => {
+      const newEvents = (await request.json()) as Event[];
+      const repeatId = `repeat-${Date.now()}`;
+
+      const createdEvents = newEvents.map((event, index) => ({
+        ...event,
+        id: (initialEvents.length + index + 1).toString(),
+        repeat: {
+          ...event.repeat,
+          id: event.repeat.type !== 'none' ? repeatId : undefined,
+        },
+      }));
+
+      initialEvents.push(...createdEvents);
+      return HttpResponse.json(createdEvents, { status: 201 });
+    })
+  );
+};
+
+export const setupMockHandlerBatchUpdating = (initEvents = [] as Event[]) => {
+  let initialEvents: Event[] = [...initEvents];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: initialEvents });
+    }),
+
+    http.put('/api/events-list', async ({ request }) => {
+      const updatedEvents = (await request.json()) as Event[];
+      let isUpdated = false;
+
+      updatedEvents.forEach((updatedEvent) => {
+        const eventIndex = initialEvents.findIndex((event) => event.id === updatedEvent.id);
+
+        if (eventIndex !== -1) {
+          initialEvents[eventIndex] = { ...initialEvents[eventIndex], ...updatedEvent };
+          isUpdated = true;
+        }
+      });
+
+      return isUpdated
+        ? HttpResponse.json(initialEvents, { status: 200 })
+        : HttpResponse.json({ error: 'Event not found' }, { status: 404 });
+    })
+  );
+};
+
+export const setupMockHandlerBatchDeletion = (initEvents = [] as Event[]) => {
+  let initialEvents: Event[] = [...initEvents];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: initialEvents });
+    }),
+
+    http.delete('/api/events-list', async ({ request }) => {
+      const { eventId } = await request.json();
+      const initialLength = initialEvents.length;
+
+      initialEvents = initialEvents.filter((event) => eventId !== event.repeat.id);
+
+      return initialEvents.length !== initialLength
+        ? new HttpResponse(null, { status: 204 })
+        : new HttpResponse(null, { status: 404 });
     })
   );
 };

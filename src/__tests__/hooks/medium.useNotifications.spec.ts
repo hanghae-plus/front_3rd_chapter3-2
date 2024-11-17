@@ -1,8 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
 
-import { useNotifications } from '../../hooks/useNotifications.ts';
-import { Event } from '../../types.ts';
-import { formatDate } from '../../utils/dateUtils.ts';
+import { Event } from '../../entities/event/model/type.ts';
+import { formatDate } from '../../features/calendar/lib/dateUtils.ts';
+import { useNotifications } from '../../features/notification/model/useNotifications.ts';
 import { parseHM } from '../utils.ts';
 
 const 초 = 1000;

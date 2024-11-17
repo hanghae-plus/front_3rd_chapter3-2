@@ -1,4 +1,4 @@
-import { Event } from '../types';
+import { Event } from '../../event/model/type.ts';
 
 const 초 = 1000;
 const 분 = 초 * 60;

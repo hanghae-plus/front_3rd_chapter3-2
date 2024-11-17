@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { fetchHolidays } from '../apis/fetchHolidays';
+import { fetchHolidays } from '../../../entities/calendar/api/fetchHolidays.ts';
 
 export const useCalendarView = () => {
   const [view, setView] = useState<'week' | 'month'>('month');
@@ -13,7 +13,7 @@ export const useCalendarView = () => {
       if (view === 'week') {
         newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
       } else if (view === 'month') {
-        newDate.setDate(1); // 항상 1일로 설정
+        newDate.setDate(1);
         newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
       }
       return newDate;

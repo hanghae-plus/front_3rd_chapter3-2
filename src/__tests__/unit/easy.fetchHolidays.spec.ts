@@ -1,4 +1,4 @@
-import { fetchHolidays } from '../../apis/fetchHolidays';
+import { fetchHolidays } from '../../entities/calendar/api/fetchHolidays.ts';
 
 describe('fetchHolidays', () => {
   it('주어진 월의 공휴일만 반환한다', () => {

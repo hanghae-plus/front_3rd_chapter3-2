@@ -1,4 +1,4 @@
-import { Event, EventForm } from '../types';
+import { Event, EventForm } from '../model/type.ts';
 
 export function parseDateTime(date: string, time: string) {
   return new Date(`${date}T${time}`);
