@@ -1,10 +1,18 @@
+/* eslint-disable no-unused-vars */
 import { useInterval } from '@chakra-ui/react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
-import { Event } from '../types';
-import { createNotificationMessage, getUpcomingEvents } from '../utils/notificationUtils';
+import { Event } from '../../../types';
+import { createNotificationMessage, getUpcomingEvents } from '../../../utils/notificationUtils';
 
-export const useNotifications = (events: Event[]) => {
+export type UseNotifications = {
+  notifications: { id: string; message: string }[];
+  notifiedEvents: string[];
+  setNotifications: React.Dispatch<React.SetStateAction<{ id: string; message: string }[]>>;
+  removeNotification: (index: number) => void;
+};
+
+export const useNotifications = (events: Event[]): UseNotifications => {
   const [notifications, setNotifications] = useState<{ id: string; message: string }[]>([]);
   const [notifiedEvents, setNotifiedEvents] = useState<string[]>([]);
 

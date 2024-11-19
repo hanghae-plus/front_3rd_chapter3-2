@@ -1,12 +1,21 @@
+/* eslint-disable no-unused-vars */
 import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
-import { Event, EventForm } from '../types';
+import { Event, EventForm } from '../../../types';
+import { getRecurringEventList } from '../@utils';
 
-export const useEventOperations = (editing: boolean, onSave?: () => void) => {
+export type UseEventOperations = {
+  events: Event[];
+  editing: boolean;
+  fetchEvents: () => Promise<void>;
+  saveEvent: (_eventData: Event | EventForm) => Promise<void>;
+  deleteEvent: (_id: string) => Promise<void>;
+};
+
+export const useEventOperations = (editing: boolean, onSave?: () => void): UseEventOperations => {
   const [events, setEvents] = useState<Event[]>([]);
   const toast = useToast();
-
   const fetchEvents = async () => {
     try {
       const response = await fetch('/api/events');
@@ -29,6 +38,8 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
       let response;
+      const { repeat, date } = eventData;
+      const { interval } = repeat;
       if (editing) {
         response = await fetch(`/api/events/${(eventData as Event).id}`, {
           method: 'PUT',
@@ -36,11 +47,37 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
           body: JSON.stringify(eventData),
         });
       } else {
-        response = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
-        });
+        if (interval === 0) {
+          repeat.type = 'none';
+        }
+
+        if (repeat.type === 'none' || Number(interval) === 0) {
+          response = await fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(eventData),
+          });
+        } else {
+          const { type, endDate, interval } = repeat;
+
+          const repeatEndDate = endDate || '2025-06-30';
+
+          const recurringDates = getRecurringEventList({
+            startDate: date,
+            type,
+            endDate: repeatEndDate,
+            interval,
+          });
+
+          response = await fetch('/api/events-list', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              event: { ...eventData, repeat: { ...repeat, endDate: repeatEndDate } },
+              dates: recurringDates,
+            }),
+          });
+        }
       }
 
       if (!response.ok) {
@@ -106,5 +143,5 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { events, fetchEvents, saveEvent, deleteEvent };
+  return { events, editing, fetchEvents, saveEvent, deleteEvent };
 };

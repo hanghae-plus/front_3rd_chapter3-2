@@ -67,14 +67,62 @@ export const setupMockHandlerDeletion = () => {
   const mockEvents: Event[] = [
     {
       id: '1',
-      title: '삭제할 이벤트',
+      title: '반복 이벤트 입니다.',
       date: '2024-10-15',
       startTime: '09:00',
       endTime: '10:00',
-      description: '삭제할 이벤트입니다',
+      description: '반복 이벤트 입니다!!!!!',
       location: '어딘가',
       category: '기타',
-      repeat: { type: 'none', interval: 0 },
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-20', id: 'repeatId-1' },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '반복 이벤트 입니다.',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '반복 이벤트 입니다!!!!!',
+      location: '어딘가',
+      category: '기타',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-20', id: 'repeatId-1' },
+      notificationTime: 10,
+    },
+    {
+      id: '3',
+      title: '반복 이벤트 입니다.',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '반복 이벤트 입니다!!!!!',
+      location: '어딘가',
+      category: '기타',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-20', id: 'repeatId-1' },
+      notificationTime: 10,
+    },
+    {
+      id: '4',
+      title: '반복 이벤트 입니다.',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '반복 이벤트 입니다!!!!!',
+      location: '어딘가',
+      category: '기타',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-20', id: 'repeatId-1' },
+      notificationTime: 10,
+    },
+    {
+      id: '5',
+      title: '반복 이벤트 입니다.',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '반복 이벤트 입니다!!!!!',
+      location: '어딘가',
+      category: '기타',
+      repeat: { type: 'daily', interval: 1, endDate: '2024-10-20', id: 'repeatId-1' },
       notificationTime: 10,
     },
   ];
@@ -89,6 +137,34 @@ export const setupMockHandlerDeletion = () => {
 
       mockEvents.splice(index, 1);
       return new HttpResponse(null, { status: 204 });
+    })
+  );
+};
+
+export const setupMockHandlerRepeatEvents = (initEvents = [] as Event[]) => {
+  const mockEvents: Event[] = [...initEvents];
+
+  server.use(
+    http.get('/api/events', () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+    http.post('/api/events-list', async ({ request }) => {
+      const { event, dates } = (await request.json()) as { event: Event; dates: string[] };
+
+      const repeatId = `repeatId-1`;
+      const newEvents = dates.map((date, idx) => ({
+        ...event,
+        id: String(mockEvents.length + idx + 1),
+        date,
+        repeat: {
+          ...event.repeat,
+          id: repeatId,
+        },
+      }));
+
+      mockEvents.push(...newEvents);
+
+      return HttpResponse.json({ events: mockEvents }, { status: 201 });
     })
   );
 };

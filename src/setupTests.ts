@@ -3,7 +3,6 @@ import '@testing-library/jest-dom';
 
 import { handlers } from './__mocks__/handlers';
 
-// ! Hard 여기 제공 안함
 /* msw */
 export const server = setupServer(...handlers);
 
@@ -15,9 +14,9 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  expect.hasAssertions(); // ? Med: 이걸 왜 써야하는지 물어보자
+  expect.hasAssertions();
 
-  vi.setSystemTime(new Date('2024-10-01')); // ? Med: 이걸 왜 써야하는지 물어보자
+  vi.setSystemTime(new Date('2024-10-01'));
 });
 
 afterEach(() => {
