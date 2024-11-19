@@ -20,6 +20,7 @@ export function CalendarBox({ isNotified, title, isRepeat }: Props) {
       <HStack spacing={1}>
         {isNotified && <BellIcon />}
         <Text fontSize="sm" noOfLines={1} data-testid={isRepeat ? 'repeat-event' : undefined}>
+          {isRepeat && <span>🔄</span>}
           {title}
         </Text>
       </HStack>
