@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 
 import {
+  setupMockHandlerBulkCreation,
   setupMockHandlerCreation,
   setupMockHandlerDeletion,
   setupMockHandlerUpdating,
@@ -183,4 +184,116 @@ it("네트워크 오류 시 '일정 삭제 실패'라는 텍스트가 노출되�
   });
 
   expect(result.current.events).toHaveLength(1);
+});
+
+describe('반복 이벤트 생성 -> createRepeatEvent', () => {
+  const newEvent: Event = {
+    id: '1',
+    title: '스크럼',
+    date: '2024-11-11',
+    startTime: '10:15',
+    endTime: '10:30',
+    description: '',
+    location: '사무실',
+    category: '업무',
+    repeat: { type: 'daily', interval: 1, endDate: '2024-11-13' },
+    notificationTime: 5,
+  };
+
+  beforeEach(() => {
+    setupMockHandlerBulkCreation();
+  });
+
+  it('생성할 이벤트의 repeat의 반복일정 대로, 이벤트가 생성된다', async () => {
+    const { result } = renderHook(() => useEventOperations(false));
+
+    expect(result.current.events).toHaveLength(0);
+
+    await act(() => Promise.resolve(null));
+
+    await act(async () => {
+      await result.current.createRepeatEvent(newEvent);
+    });
+
+    expect(result.current.events).toEqual([
+      {
+        id: '1',
+        title: '스크럼',
+        date: '2024-11-11',
+        startTime: '10:15',
+        endTime: '10:30',
+        description: '',
+        location: '사무실',
+        category: '업무',
+        repeat: { type: 'daily', interval: 1, endDate: '2024-11-13' },
+        notificationTime: 5,
+      },
+      {
+        id: '2',
+        title: '스크럼',
+        date: '2024-11-12',
+        startTime: '10:15',
+        endTime: '10:30',
+        description: '',
+        location: '사무실',
+        category: '업무',
+        repeat: { type: 'daily', interval: 1, endDate: '2024-11-13' },
+        notificationTime: 5,
+      },
+      {
+        id: '3',
+        title: '스크럼',
+        date: '2024-11-13',
+        startTime: '10:15',
+        endTime: '10:30',
+        description: '',
+        location: '사무실',
+        category: '업무',
+        repeat: { type: 'daily', interval: 1, endDate: '2024-11-13' },
+        notificationTime: 5,
+      },
+    ]);
+  });
+
+  it('반복 이벤트 생성 성공시 성공 토스트가 표시된다', async () => {
+    const { result } = renderHook(() => useEventOperations(false));
+
+    await act(async () => {
+      await result.current.createRepeatEvent(newEvent);
+    });
+
+    expect(toastFn).toHaveBeenCalledWith({
+      title: '반복 일정이 추가되었습니다.',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+  });
+
+  it("네트워크 오류 시 '일정 저장 실패' toast가 발생되며, 이벤가 저장되지 않는다", async () => {
+    server.use(
+      http.post('/api/events-list', () => {
+        return new HttpResponse(null, { status: 500 });
+      })
+    );
+
+    const { result } = renderHook(() => useEventOperations(false));
+
+    await act(() => Promise.resolve(null));
+
+    expect(result.current.events).toHaveLength(0);
+
+    await act(async () => {
+      await result.current.createRepeatEvent(newEvent);
+    });
+
+    expect(result.current.events).toHaveLength(0);
+
+    expect(toastFn).toHaveBeenCalledWith({
+      title: '일정 저장 실패',
+      status: 'error',
+      duration: 3000,
+      isClosable: true,
+    });
+  });
 });
